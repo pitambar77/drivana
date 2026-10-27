@@ -57,11 +57,11 @@ export default function Home() {
   return (
     <>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-ink-950">
+      <section className="relative overflow-hidden bg-[#13282d]">
         <div className="pointer-events-none absolute inset-0 opacity-60" style={{ background: 'radial-gradient(60% 60% at 80% 30%, rgba(61,102,232,0.35), transparent 70%)' }} />
         <div className="container-page relative grid gap-8 pb-10 pt-10 md:pt-14 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:pb-16">
           <div className="min-w-0">
-            <p className="eyebrow text-accent-300">{num(live.length)} cars live · {num(verifiedCount)} with verified documents</p>
+            <p className="eyebrow text-[#f15856]">{num(live.length)} cars live · {num(verifiedCount)} with verified documents</p>
             <h1 className="mt-3 max-w-xl text-[38px] font-extrabold leading-[1.02] text-white md:text-[54px]" style={{ fontStretch: '118%' }}>
               Find the car. Call the seller. Skip the middleman.
             </h1>
@@ -71,7 +71,12 @@ export default function Home() {
             </div>
           </div>
           <div className="relative hidden lg:block">
-            <CarArt vehicle={heroCar} view="rear" className="aspect-[16/10] w-full rounded-2xl bg-transparent" />
+            {/* <CarArt vehicle={heroCar} view="rear" className="aspect-[16/10] w-full rounded-2xl bg-transparent" /> */}
+              <img
+    src="/banner-car.jpg"
+    alt="Featured car"
+    className="aspect-[16/10] w-full rounded-2xl object-contain"
+  />
             <div className="absolute bottom-6 left-6 flex items-center gap-3 rounded-xl bg-white/95 px-3.5 py-2.5 shadow-pop">
               <BadgeCheck className="h-5 w-5 text-ok-600" />
               <div>
