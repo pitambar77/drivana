@@ -1,0 +1,170 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+  html,
+  body {
+    background: #f6f8fb;
+    color: #1a202a;
+  }
+  body {
+    @apply font-sans antialiased text-[15px] leading-relaxed;
+    font-feature-settings: 'ss01';
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display text-ink-900;
+    font-stretch: 112%;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  :focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(61, 102, 232, 0.35);
+    border-radius: 6px;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0 0 auto;
+    height: env(safe-area-inset-top, 0px);
+    z-index: 45;
+    background: #ffffff;
+  }
+  ::selection {
+    background: #dce6ff;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-[1320px];
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  @media (min-width: 768px) {
+    .container-page {
+      padding-left: max(24px, env(safe-area-inset-left, 0px));
+      padding-right: max(24px, env(safe-area-inset-right, 0px));
+    }
+  }
+
+  .dash-gutter {
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  @media (min-width: 768px) {
+    .dash-gutter {
+      padding-left: max(28px, env(safe-area-inset-left, 0px));
+      padding-right: max(28px, env(safe-area-inset-right, 0px));
+    }
+  }
+
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg font-semibold transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50 select-none;
+  }
+  .btn-sm {
+    @apply h-8 px-3 text-[13px];
+  }
+  .btn-md {
+    @apply h-10 px-4 text-sm;
+  }
+  .btn-lg {
+    @apply h-12 px-6 text-[15px];
+  }
+  .btn-primary {
+    @apply bg-accent-600 text-white hover:bg-accent-700 active:bg-accent-800;
+  }
+  .btn-dark {
+    @apply bg-ink-900 text-white hover:bg-ink-800;
+  }
+  .btn-secondary {
+    @apply border border-mist-300 bg-white text-ink-900 hover:border-mist-400 hover:bg-mist-50;
+  }
+  .btn-ghost {
+    @apply text-ink-700 hover:bg-mist-100;
+  }
+  .btn-danger {
+    @apply bg-bad-600 text-white hover:bg-bad-700;
+  }
+  .btn-icon {
+    @apply inline-flex h-9 w-9 items-center justify-center rounded-lg text-mist-600 hover:bg-mist-100 hover:text-ink-900 transition-colors;
+  }
+
+  /* Form controls */
+  .label {
+    @apply mb-1.5 block text-[13px] font-semibold text-ink-800;
+  }
+  .input {
+    @apply block h-10 w-full rounded-lg border border-mist-300 bg-white px-3 text-sm text-ink-900 placeholder:text-mist-400 transition-shadow focus:border-accent-500 focus:shadow-focus focus:outline-none disabled:bg-mist-100 disabled:text-mist-500;
+  }
+  textarea.input {
+    @apply h-auto py-2.5 leading-relaxed;
+  }
+  .input-error {
+    @apply border-bad-600 focus:border-bad-600;
+  }
+  .field-error {
+    @apply mt-1 text-xs font-medium text-bad-600;
+  }
+  .field-hint {
+    @apply mt-1 text-xs text-mist-500;
+  }
+
+  /* Surfaces */
+  .card {
+    @apply rounded-xl border border-mist-200 bg-white shadow-card;
+  }
+  .card-pad {
+    @apply p-5 md:p-6;
+  }
+  .eyebrow {
+    @apply text-2xs font-bold uppercase tracking-[0.12em] text-accent-600;
+  }
+  .num {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Tables */
+  .table-wrap {
+    @apply w-full overflow-x-auto;
+  }
+  .table {
+    @apply w-full min-w-[720px] border-collapse text-left text-sm;
+  }
+  .table th {
+    @apply whitespace-nowrap border-b border-mist-200 bg-mist-50 px-4 py-2.5 text-2xs font-bold uppercase tracking-[0.08em] text-mist-500;
+  }
+  .table td {
+    @apply border-b border-mist-100 px-4 py-3 align-middle text-ink-800;
+    font-variant-numeric: tabular-nums;
+  }
+  .table tbody tr:hover td {
+    @apply bg-mist-50/70;
+  }
+}
+
+/* Grid children may shrink below their content width; long text truncates or wraps instead of widening the page. */
+.grid > * {
+  min-width: 0;
+}
+
+/* Studio-floor backdrop used behind car renders */
+.studio {
+  background: radial-gradient(120% 80% at 50% 100%, #dfe5ee 0%, #eef1f6 45%, #f8f9fc 100%);
+}
