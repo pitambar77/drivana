@@ -22,7 +22,7 @@ import { Button, Select } from "../../components/ui";
 import { VehicleCard } from "../../components/vehicle/VehicleCard";
 import { CarArt } from "../../components/vehicle/CarArt";
 import { CountUp, Reveal } from "../../components/interactive/Interactive";
-import bannerCar from "../../assets/defender-banner.webp";
+import bannerCar from "../../assets/defender-home.webp";
 import { RangeInput } from "../../components/vehicle/EmiWidget";
 import {
   BODY_TYPES,

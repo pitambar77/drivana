@@ -71,61 +71,61 @@ const resultsCar = {
   // Maruti Suzuki
   v1031: ["/m-brezza-2.jpeg"],
   v1005: ["/m-brezza.avif"],
-  v1001: ["/m-swift.jpg"],
+  v1001: ["/m-swift.webp"],
   v1020: ["/m-ertiga.jpg"],
-  v1016: ["/m-baleno.jpg"],
+  v1016: ["/m-baleno.avif"],
 
   // Honda
   v1029: ["/hoda-ameze.avif"],
   v1003: ["/hoda-ameze-2.jpg"],
-  v1040: ["/honda-city.jpg"],
-  v1014: ["/honda-city.jpg"],
+  v1040: ["/honda-city-3.avif"],
+  v1014: ["/honda-city-2.webp"],
 
   // Kia
-  v1026: ["/kia-sonet.jpg"],
-  v1011: ["/kia-seltos.jpg"],
-  v1037: ["/kia-seltos.jpg"],
+  v1026: ["/kia-sonet.avif"],
+  v1011: ["/kia-seltos.avif"],
+  v1037: ["/kia-seltos-2.avif"],
 
   // Tata
-  v1006: ["/tata-harrier.jpg"],
-  v1032: ["/tata-harrier.jpg"],
+  v1006: ["/Tata-Harrier.webp"],
+  v1032: ["/Tata-Harrier-2.avif"],
   v1002: ["/tata-nexon.jpg"],
   v1028: ["/tata-nexon.jpg"],
   v1017: ["/tata-punch.jpg"],
 
   // Toyota
-  v1033: ["/toyota-fortuner.jpg"],
-  v1007: ["/toyota-fortuner.jpg"],
-  v1022: ["/toyota-glanza.jpg"],
+  v1033: ["/toyota-fortuner.webp"],
+  v1007: ["/toyota-fortuner-3.webp"],
+  v1022: ["/toyota-glanza.webp"],
 
   // MG
-  v1030: ["/mg-zs-ev.jpg"],
-  v1004: ["/mg-zs-ev.jpg"],
-  v1015: ["/mg-hector.jpg"],
+  v1030: ["/mg-ev-zs.avif"],
+  v1004: ["/mg-ev-2.jpg"],
+  v1015: ["/mg-ev.jpg"],
 
   // Volkswagen
-  v1008: ["/volkswagen-virtus.jpg"],
-  v1034: ["/volkswagen-virtus.jpg"],
+  v1008: ["/volswagen-2.jpeg"],
+  v1034: ["/volswagen-3.webp"],
 
   // BMW
-  v1023: ["/bmw-3-series.jpg"],
+  v1023: ["/BMW-3-gran.jpg"],
 
   // Mercedes-Benz
-  v1038: ["/mercedes-c-class.jpg"],
-  v1012: ["/mercedes-c-class.jpg"],
+  v1038: ["/mercedes-c.avif"],
+  v1012: ["/mercedes-c-2.jpg"],
 
   // Hyundai
-  v1035: ["/hyundai-i20.jpg"],
-  v1100: ["/hyundai-i20.jpg"],
-  v1013: ["/hyundai-verna.jpg"],
-  v1039: ["/hyundai-verna.jpg"],
+  v1035: ["/i-20-2.jpeg"],
+  v1100: ["/i-20.avif"],
+  v1013: ["/verna-1.avif"],
+  v1039: ["/verna-2.jpg"],
 
   // Skoda
-  v1019: ["/skoda-slavia.jpg"],
+  v1019: ["/skoda-salvia.png"],
 
   // Mahindra
-  v1025: ["/mahindra-thar.jpg"],
-  v1010: ["/mahindra-scorpio-n.jpg"],
+  v1025: ["/thar.webp"],
+  v1010: ["/scropio-n.jpg"],
 };
 
 export default function Browse() {
