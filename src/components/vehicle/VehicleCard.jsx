@@ -16,6 +16,13 @@ export function SellerTypeTag({ role }) {
   return <span className="rounded bg-mist-100 px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-mist-600">{map[role] || role}</span>;
 }
 
+const formatTZS = (price) =>
+  new Intl.NumberFormat('en-TZ', {
+    style: 'currency',
+    currency: 'TZS',
+    maximumFractionDigits: 0,
+  }).format(price);
+
 export function VehicleCard({ vehicle: v, layout = 'grid', onRemove, actions }) {
   const { state, toggleSaved, toggleCompare } = useStore();
   const toast = useToast();
@@ -85,8 +92,8 @@ export function VehicleCard({ vehicle: v, layout = 'grid', onRemove, actions }) 
           </li>
         </ul>
         <div className="mt-auto flex flex-wrap items-end justify-between gap-x-2 gap-y-1.5 pt-1">
-          <p className="whitespace-nowrap font-display text-xl font-bold text-ink-900 num" style={{ fontStretch: '110%' }}>
-            {lakh(v.price)}
+          <p className="whitespace-nowrap font-display text-sm font-bold text-ink-900 num" style={{ fontStretch: '110%' }}>
+            {formatTZS(v.price)}
           </p>
           <VerificationBadge status={v.verification} size="sm" />
         </div>
