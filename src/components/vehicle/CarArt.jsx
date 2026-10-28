@@ -3,6 +3,68 @@
 import { useId, useState } from 'react';
 import { cn, num } from '../../utils/format';
 
+const recentVehicleImages = {
+  // Maruti Suzuki
+  v1031: ['/m-brezza.avif', '/m-brezza-4.webp','/brezza-dashboard.avif','/brezza-odometer.jpg'],
+  v1005: ['/m-brezza.avif', '/m-brezza-2.jpeg','/brezza-dashboard.avif','/brezza-odometer.jpg'],
+  v1001: ['/m-swift.webp', '/m-swift-2.jpg'],
+  v1020: ['/m-ertiga.jpg', '/m-ertiga-2.webp'],
+  v1016: ['/m-baleno.avif', '/m-baleno-2.jpeg', '/m-baleno-3.jpg'],
+
+  // Honda
+  v1029: ['/hoda-ameze.avif', '/hoda-ameze-2.jpg', '/hoda-ameze-3.webp'],
+  v1003: ['/hoda-ameze.avif', '/hoda-ameze-2.jpg', '/hoda-ameze-3.webp'],
+  v1040: ['/honda-city-2.webp', '/honda-city-3.avif'],
+  v1014: ['/honda-city-2.webp', '/honda-city-3.avif'],
+
+  // Kia
+  v1026: ['/kia-sonet.avif', '/kia-sonet-2.jpeg', '/kia-sonet-3.jpeg'],
+  v1011: ['/kia-seltos.avif', '/kia-seltos-2.avif', '/kia-seltos-3.jpeg', '/kia-seltos-4.png'],
+  v1037: ['/kia-seltos.avif', '/kia-seltos-2.avif', '/kia-seltos-3.jpeg', '/kia-seltos-4.png'],
+
+  // Tata
+  v1006: ['/Tata-Harrier.webp', '/Tata-Harrier-2.avif', '/Tata-Harrier-3.webp'],
+  v1032: ['/Tata-Harrier.webp', '/Tata-Harrier-2.avif', '/Tata-Harrier-3.webp'],
+  v1002: ['/tata-nexon.jpg', '/tata-nexon-2.avif'],
+  v1028: ['/tata-nexon.jpg', '/tata-nexon-2.avif'],
+  v1017: ['/tata-punch.jpg', '/tata-punch-2.avif', '/tata-punch-3.jpg'],
+
+  // Toyota
+  v1033: ['/toyota-fortuner.webp', '/toyota-fortuner-2.avif', '/toyota-fortuner-3.webp'],
+  v1007: ['/toyota-fortuner.webp', '/toyota-fortuner-2.avif', '/toyota-fortuner-3.webp'],
+  v1022: ['/toyota-glanza.webp'],
+
+  // MG
+  v1030: ['/mg-ev-zs.avif', '/mg-ev-2.jpg', '/mg-ev.jpg'],
+  v1004: ['/mg-ev-zs.avif', '/mg-ev-2.jpg', '/mg-ev.jpg'],
+  v1015: ['/luxury-car.webp'],
+
+  // Volkswagen
+  v1008: ['/volswagen.webp', '/volswagen-2.jpeg', '/volswagen-3.webp'],
+  v1034: ['/volswagen.webp', '/volswagen-2.jpeg', '/volswagen-3.webp'],
+
+  // BMW
+  v1023: ['/BMW-3-series.jpg', '/BMW-3-series-2.webp', '/BMW-3-gran.jpg'],
+
+  // Mercedes-Benz
+  v1038: ['/mercedes-c.avif', '/mercedes-c-2.jpg', '/mercedes-c-3.webp'],
+  v1012: ['/mercedes-c.avif', '/mercedes-c-2.jpg', '/mercedes-c-3.webp'],
+
+  // Hyundai
+  v1035: ['/i-20.avif', '/i-20-2.jpeg'],
+  v1100: ['/i-20.avif', '/i-20-2.jpeg'],
+  v1013: ['/verna-1.avif', '/verna-2.jpg'],
+  v1039: ['/verna-1.avif', '/verna-2.jpg'],
+
+  // Skoda
+  v1019: ['/skoda-salvia.png'],
+
+  // Mahindra
+  v1025: ['/thar.webp', '/thar-2.jpg', '/thar-3.jpg'],
+  v1010: ['/scropio-n.jpg', '/scropio-n-2.jpg'],
+};
+
+
 function shade(hex, amt) {
   const h = (hex || '#888888').replace('#', '');
   const n = parseInt(h.length === 3 ? h.split('').map((c) => c + c).join('') : h, 16);
@@ -211,14 +273,45 @@ export const GALLERY_VIEWS = [
   { view: 'cluster', label: 'Odometer' },
 ];
 
+// change for manual upload
 /** Shows an uploaded photo when present; otherwise the studio render. */
+// export function CarImage({ vehicle, index = 0, className, view }) {
+//   const [broken, setBroken] = useState(false);
+//   const src = vehicle?.photos?.[index];
+//   if (src && !broken) {
+//     return <img src={src} alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`} onError={() => setBroken(true)} className={cn('object-cover', className)} />;
+//   }
+//   return <CarArt vehicle={vehicle} view={view || GALLERY_VIEWS[index % GALLERY_VIEWS.length].view} className={className} />;
+// }
+
 export function CarImage({ vehicle, index = 0, className, view }) {
   const [broken, setBroken] = useState(false);
-  const src = vehicle?.photos?.[index];
+
+  const uploadedPhoto = vehicle?.photos?.[index];
+  const images = recentVehicleImages[vehicle?.id] || [];
+
+  const src = uploadedPhoto || images[index] || images[0];
+
   if (src && !broken) {
-    return <img src={src} alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`} onError={() => setBroken(true)} className={cn('object-cover', className)} />;
+    return (
+      <img
+        key={`${vehicle?.id}-${src}`}
+        src={src}
+        alt={`${vehicle?.make || ''} ${vehicle?.model || 'Car'}`}
+        loading="lazy"
+        onError={() => setBroken(true)}
+        className={cn('object-cover', className)}
+      />
+    );
   }
-  return <CarArt vehicle={vehicle} view={view || GALLERY_VIEWS[index % GALLERY_VIEWS.length].view} className={className} />;
+
+  return (
+    <CarArt
+      vehicle={vehicle}
+      view={view || GALLERY_VIEWS[index % GALLERY_VIEWS.length].view}
+      className={className}
+    />
+  );
 }
 
 export function OdometerText({ value }) {

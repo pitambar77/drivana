@@ -9,6 +9,8 @@ import { EnquiryForm } from '../../components/vehicle/EnquiryForm';
 import { VehicleCard, vehicleTitle } from '../../components/vehicle/VehicleCard';
 import { cn, date, km, lakh, num } from '../../utils/format';
 
+
+
 export function SellerCard({ vehicle: v, seller, compact }) {
   const [reveal, setReveal] = useState(false);
   const Icon = v.sellerRole === 'dealer' ? Building2 : v.sellerRole === 'agent' ? Handshake : UserRound;
