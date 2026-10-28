@@ -2,10 +2,10 @@
 // from Admin → Platform Configuration; those overrides live in the mock store.
 
 export const SITE = {
-  name: 'Drivana',
+  name: 'AutoDealer',
   tagline: 'Cars from verified dealers, owners and agents',
-  supportPhone: '+91 7735317551',
-  supportEmail: 'support@drivana.example',
+  supportPhone: '+91 80 4718 2290',
+  supportEmail: 'support@autodealer.example',
   supportHours: 'Mon–Sat, 9:00 am – 7:00 pm IST',
   address: '4th Floor, Infocity Square, Chandrasekharpur, Bhubaneswar 751024',
   currency: 'INR',
@@ -14,7 +14,7 @@ export const SITE = {
 };
 
 export const DEFAULT_CONFIG = {
-  // (admin) Official verification portal — buyers are sent here, nothing is checked by Drivana
+  // (admin) Official verification portal — buyers are sent here, nothing is checked by AutoDealer
   verificationPortalName: 'Parivahan — VAHAN vehicle details',
   verificationPortalUrl: 'https://parivahan.gov.in/',
   // (admin) Agent owner-authorization policy
@@ -23,8 +23,8 @@ export const DEFAULT_CONFIG = {
   listingValidityDays: 60,
   // (admin) Providers — sandbox placeholders only
   paymentGateway: { provider: 'Razorpay', mode: 'test', keyId: 'rzp_test_7Hq2LmX93kP9', keySecret: 'sk_test_51NqAbcDeFgH0aR4xY' },
-  otpProvider: { provider: 'MSG91', senderId: 'DRVANA', authKey: 'msg91_8823aa7d9c1e44f2b0', templateId: 'otp_login_v2' },
-  email: { provider: 'Amazon SES', fromAddress: 'no-reply@drivana.example', smtpHost: 'email-smtp.ap-south-1.amazonaws.com', smtpPassword: 'BOQx7Ses93LmZ1pK' },
+  otpProvider: { provider: 'MSG91', senderId: 'AUTODL', authKey: 'msg91_8823aa7d9c1e44f2b0', templateId: 'otp_login_v2' },
+  email: { provider: 'Amazon SES', fromAddress: 'no-reply@autodealer.example', smtpHost: 'email-smtp.ap-south-1.amazonaws.com', smtpPassword: 'BOQx7Ses93LmZ1pK' },
   loanProviders: [
     { id: 'lp1', name: 'Saraswat Auto Finance', commissionPct: 0.75, enabled: true, apiKey: 'saf_live_disabled_9921' },
     { id: 'lp2', name: 'NorthStar Bank Car Loans', commissionPct: 0.6, enabled: true, apiKey: 'nsb_sbx_31ff02a' },

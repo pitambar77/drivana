@@ -1,13 +1,17 @@
 import { Outlet } from 'react-router-dom';
 import { BadgeCheck, PhoneCall, ShieldCheck } from 'lucide-react';
 import { Logo } from '../components/layout/Brand';
+import { StyleToggle } from '../store/StyleContext';
 import { CarArt } from '../components/vehicle/CarArt';
 
 export default function AuthLayout() {
   return (
     <div className="grid min-h-screen bg-white lg:grid-cols-[1fr_minmax(440px,0.9fr)]">
       <div className="flex flex-col py-6" style={{ paddingLeft: 'max(20px, env(safe-area-inset-left, 0px))', paddingRight: 'max(20px, env(safe-area-inset-right, 0px))' }}>
-        <Logo />
+        <div className="flex items-center justify-between">
+          <Logo />
+          <StyleToggle />
+        </div>
         <div className="mx-auto flex w-full max-w-[520px] flex-1 flex-col justify-center py-10">
           <Outlet />
         </div>
@@ -33,8 +37,8 @@ export default function AuthLayout() {
           </ul>
         </div>
         <div className="relative">
-          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-accent-900/40 to-transparent" />
-          <CarArt vehicle={{ bodyType: 'SUV', colorHex: '#3D66E8' }} view="rear" className="aspect-[16/9] w-full bg-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-accent-900/30 to-transparent" />
+          <CarArt vehicle={{ bodyType: 'SUV', colorHex: '#E8201C' }} view="rear" className="aspect-[16/9] w-full" bare />
         </div>
       </aside>
     </div>

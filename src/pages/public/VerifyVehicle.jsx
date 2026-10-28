@@ -26,7 +26,7 @@ export default function VerifyVehicle() {
               <p className="eyebrow">Before you pay a token amount</p>
               <h1 className="mt-2 text-[30px] font-bold leading-tight md:text-[38px]">Check the car's record on the official government portal</h1>
               <p className="mt-3 max-w-xl text-[15.5px] text-mist-600">
-                Registration details — owner count, registration date, fuel, insurance and loan status — are held by the transport department. Drivana doesn't look these up for you; you check them yourself on the official site.
+                Registration details — owner count, registration date, fuel, insurance and loan status — are held by the transport department. AutoDealer doesn't look these up for you; you check them yourself on the official site.
               </p>
             </div>
             <div className="card p-5">
@@ -44,7 +44,7 @@ export default function VerifyVehicle() {
               </Button>
               <p className="mt-2 flex items-start gap-1.5 text-[12px] text-mist-500">
                 <Globe className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                Opens {portal.replace(/^https?:\/\//, '').replace(/\/$/, '')} in a new tab. Verification happens on that external government site, not on Drivana.
+                Opens {portal.replace(/^https?:\/\//, '').replace(/\/$/, '')} in a new tab. Verification happens on that external government site, not on AutoDealer.
               </p>
             </div>
           </div>
@@ -109,7 +109,7 @@ export default function VerifyVehicle() {
 
       <section className="container-page pb-14">
         <div className="grid gap-4 md:grid-cols-2">
-          <Alert tone="info" icon={Info} title="What Drivana checks">
+          <Alert tone="info" icon={Info} title="What AutoDealer checks">
             We block a listing when its registration number or VIN already appears in another active listing, and our team reviews seller documents after a listing goes live. We do not have access to government records.
           </Alert>
           <Alert tone="warn" icon={ShieldAlert} title="Warning signs">

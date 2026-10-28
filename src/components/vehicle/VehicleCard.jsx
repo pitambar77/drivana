@@ -5,6 +5,7 @@ import { VerificationBadge } from '../ui';
 import { useStore } from '../../store/AppStore';
 import { useToast } from '../ui/Toast';
 import { cn, km, lakh } from '../../utils/format';
+import { useTilt } from '../interactive/Interactive';
 
 export function vehicleTitle(v) {
   return `${v.year} ${v.make} ${v.model}`;
@@ -18,6 +19,7 @@ export function SellerTypeTag({ role }) {
 export function VehicleCard({ vehicle: v, layout = 'grid', onRemove, actions }) {
   const { state, toggleSaved, toggleCompare } = useStore();
   const toast = useToast();
+  const tilt = useTilt(layout === 'row' ? 3 : 6);
   const saved = state.saved.includes(v.id);
   const comparing = state.compare.includes(v.id);
   const onCompare = (e) => {
@@ -32,9 +34,9 @@ export function VehicleCard({ vehicle: v, layout = 'grid', onRemove, actions }) 
     toast(saved ? 'Removed from saved cars' : 'Saved to your shortlist', { tone: saved ? 'info' : 'success' });
   };
   return (
-    <article className={cn('card group relative flex min-w-0 overflow-hidden transition-shadow hover:shadow-lift', layout === 'row' ? 'flex-col sm:flex-row' : 'flex-col')}>
-      <Link to={`/cars/${v.id}`} className={cn('relative block shrink-0', layout === 'row' ? 'sm:w-64' : '')} aria-label={`View ${vehicleTitle(v)}`}>
-        <CarImage vehicle={v} className={cn('w-full', layout === 'row' ? 'aspect-[16/10] sm:h-full' : 'aspect-[16/10]')} view="side" />
+    <article {...tilt} className={cn('card tilt group relative flex min-w-0 overflow-hidden hover:shadow-lift', layout === 'row' ? 'flex-col sm:flex-row' : 'flex-col')}>
+      <Link to={`/cars/${v.id}`} className={cn('relative block shrink-0 overflow-hidden', layout === 'row' ? 'sm:w-64' : '')} aria-label={`View ${vehicleTitle(v)}`}>
+        <CarImage vehicle={v} className={cn('w-full transition-transform duration-500 ease-out group-hover:scale-[1.06]', layout === 'row' ? 'aspect-[16/10] sm:h-full' : 'aspect-[16/10]')} view="side" />
         <div className="absolute left-2.5 top-2.5 flex gap-1.5">
           {v.featured && (
             <span className="inline-flex items-center gap-1 rounded-md bg-ink-900/90 px-1.5 py-0.5 text-[11px] font-bold text-white">

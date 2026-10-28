@@ -67,7 +67,7 @@ export default function HowItWorks() {
       <section className="bg-white">
         <div className="container-page py-8 md:py-12">
           <Breadcrumbs items={[{ label: 'Sell your car' }]} className="mb-4" />
-          <p className="eyebrow">Sell on Drivana</p>
+          <p className="eyebrow">Sell on AutoDealer</p>
           <h1 className="mt-2 max-w-2xl text-[30px] font-bold leading-tight md:text-[40px]">Three ways to sell, one simple rule: pay, publish, then get verified.</h1>
         </div>
       </section>
@@ -79,7 +79,7 @@ export default function HowItWorks() {
             <j.icon className="h-8 w-8 text-accent-600" />
             <h2 className="mt-4 text-xl font-bold">{j.title} journey</h2>
             <p className="mt-2 text-sm text-mist-600">{j.blurb}</p>
-            <Button to={me ? '/register' : `/signin?role=${role}`} className="mt-5 w-full">
+            <Button to={`/register/${role}`} className="mt-5 w-full">
               Register as {j.title.toLowerCase()}
             </Button>
           </div>
@@ -133,7 +133,7 @@ export default function HowItWorks() {
                           </li>
                         ))}
                       </ul>
-                      <Button to={`/signin?role=${r}`} variant={p.highlight ? 'primary' : 'secondary'} className="mt-6 w-full">
+                      <Button to={`/register/${r}`} variant={p.highlight ? 'primary' : 'secondary'} className="mt-6 w-full">
                         Choose {p.name}
                       </Button>
                     </div>

@@ -3,6 +3,8 @@ import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-do
 import { GitCompareArrows, Heart, LayoutDashboard, LogOut, Menu, Plus, X } from 'lucide-react';
 import { Logo } from '../components/layout/Brand';
 import { Avatar } from '../components/ui';
+import { StyleToggle } from '../store/StyleContext';
+import { CompareTray } from '../components/interactive/Interactive';
 import { useStore } from '../store/AppStore';
 import { ROLE_META, SITE } from '../config/site';
 import { cn } from '../utils/format';
@@ -28,16 +30,17 @@ export function Navbar() {
 
   return (
     <header className="sticky z-40 border-b border-mist-200 bg-white/95 backdrop-blur" style={{ top: 'env(safe-area-inset-top, 0px)' }}>
-      <div className="container-page flex h-16 items-center gap-6">
+      <div className="container-page flex h-16 items-center gap-4 xl:gap-6">
         <Logo />
-        <nav className="hidden items-center gap-1 lg:flex" aria-label="Main">
+        <nav className="hidden items-center gap-0.5 xl:flex" aria-label="Main">
           {LINKS.map((l) => (
-            <NavLink key={l.to} to={l.to} className={({ isActive }) => cn('rounded-lg px-3 py-2 text-[14px] font-semibold transition-colors', isActive ? 'text-accent-700' : 'text-ink-700 hover:bg-mist-100 hover:text-ink-900')}>
+            <NavLink key={l.to} to={l.to} className={({ isActive }) => cn('whitespace-nowrap rounded-lg px-2.5 py-2 text-[14px] font-semibold transition-colors', isActive ? 'text-accent-700' : 'text-ink-700 hover:bg-mist-100 hover:text-ink-900')}>
               {l.label}
             </NavLink>
           ))}
         </nav>
         <div className="ml-auto flex items-center gap-1.5">
+          <StyleToggle compact className="hidden sm:inline-flex" />
           <Link to="/compare" className="btn-icon relative" aria-label="Compare cars" title="Compare">
             <GitCompareArrows className="h-[18px] w-[18px]" />
             {state.compare.length > 0 && <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent-600 px-1 text-[10px] font-bold text-white">{state.compare.length}</span>}
@@ -75,33 +78,47 @@ export function Navbar() {
               )}
             </div>
           ) : (
-            <Link to="/signin" className="btn btn-md btn-ghost hidden sm:inline-flex">
-              Sign in
-            </Link>
+            <>
+              <Link to="/signin" className="btn btn-md btn-ghost hidden sm:inline-flex">
+                Sign in
+              </Link>
+              <Link to="/register" className="btn btn-md btn-secondary hidden sm:inline-flex">
+                Register
+              </Link>
+            </>
           )}
-          <Link to={me && role !== 'buyer' && role !== 'admin' ? `${ROLE_META[role].home}${role === 'seller' ? '/vehicle' : '/vehicles/new'}` : '/register'} className="btn btn-md btn-primary hidden md:inline-flex">
+          <Link to={me && role !== 'buyer' && role !== 'admin' ? `${ROLE_META[role].home}${role === 'seller' ? '/vehicle' : '/vehicles/new'}` : '/register'} className="btn btn-md btn-primary hidden lg:inline-flex">
             <Plus className="h-4 w-4" /> List your car
           </Link>
-          <button type="button" className="btn-icon lg:hidden" onClick={() => setOpen((o) => !o)} aria-label={open ? 'Close menu' : 'Open menu'} aria-expanded={open}>
+          <button type="button" className="btn-icon xl:hidden" onClick={() => setOpen((o) => !o)} aria-label={open ? 'Close menu' : 'Open menu'} aria-expanded={open}>
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
       </div>
       {open && (
-        <div className="border-t border-mist-200 bg-white lg:hidden">
+        <div className="border-t border-mist-200 bg-white xl:hidden">
           <nav className="container-page flex flex-col gap-1 py-3" aria-label="Mobile">
             {LINKS.map((l) => (
               <NavLink key={l.to} to={l.to} className={({ isActive }) => cn('rounded-lg px-3 py-2.5 text-[15px] font-semibold', isActive ? 'bg-accent-50 text-accent-700' : 'text-ink-800')}>
                 {l.label}
               </NavLink>
             ))}
+            <div className="flex items-center justify-between px-3 py-2 sm:hidden">
+              <span className="text-[14px] font-semibold text-ink-800">Light / dark mode</span>
+              <StyleToggle />
+            </div>
             <div className="mt-2 grid grid-cols-2 gap-2 border-t border-mist-100 pt-3">
               {!me && (
-                <Link to="/signin" className="btn btn-md btn-secondary">
-                  Sign in
-                </Link>
+                <>
+                  <Link to="/signin" className="btn btn-md btn-secondary">
+                    Sign in
+                  </Link>
+                  <Link to="/register" className="btn btn-md btn-secondary">
+                    Register
+                  </Link>
+                </>
               )}
-              <Link to="/register" className={cn('btn btn-md btn-primary', me && 'col-span-2')}>
+              <Link to="/register" className="btn btn-md btn-primary col-span-2">
                 List your car
               </Link>
             </div>
@@ -115,15 +132,15 @@ export function Navbar() {
 export function Footer() {
   const cols = [
     ['Buy', [['Browse all cars', '/cars'], ['SUVs', '/cars?body=SUV'], ['Electric cars', '/cars?fuel=Electric'], ['Compare cars', '/compare'], ['Loan calculator', '/loan-calculator']]],
-    ['Sell', [['How it works', '/how-it-works'], ['Listing plans', '/how-it-works#plans'], ['Register as dealer', '/signin?role=dealer'], ['Sell as owner', '/signin?role=seller'], ['Join as agent', '/signin?role=agent']]],
-    ['Help', [['Support & FAQ', '/support'], ['Verify a vehicle', '/verify-vehicle'], ['Buyer account', '/buyer/welcome'], ['Admin console', '/admin/login']]],
+    ['Sell', [['How it works', '/how-it-works'], ['Listing plans', '/how-it-works#plans'], ['Register as dealer', '/register/dealer'], ['Sell as owner', '/register/seller'], ['Join as agent', '/register/agent']]],
+    ['Help', [['Support & FAQ', '/support'], ['Verify a vehicle', '/verify-vehicle'], ['Create buyer account', '/register/buyer'], ['Buyer sign-in', '/buyer/welcome'], ['Admin console', '/admin/login']]],
   ];
   return (
     <footer className="mt-auto bg-ink-950 text-ink-200">
       <div className="container-page grid gap-10 py-12 md:grid-cols-[1.4fr_repeat(3,1fr)]">
         <div className="max-w-xs space-y-3">
           <Logo dark />
-          <p className="text-sm text-ink-300">{SITE.tagline}. Contact sellers directly — Drivana never takes a cut of the car's price.</p>
+          <p className="text-sm text-ink-300">{SITE.tagline}. Contact sellers directly — AutoDealer never takes a cut of the car's price.</p>
           <p className="text-[13px] text-ink-400">
             {SITE.supportPhone}
             <br />
@@ -163,6 +180,7 @@ export default function PublicLayout() {
         <Outlet />
       </main>
       <Footer />
+      <CompareTray />
     </div>
   );
 }

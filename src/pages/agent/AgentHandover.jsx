@@ -64,7 +64,7 @@ export default function AgentHandover() {
     <div className="space-y-6">
       <PageHeader title="Ownership & handover tracking" description="Track each car from the owner, through you, to the buyer." />
       <Alert tone="info" icon={Scale} title="This tracks progress, it does not transfer ownership">
-        Legal transfer of ownership happens at the RTO (Form 29/30) between the owner and the buyer. Drivana only records the steps you mark here.
+        Legal transfer of ownership happens at the RTO (Form 29/30) between the owner and the buyer. AutoDealer only records the steps you mark here.
       </Alert>
 
       <div className="grid gap-6 lg:grid-cols-[300px_1fr]">

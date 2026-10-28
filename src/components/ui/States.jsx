@@ -73,8 +73,8 @@ export function Alert({ tone = 'info', title, children, className, action, icon 
 /** Labels every simulated operation so nobody mistakes the demo for a live integration. */
 export function MockNotice({ children, className }) {
   return (
-    <div className={cn('flex items-start gap-2 rounded-lg border border-dashed border-accent-200 bg-accent-50/60 px-3 py-2 text-[12.5px] text-accent-800', className)}>
-      <FlaskConical className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+    <div className={cn('mock-notice flex items-start gap-2 rounded-lg border border-dashed border-sun-300 bg-sun-50 px-3 py-2 text-[12.5px] text-ink-800', className)}>
+      <FlaskConical className="mt-0.5 h-3.5 w-3.5 shrink-0 text-sun-700" />
       <span>
         <strong className="font-semibold">Demo mode.</strong> {children}
       </span>

@@ -3,14 +3,14 @@ import { lakh, num } from '../../utils/format';
 
 // Chart palette — accent first, then navy and supporting hues. Text always uses mist tokens.
 export const CHART = {
-  blue: '#3D66E8',
-  navy: '#18263D',
+  blue: 'var(--chart-blue)',
+  navy: 'var(--chart-navy)',
   teal: '#1A9C8C',
   amber: '#D99412',
   rose: '#D2546B',
   grey: '#9AA6B8',
-  grid: '#E9EDF3',
-  text: '#6E7B90',
+  grid: 'var(--chart-grid)',
+  text: 'var(--chart-text)',
 };
 export const SERIES = [CHART.blue, CHART.navy, CHART.teal, CHART.amber, CHART.rose];
 
@@ -76,7 +76,7 @@ export function Bars({ data, series, height = 260, stacked, money, layout = 'hor
             <YAxis {...axis} width={48} tickFormatter={fmtTick(money)} />
           </>
         )}
-        <Tooltip content={<Tip money={money} />} cursor={{ fill: '#F2F5FA' }} />
+        <Tooltip content={<Tip money={money} />} cursor={{ fill: 'var(--chart-cursor)' }} />
         {series.length > 1 && <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12, color: CHART.text }} />}
         {series.map((s, i) => (
           <Bar key={s.key} dataKey={s.key} name={s.name} stackId={stacked ? 'a' : undefined} fill={s.color || SERIES[i]} radius={stacked && i < series.length - 1 ? 0 : vertical ? [0, 4, 4, 0] : [4, 4, 0, 0]} maxBarSize={36} />

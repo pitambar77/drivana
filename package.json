@@ -1,7 +1,7 @@
 {
-  "name": "drivana-car-marketplace",
+  "name": "autodealer-marketplace",
   "version": "1.0.0",
-  "description": "Drivana — car selling marketplace frontend (React + Vite + Tailwind), mock data",
+  "description": "AutoDealer — car selling marketplace frontend (React + Vite + Tailwind), mock data",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

@@ -3,6 +3,7 @@ import { Calendar, Copy, Search, TrendingDown, TrendingUp, X } from 'lucide-reac
 import { Modal } from './Modal';
 import { Button } from './Button';
 import { cn, initials, prettyReg } from '../../utils/format';
+import { CountUp } from '../interactive/Interactive';
 
 export function PageHeader({ title, description, actions, eyebrow, children }) {
   return (
@@ -51,7 +52,7 @@ export function KpiCard({ label, value, sub, icon: Icon, trend, tone = 'default'
       </div>
       <div className="min-w-0">
         <p className="truncate font-display text-[26px] font-bold leading-none text-ink-900 num" style={{ fontStretch: '108%' }}>
-          {value}
+          {typeof value === 'number' ? <CountUp value={value} /> : value}
         </p>
         <div className="mt-1.5 flex items-center gap-1.5 text-[12.5px]">
           {trend != null && (
@@ -135,7 +136,7 @@ export function DateRangeFilter({ value, onChange, className }) {
 export function Plate({ value, size = 'md' }) {
   if (!value) return <span className="text-[13px] text-mist-500">Not registered yet</span>;
   return (
-    <span className={cn('inline-flex items-stretch overflow-hidden rounded-[5px] border-[1.5px] border-ink-900 bg-white font-mono font-semibold tracking-wider text-ink-950', size === 'sm' ? 'text-[11px]' : 'text-[13px]')}>
+    <span className={cn('keep-light inline-flex items-stretch overflow-hidden rounded-[5px] border-[1.5px] border-[#0F1B2E] bg-[#fff] font-mono font-semibold tracking-wider text-[#09111F]', size === 'sm' ? 'text-[11px]' : 'text-[13px]')}>
       <span className="flex flex-col items-center justify-center bg-[#1D3E9E] px-1 text-[7px] leading-none text-white">
         <span className="mb-px h-1.5 w-1.5 rounded-full border border-amber-300" />
         IND

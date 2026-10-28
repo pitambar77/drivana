@@ -5,7 +5,7 @@ import { buildSeed } from '../data/seed';
 import { normId, uid } from '../utils/format';
 import { PLANS } from '../config/site';
 
-const KEY = 'drivana-demo-state-v3';
+const KEY = 'autodealer-demo-state-v1';
 const Ctx = createContext(null);
 
 function load() {
@@ -83,17 +83,18 @@ export function StoreProvider({ children }) {
         const n = normId(phone);
         return ref.current.users.find((u) => normId(u.phone) === n);
       },
-      registerUser({ phone, role, name }) {
+      registerUser({ phone, role, name, email = '', city = 'Bhubaneswar', ...profile }) {
         const user = {
           id: uid('u'),
           role,
           name: name || 'New member',
           phone,
-          email: '',
-          city: 'Bhubaneswar',
+          email,
+          city,
           status: 'active',
           docStatus: 'not_submitted',
           registeredAt: now(),
+          ...profile,
         };
         setState((s) => ({ ...s, users: [user, ...s.users] }));
         return user;

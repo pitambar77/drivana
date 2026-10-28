@@ -18,7 +18,7 @@ export default function DemoNavigator() {
 
   const go = (path, needs) => {
     if (needs && role !== needs) login(DEMO_USER_IDS[needs]);
-    if (!needs && ['/register', '/signin', '/verify-otp', '/admin/login', '/buyer/welcome'].some((p) => path.startsWith(p)) && role) logout();
+    if (!needs && ['/register', '/signin', '/verify-otp', '/admin/login', '/admin/invite', '/buyer/welcome'].some((p) => path.startsWith(p)) && role) logout();
     nav(path);
     setOpen(false);
   };
@@ -34,7 +34,7 @@ export default function DemoNavigator() {
         aria-label="Open screen navigator"
       >
         <Compass className="h-4 w-4 text-accent-300" />
-        All 42 screens
+        All screens
       </button>
       {open && (
         <div className="fixed inset-0 z-[85]">

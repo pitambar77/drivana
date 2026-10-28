@@ -3,11 +3,10 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft, MessageSquareText } from 'lucide-react';
+import { MessageSquareText } from 'lucide-react';
 import { useStore } from '../../store/AppStore';
 import { Alert, Button, Checkbox, Field, Input, MockNotice, Select } from '../../components/ui';
 import { ROLE_META } from '../../config/site';
-import { ROLE_CARDS } from './RoleSelect';
 import { sleep } from '../../utils/format';
 
 export const COUNTRY_CODES = [
@@ -22,7 +21,6 @@ const schema = z
   .object({
     cc: z.string(),
     phone: z.string().trim(),
-    role: z.string().optional(),
     consent: z.literal(true, { message: 'You need to agree before we can send a code' }),
   })
   .superRefine((d, ctx) => {
@@ -31,7 +29,7 @@ const schema = z
     if (!c.re.test(digits)) ctx.addIssue({ code: 'custom', path: ['phone'], message: `Enter a valid ${c.len}-digit mobile number` });
   });
 
-export const PENDING_KEY = 'drivana-pending-otp';
+export const PENDING_KEY = 'autodealer-pending-otp';
 export function savePending(p) {
   try {
     sessionStorage.setItem(PENDING_KEY, JSON.stringify(p));
@@ -58,75 +56,77 @@ export default function PhoneSignIn() {
   const { findUserByPhone } = useStore();
   const presetRole = params.get('role');
   const next = params.get('next') || '';
-  const [conflict, setConflict] = useState(null);
+  const [unknown, setUnknown] = useState(null);
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors, isSubmitting },
-  } = useForm({ resolver: zodResolver(schema), defaultValues: { cc: '+91', phone: '', role: presetRole || '', consent: false } });
-  const role = watch('role');
+  } = useForm({ resolver: zodResolver(schema), defaultValues: { cc: '+91', phone: params.get('phone') || '', consent: false } });
+  const phone = watch('phone');
 
-  const submit = async (d, force) => {
+  const submit = async (d) => {
     const full = formatPhone(d.cc, d.phone);
     const existing = findUserByPhone(full);
-    if (existing && d.role && existing.role !== d.role && !force) {
-      setConflict({ existing, d });
+    await sleep(500);
+    if (!existing) {
+      setUnknown(full);
       return;
     }
-    await sleep(600);
-    const pending = { phone: full, role: existing?.role || d.role || 'buyer', isNew: !existing, next, sentAt: Date.now() };
+    if (existing.role === 'admin') {
+      nav('/admin/login');
+      return;
+    }
+    const pending = { phone: full, role: existing.role, isNew: false, next, sentAt: Date.now() };
     savePending(pending);
     nav('/verify-otp', { state: pending });
   };
 
   return (
     <div>
-      <Link to="/register" className="mb-6 inline-flex items-center gap-1 text-sm font-semibold text-mist-600 hover:text-ink-900">
-        <ArrowLeft className="h-4 w-4" /> Account types
-      </Link>
-      <p className="eyebrow">{presetRole ? `${ROLE_META[presetRole]?.label} account · step 2 of 3` : 'Sign in or register'}</p>
-      <h1 className="mt-2 text-[28px] font-bold leading-tight">Enter your mobile number</h1>
-      <p className="mt-1.5 text-mist-600">We'll send a 6-digit code to sign you in. New numbers get an account automatically.</p>
+      <p className="eyebrow">Welcome back</p>
+      <h1 className="mt-2 text-[28px] font-bold leading-tight">Sign in to AutoDealer</h1>
+      <p className="mt-1.5 text-mist-600">Enter the mobile number you registered with. We'll send a 6-digit code — no password needed.</p>
 
-      <form onSubmit={handleSubmit((d) => submit(d))} noValidate className="mt-6 space-y-4">
-        {!presetRole && (
-          <Field label="I want to" htmlFor="si-role" hint="Leave as-is if you already have an account">
-            <Select id="si-role" {...register('role')} placeholder="Sign in to my existing account" options={ROLE_CARDS.map((c) => ({ value: c.role, label: `Register as ${c.title.toLowerCase()}` }))} />
-          </Field>
-        )}
+      <form onSubmit={handleSubmit(submit)} noValidate className="mt-6 space-y-4">
         <Field label="Mobile number" htmlFor="si-phone" error={errors.phone?.message} required>
           <div className="flex gap-2">
             <Select aria-label="Country code" {...register('cc')} options={COUNTRY_CODES} className="w-[118px] shrink-0" />
-            <Input id="si-phone" type="tel" inputMode="numeric" autoComplete="tel-national" placeholder="98610 21001" {...register('phone')} error={errors.phone} className="font-mono text-[15px]" />
+            <Input id="si-phone" type="tel" inputMode="numeric" autoComplete="tel-national" placeholder="98610 21001" {...register('phone', { onChange: () => setUnknown(null) })} error={errors.phone} className="font-mono text-[15px]" />
           </div>
         </Field>
         <div>
-          <Checkbox
-            {...register('consent')}
-            label={
-              <>
-                I agree to the <Link to="/support" className="font-semibold text-accent-700 underline">Terms</Link> and <Link to="/support" className="font-semibold text-accent-700 underline">Privacy Policy</Link>, and consent to receive a one-time code by SMS.
-              </>
-            }
-          />
+          <Checkbox {...register('consent')} label="I agree to receive a one-time sign-in code by SMS." />
           {errors.consent && <p className="field-error">{errors.consent.message}</p>}
         </div>
-        {conflict && (
-          <Alert tone="warn" title={`This number is registered as ${ROLE_META[conflict.existing.role].label}`}>
-            One account per number. Continue to sign in to your {ROLE_META[conflict.existing.role].label.toLowerCase()} account, or use a different number to register as {ROLE_META[role]?.label.toLowerCase()}.
-            <div className="mt-2">
-              <Button size="sm" variant="secondary" onClick={() => submit(conflict.d, true)}>
-                Sign in as {ROLE_META[conflict.existing.role].label}
-              </Button>
+        {unknown && (
+          <Alert tone="warn" title="No account with this number">
+            {unknown} isn't registered yet. Create an account — it takes about two minutes.
+            <div className="mt-2.5 flex flex-wrap gap-2">
+              {(presetRole ? [presetRole] : ['dealer', 'seller', 'agent', 'buyer']).map((r) => (
+                <Button key={r} size="sm" variant={presetRole ? 'primary' : 'secondary'} to={`/register/${r}?phone=${encodeURIComponent((phone || '').replace(/\D/g, ''))}`}>
+                  Register as {ROLE_META[r].label.toLowerCase()}
+                </Button>
+              ))}
             </div>
           </Alert>
         )}
         <Button type="submit" size="lg" className="w-full" loading={isSubmitting} icon={MessageSquareText}>
-          Send code
+          Send sign-in code
         </Button>
+        <div className="flex flex-col gap-1.5 border-t border-mist-100 pt-4 text-sm text-mist-600 sm:flex-row sm:justify-between">
+          <span>
+            New to AutoDealer?{' '}
+            <Link to={presetRole ? `/register/${presetRole}` : '/register'} className="font-semibold text-accent-700 hover:underline">
+              Create an account
+            </Link>
+          </span>
+          <Link to="/admin/login" className="font-semibold text-mist-600 hover:text-ink-900">
+            Staff sign-in
+          </Link>
+        </div>
         <MockNotice>
-          No SMS is sent. Demo numbers: dealer <span className="font-mono">98610 21001</span>, seller <span className="font-mono">…21002</span>, agent <span className="font-mono">…21003</span>, buyer <span className="font-mono">…21004</span>. Any other number creates a new account.
+          No SMS is sent. Demo numbers: dealer <span className="font-mono">98610 21001</span>, seller <span className="font-mono">…21002</span>, agent <span className="font-mono">…21003</span>, buyer <span className="font-mono">…21004</span>.
         </MockNotice>
       </form>
     </div>

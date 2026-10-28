@@ -9,7 +9,7 @@ const TEMPLATE = `OWNER AUTHORISATION LETTER
 
 I, [Owner's full name as on RC], registered owner of vehicle number [Registration number],
 VIN/chassis [17-character VIN], authorise [Agent's full name] of [Agency name]
-to advertise this vehicle for sale on Drivana, show it to prospective buyers,
+to advertise this vehicle for sale on AutoDealer, show it to prospective buyers,
 and coordinate the handover of the vehicle and its documents.
 
 This authorisation does not transfer ownership. Ownership transfer will be completed
@@ -34,7 +34,7 @@ export default function AgentDocuments() {
       </div>
       <Alert tone={required ? 'warn' : 'info'} icon={Info} title={required ? 'Owner authorisation is required' : 'Owner authorisation is optional'}>
         {required
-          ? 'Drivana currently requires a signed authorisation letter from the registered owner before an agent listing can be published. Admins can change this policy.'
+          ? 'AutoDealer currently requires a signed authorisation letter from the registered owner before an agent listing can be published. Admins can change this policy.'
           : 'Under the current policy you can publish without a signed letter, but uploading one gets your listings verified faster. Admins can change this policy.'}
       </Alert>
       <div className="grid gap-6 lg:grid-cols-2">

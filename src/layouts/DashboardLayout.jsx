@@ -5,6 +5,7 @@ import { Logo } from '../components/layout/Brand';
 import { Avatar, Breadcrumbs } from '../components/ui';
 import { useStore } from '../store/AppStore';
 import { NAV } from '../routes/nav';
+import { StyleToggle } from '../store/StyleContext';
 import { ROLE_META } from '../config/site';
 import { ago, cn } from '../utils/format';
 
@@ -136,6 +137,7 @@ export default function DashboardLayout() {
             </form>
           )}
           <div className={cn('flex items-center gap-1', role !== 'admin' && 'ml-auto')}>
+            <StyleToggle className="mr-1" />
             <div className="relative">
               <button type="button" onClick={() => setNotif((n) => !n)} className="btn-icon relative" aria-label="Notifications" aria-expanded={notif}>
                 <Bell className="h-[18px] w-[18px]" />

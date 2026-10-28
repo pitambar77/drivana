@@ -8,9 +8,8 @@
   }
   html,
   body {
-    /* background: #f6f8fb; #f9f7ee */
     background: #faf9f5;
-    color: #1a202a;
+    color: #1c1b19;
   }
   body {
     @apply font-sans antialiased text-[15px] leading-relaxed;
@@ -27,7 +26,7 @@
   }
   :focus-visible {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(61, 102, 232, 0.35);
+    box-shadow: 0 0 0 3px rgba(232, 32, 28, 0.32);
     border-radius: 6px;
   }
   body::before {
@@ -39,7 +38,7 @@
     background: #ffffff;
   }
   ::selection {
-    background: #dce6ff;
+    background: #fde1df;
   }
   @media (prefers-reduced-motion: reduce) {
     *,
@@ -88,11 +87,8 @@
   .btn-lg {
     @apply h-12 px-6 text-[15px];
   }
-  /* .btn-primary {
+  .btn-primary {
     @apply bg-accent-600 text-white hover:bg-accent-700 active:bg-accent-800;
-  } */
-   .btn-primary {
-    @apply bg-[#ed201c] text-white hover:bg-accent-700 active:bg-accent-800;
   }
   .btn-dark {
     @apply bg-ink-900 text-white hover:bg-ink-800;
@@ -138,7 +134,7 @@
     @apply p-5 md:p-6;
   }
   .eyebrow {
-    @apply text-2xs font-bold uppercase tracking-[0.12em] text-[#ed201c];
+    @apply text-2xs font-bold uppercase tracking-[0.12em] text-accent-600;
   }
   .num {
     font-variant-numeric: tabular-nums;
@@ -170,5 +166,5 @@
 
 /* Studio-floor backdrop used behind car renders */
 .studio {
-  background: radial-gradient(120% 80% at 50% 100%, #dfe5ee 0%, #eef1f6 45%, #f8f9fc 100%);
+  background: radial-gradient(120% 80% at 50% 100%, #e3e1da 0%, #efeee9 45%, #fbfaf7 100%);
 }

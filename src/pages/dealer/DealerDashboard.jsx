@@ -48,7 +48,7 @@ export function AttentionList({ items, base }) {
     draft: 'Draft — finish details and pay to publish',
     pending_payment: 'Not live — payment needed',
     blocked_duplicate: 'Blocked — duplicate registration or VIN',
-    suspended: 'Suspended by Drivana — contact support',
+    suspended: 'Suspended by AutoDealer — contact support',
   };
   return (
     <Section title="Needs your attention" description="These listings aren't visible to buyers yet." bodyClass="p-0">

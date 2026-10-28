@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Expand } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Expand, Images, Rotate3d } from 'lucide-react';
+import { ColorSwatches, Turntable } from '../interactive/Interactive';
+import { COLORS } from '../../data/catalog';
 import { CarImage, GALLERY_VIEWS } from './CarArt';
 import { Modal } from '../ui';
 import { cn } from '../../utils/format';
@@ -9,6 +11,8 @@ export function Gallery({ vehicle }) {
   const count = photos || GALLERY_VIEWS.length;
   const [i, setI] = useState(0);
   const [full, setFull] = useState(false);
+  const [mode, setMode] = useState('photos');
+  const [tint, setTint] = useState(vehicle.colorHex);
   const label = (k) => (photos ? `Photo ${k + 1}` : GALLERY_VIEWS[k].label);
   const go = (d) => setI((x) => (x + d + count) % count);
   const Main = ({ tall }) => (
@@ -45,11 +49,36 @@ export function Gallery({ vehicle }) {
       ))}
     </div>
   );
+  const tintName = COLORS.find((c) => c.hex === tint)?.name || vehicle.color;
   return (
     <div>
-      <Main />
-      <Thumbs />
-      {!photos && <p className="mt-2 text-xs text-mist-500">Illustrated preview. The seller's own photos replace these once uploaded.</p>}
+      <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
+        <div className="inline-flex rounded-lg bg-mist-100 p-0.5" role="tablist" aria-label="Gallery mode">
+          {[
+            ['photos', 'Photos', Images],
+            ['turn', '360° turn', Rotate3d],
+          ].map(([k, l, I]) => (
+            <button key={k} type="button" role="tab" aria-selected={mode === k} onClick={() => setMode(k)} className={cn('inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[13px] font-semibold transition-colors', mode === k ? 'bg-white text-ink-900 shadow-card' : 'text-mist-600 hover:text-ink-900')}>
+              <I className="h-3.5 w-3.5" /> {l}
+            </button>
+          ))}
+        </div>
+        {mode === 'turn' && <ColorSwatches value={tint} onChange={setTint} size="sm" />}
+      </div>
+      {mode === 'turn' ? (
+        <div>
+          <Turntable vehicle={{ ...vehicle, colorHex: tint }} className="aspect-[16/10] w-full rounded-xl md:aspect-[16/9]" />
+          <p className="mt-2 text-xs text-mist-500">
+            {tint === vehicle.colorHex ? `Shown in ${vehicle.color}, the colour of this car.` : `Previewing ${tintName}. This car is ${vehicle.color}; the preview is only a guide.`}
+          </p>
+        </div>
+      ) : (
+        <>
+          <Main />
+          <Thumbs />
+        </>
+      )}
+      {!photos && mode === 'photos' && <p className="mt-2 text-xs text-mist-500">Illustrated preview. The seller's own photos replace these once uploaded.</p>}
       <Modal open={full} onClose={() => setFull(false)} title={`${vehicle.year} ${vehicle.make} ${vehicle.model}`} size="xl">
         <Main tall />
         <Thumbs />

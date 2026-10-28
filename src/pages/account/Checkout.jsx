@@ -96,7 +96,7 @@ export default function Checkout() {
           <Section title="2. Payment method">
             <RadioCards name="method" value={method} onChange={setMethod} columns={2} options={METHODS} />
             <p className="mt-3 flex items-center gap-1.5 text-[12.5px] text-mist-500">
-              <Lock className="h-3.5 w-3.5" /> You'll complete payment on the {state.config.paymentGateway.provider} secure page. Drivana never sees your card or UPI PIN.
+              <Lock className="h-3.5 w-3.5" /> You'll complete payment on the {state.config.paymentGateway.provider} secure page. AutoDealer never sees your card or UPI PIN.
             </p>
           </Section>
           <Section title="Simulate the gateway response" description="Demo only — choose what the payment gateway returns.">

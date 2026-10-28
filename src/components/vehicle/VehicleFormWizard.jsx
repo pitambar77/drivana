@@ -169,7 +169,7 @@ export function DuplicateModal({ open, onClose, duplicates, regNumber, vin, supp
     <Modal
       open={open}
       onClose={onClose}
-      title="This car is already listed on Drivana"
+      title="This car is already listed on AutoDealer"
       description="We blocked publication to protect buyers from duplicate or fraudulent listings."
       footer={
         <>
@@ -399,7 +399,7 @@ export default function VehicleFormWizard({ mode, listingId, onCancelTo }) {
           {key === 'owner' && (
             <div className="space-y-4">
               <Alert tone="info" title="Owner details stay private">
-                Buyers see you as the contact. The owner's details are only visible to you and Drivana's verification team.
+                Buyers see you as the contact. The owner's details are only visible to you and AutoDealer's verification team.
               </Alert>
               <div className="grid gap-4 md:grid-cols-2">
                 <Field label="Registered owner's name" required error={errors.ownerName?.message} htmlFor="vf-oname" hint="As printed on the RC">

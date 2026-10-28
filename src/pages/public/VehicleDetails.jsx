@@ -31,7 +31,7 @@ export function SellerCard({ vehicle: v, seller, compact }) {
             Seller documents: <StatusBadge status={seller?.docStatus === 'verified' ? 'verified' : seller?.docStatus === 'not_submitted' ? 'not_submitted' : 'pending'} />
           </li>
           <li className="flex items-center gap-2">
-            <CalendarDays className="h-4 w-4 text-mist-400" /> On Drivana since {date(seller?.registeredAt, { month: 'short', year: 'numeric' })}
+            <CalendarDays className="h-4 w-4 text-mist-400" /> On AutoDealer since {date(seller?.registeredAt, { month: 'short', year: 'numeric' })}
           </li>
         </ul>
       )}
@@ -51,7 +51,7 @@ export function SellerCard({ vehicle: v, seller, compact }) {
           <CopyText text={seller?.phone || ''} />
         </div>
       )}
-      {reveal && <p className="text-[12px] text-mist-500">Tell the seller you found the car on Drivana. Never pay a token amount before seeing the car and its RC.</p>}
+      {reveal && <p className="text-[12px] text-mist-500">Tell the seller you found the car on AutoDealer. Never pay a token amount before seeing the car and its RC.</p>}
     </div>
   );
 }

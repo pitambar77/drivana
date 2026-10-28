@@ -1,6 +1,10 @@
-# Drivana — Car Marketplace Frontend
+# AutoDealer — Car Marketplace Frontend
 
-A complete, responsive car-selling marketplace UI built with **React + Vite + Tailwind CSS**. It covers all **42 screens** from the brief: public website, phone/OTP sign-in, listing checkout, dealer / private-seller / agent / buyer dashboards, and a full admin console.
+A complete, responsive car-selling marketplace UI built with **React + Vite + Tailwind CSS**. It covers all **42 screens** from the brief plus **5 detailed registration flows** on their own URLs: public website, phone/OTP sign-in, listing checkout, dealer / private-seller / agent / buyer dashboards, and a full admin console.
+
+**Branding.** Colours come from the AutoDealer logo: red `#E8201C` (primary buttons, links, active states), yellow `#F8D000` (small highlights), dark slate `#13282D` (hero band, sidebars, headings). Neutrals are warm greys on an off-white `#FAF9F5` page.
+
+**Light and dark mode.** The sun/moon button in every header switches modes. On first visit the app follows the device setting; after that it remembers the visitor's choice (`localStorage` key `autodealer-theme`). Dark mode is a slate palette with the same red and yellow accents, and the logo swaps to a light-text version automatically.
 
 Everything runs on **local mock data** — no backend is needed. OTP, payments, document review and loan referrals are simulated and clearly labelled "Demo mode" in the UI.
 
@@ -18,6 +22,30 @@ Requires Node.js 18+.
 
 > When deploying `dist/`, configure your host to fall back to `index.html` for unknown paths (SPA routing). On Netlify add a `_redirects` file with `/* /index.html 200`; on Vercel the default SPA preset works.
 
+## Interactive features
+
+- 3D tilt + cursor spotlight on vehicle cards, image zoom on hover
+- Drag-to-turn 360° car viewer with colour preview (vehicle details → "360° turn")
+- "What can I afford?" budget planner on the home page — EMI slider that reverse-calculates a price and shows matching cars live
+- Count-up stats and KPI cards, scroll-reveal sections
+- Floating compare tray that follows you around the public site
+- Confetti on successful payment and on account creation
+- All motion respects `prefers-reduced-motion`
+
+## Registration (separate from sign-in)
+
+| URL | What it collects |
+| --- | --- |
+| `/signin` | Sign-in only: mobile + OTP for existing accounts. Unknown numbers are sent to registration with the number pre-filled. |
+| `/register` | Choose an account type |
+| `/register/dealer` | Mobile OTP → business (name, type, year, PAN, GSTIN, licence, website, stock size, brands) → contact person → showroom address & hours → documents → plan + review + terms |
+| `/register/seller` | Mobile OTP → personal details (18+ check) → ID type, last 4 digits, ID upload, optional selfie video → contact preferences, RC & loan questions → review + owner declaration + one-listing rule |
+| `/register/agent` | Mobile OTP → personal details + PAN → agency (experience, cities, licence, GSTIN, volume) → office address → ID + owner authorisation (required/optional by admin policy) → review + code of conduct |
+| `/register/buyer` | Mobile OTP → profile → budget, body types, fuel, timeline, loan/exchange → alerts + terms |
+| `/admin/invite` | Invite-only admin activation: invite code + work email → profile → strong password → authenticator 2FA |
+
+Every flow validates each step, detects numbers that already have an account, lets you jump back to edit from the review step, and signs you in at the end.
+
 ## Demo accounts
 
 Sign in at `/signin` with any of these numbers. The OTP is always **246810**.
@@ -28,11 +56,12 @@ Sign in at `/signin` with any of these numbers. The OTP is always **246810**.
 | Private seller | 98610 21002 | `/seller` |
 | Agent | 98610 21003 | `/agent` |
 | Buyer | 98610 21004 | `/buyer` (or `/buyer/welcome`) |
-| Admin | `admin@drivana.example` + any 8+ char password | `/admin` (via `/admin/login`) |
+| Admin | `admin@autodealer.example` + any 8+ char password | `/admin` (via `/admin/login`) |
+| New admin | invite code `AD-ADMIN-2026`, any `@autodealer.example` email, authenticator code 246810 | `/admin/invite` |
 
 Any other mobile number creates a new account for the role you picked.
 
-The floating **"All 42 screens"** button (bottom-left) switches persona and jumps to any screen. It also has **Reset demo data**. Remove `<DemoNavigator />` from `src/main.jsx` before going live.
+The floating **"All screens"** button (bottom-left) switches persona and jumps to any screen. It also has **Reset demo data**. Remove `<DemoNavigator />` from `src/main.jsx` before going live.
 
 ## Screens and routes
 
@@ -107,14 +136,17 @@ src/
     payment/      PaymentSummary, PaymentStatusHero
     charts/       Recharts wrappers (area, bar, line, donut) + date bucketing
     layout/       Logo, DemoNavigator
+    interactive/  useTilt, Turntable, ColorSwatches, CountUp, Reveal, CompareTray, Confetti, HeroShowcase
   layouts/        PublicLayout, DashboardLayout (role sidebars), AuthLayout
-  pages/          public/ auth/ account/ dealer/ seller/ agent/ buyer/ admin/
+  pages/          public/ auth/ (incl. auth/register/*) account/ dealer/ seller/ agent/ buyer/ admin/
   routes/         AppRoutes, ProtectedRoute (role guard), nav config
   store/          AppStore — mock state + all actions (swap for API calls later)
   data/           catalog.js (makes, models, cities), seed.js (deterministic mock data)
   config/         site.js — brand, plans & fees, default platform config
   utils/          formatting (₹ Lakh/Crore, dates), EMI maths, filters, CSV export
-  styles/         Tailwind layers and component classes
+  styles/         index.css (Tailwind layers, light mode), theme.css + theme-dark-utilities.css (dark mode)
+  assets/         autodealer-logo.png, autodealer-logo-light.png (dark mode), banner-car.jpg
+scripts/          gen_dark.py — regenerates theme-dark-utilities.css after palette changes
 tailwind.config.js  Design tokens: ink (navy), accent (blue), mist (neutrals), status colours, fonts
 ```
 
@@ -133,4 +165,4 @@ Things the backend must enforce (the frontend only mirrors them):
 
 Seed listings use illustrated vehicle renders (`CarArt`) so the demo works offline and inside sandboxed previews. Photos uploaded in the vehicle form are stored as data URLs and shown instead. In production, store uploads in S3/Cloudinary and put the URLs in `vehicle.photos`.
 
-Demo state is saved to `localStorage` (key `drivana-demo-state-v3`). Large photo uploads may exceed the browser quota; the app keeps working in memory if that happens.
+Demo state is saved to `localStorage` (key `autodealer-demo-state-v1`). Large photo uploads may exceed the browser quota; the app keeps working in memory if that happens.

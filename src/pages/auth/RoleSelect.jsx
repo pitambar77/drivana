@@ -33,8 +33,8 @@ export default function RoleSelect() {
   const nav = useNavigate();
   return (
     <div>
-      <p className="eyebrow">Create your account · step 1 of 3</p>
-      <h1 className="mt-2 text-[28px] font-bold leading-tight">How will you sell on Drivana?</h1>
+      <p className="eyebrow">Create your account</p>
+      <h1 className="mt-2 text-[28px] font-bold leading-tight">How will you sell on AutoDealer?</h1>
       <p className="mt-1.5 text-mist-600">Each account has one type. You can't switch later, so pick the one that fits.</p>
       <div className="mt-6 space-y-3" role="radiogroup" aria-label="Account type">
         {ROLE_CARDS.map((c) => (
@@ -44,7 +44,7 @@ export default function RoleSelect() {
             role="radio"
             aria-checked={role === c.role}
             onClick={() => setRole(c.role)}
-            onDoubleClick={() => nav(`/signin?role=${c.role}`)}
+            onDoubleClick={() => nav(`/register/${c.role}`)}
             className={cn('flex w-full items-start gap-4 rounded-xl border bg-white p-4 text-left transition', role === c.role ? 'border-accent-500 ring-2 ring-accent-100' : 'border-mist-200 hover:border-mist-300')}
           >
             <span className={cn('flex h-11 w-11 shrink-0 items-center justify-center rounded-lg', role === c.role ? 'bg-accent-600 text-white' : 'bg-mist-100 text-ink-800')}>
@@ -67,7 +67,7 @@ export default function RoleSelect() {
           </button>
         ))}
       </div>
-      <Button size="lg" className="mt-6 w-full" disabled={!role} iconRight={ArrowRight} onClick={() => nav(`/signin?role=${role}`)}>
+      <Button size="lg" className="mt-6 w-full" disabled={!role} iconRight={ArrowRight} onClick={() => nav(`/register/${role}`)}>
         {role ? `Continue as ${ROLE_CARDS.find((c) => c.role === role).title.toLowerCase()}` : 'Choose an account type'}
       </Button>
       <div className="mt-6 flex flex-col gap-2 border-t border-mist-100 pt-5 text-sm text-mist-600 sm:flex-row sm:justify-between">
@@ -79,8 +79,8 @@ export default function RoleSelect() {
         </span>
         <span>
           Just buying?{' '}
-          <Link to="/buyer/welcome" className="font-semibold text-accent-700 hover:underline">
-            Continue as buyer
+          <Link to="/register/buyer" className="font-semibold text-accent-700 hover:underline">
+            Create a buyer account
           </Link>
         </span>
       </div>

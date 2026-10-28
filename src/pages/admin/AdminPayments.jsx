@@ -43,7 +43,7 @@ export default function AdminPayments() {
       { label: 'Method', value: 'method' },
       { label: 'Status', value: 'status' },
     ]);
-    tryDownload('drivana-listing-fees.csv', text);
+    tryDownload('autodealer-listing-fees.csv', text);
     setCsv(text);
   };
 
@@ -129,7 +129,7 @@ export default function AdminPayments() {
           ]}
         />
       </div>
-      <CsvModal open={!!csv} onClose={() => setCsv(null)} filename="drivana-listing-fees.csv" csv={csv || ''} />
+      <CsvModal open={!!csv} onClose={() => setCsv(null)} filename="autodealer-listing-fees.csv" csv={csv || ''} />
       <ReceiptModal open={!!receipt} onClose={() => setReceipt(null)} txn={receipt} vehicle={receipt ? vehicle(receipt.listingId) : null} user={receipt ? user(receipt.userId) : null} />
     </div>
   );

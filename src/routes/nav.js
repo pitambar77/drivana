@@ -58,8 +58,12 @@ export const SCREENS = [
     [5, 'Loan calculator', '/loan-calculator'], [6, 'How it works / plans', '/how-it-works'], [7, 'Contact & support', '/support'],
   ]],
   ['Account & payments', [
-    [8, 'Role selection', '/register'], [9, 'Phone sign-in', '/signin?role=dealer'], [10, 'OTP verification', '/verify-otp'], [11, 'Account settings', '/account', 'dealer'],
+    [8, 'Role selection', '/register'], [9, 'Sign in (phone)', '/signin'], [10, 'OTP verification', '/verify-otp'], [11, 'Account settings', '/account', 'dealer'],
     [12, 'Listing plan & checkout', '/checkout/v1009', 'dealer'], [13, 'Payment result & history', '/payments', 'dealer'],
+  ]],
+  ['Registration (separate URLs)', [
+    [43, 'Register as dealer', '/register/dealer'], [44, 'Register as private seller', '/register/seller'], [45, 'Register as agent', '/register/agent'],
+    [46, 'Register as buyer', '/register/buyer'], [47, 'Admin invite & 2FA setup', '/admin/invite'],
   ]],
   ['Dealer', [
     [14, 'Dealer dashboard', '/dealer', 'dealer'], [15, 'Business documents', '/dealer/documents', 'dealer'], [16, 'Vehicle form (multi-step)', '/dealer/vehicles/new', 'dealer'],

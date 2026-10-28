@@ -48,13 +48,13 @@ export default function AdminUsers() {
       { label: 'Account status', value: 'status' },
       { label: 'Document status', value: 'docStatus' },
     ]);
-    tryDownload('drivana-users.csv', text);
+    tryDownload('autodealer-users.csv', text);
     setCsv(text);
   };
 
   return (
     <div className="space-y-5">
-      <PageHeader title="User directory" description="Everyone registered on Drivana. Suspending a user hides their listings and blocks sign-in." actions={<Button variant="secondary" icon={Download} onClick={exportCsv}>Export CSV</Button>} />
+      <PageHeader title="User directory" description="Everyone registered on AutoDealer. Suspending a user hides their listings and blocks sign-in." actions={<Button variant="secondary" icon={Download} onClick={exportCsv}>Export CSV</Button>} />
       <Tabs
         value={role}
         onChange={setRole}
@@ -230,7 +230,7 @@ export default function AdminUsers() {
           toast(confirm.action === 'suspend' ? 'User suspended.' : 'User reactivated.', { tone: confirm.action === 'suspend' ? 'warn' : 'success' });
         }}
       />
-      <CsvModal open={!!csv} onClose={() => setCsv(null)} filename="drivana-users.csv" csv={csv || ''} />
+      <CsvModal open={!!csv} onClose={() => setCsv(null)} filename="autodealer-users.csv" csv={csv || ''} />
     </div>
   );
 }

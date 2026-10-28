@@ -63,7 +63,7 @@ export default function AgentDashboard() {
         <KpiCard label="Handovers in progress" value={inProgress.length} icon={Handshake} tone="dark" sub={`${handovers.filter((h) => handoverProgress(h).issue).length} with issues`} />
       </div>
 
-      <Section title="Vehicles you're selling" description="Owner details are private to you and Drivana's verification team." bodyClass="p-0" actions={<Button size="sm" variant="secondary" to="/agent/listings">Manage listings</Button>}>
+      <Section title="Vehicles you're selling" description="Owner details are private to you and AutoDealer's verification team." bodyClass="p-0" actions={<Button size="sm" variant="secondary" to="/agent/listings">Manage listings</Button>}>
         <DataTable
           rows={rows}
           pageSize={6}

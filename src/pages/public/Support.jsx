@@ -21,9 +21,9 @@ const FAQ = [
   ['My payment failed but money left my account. What now?', 'Failed payments are usually reversed by your bank within 5–7 working days. Your listing stays unpublished. Send us the transaction reference from Payments and we\'ll check with the gateway.'],
   ['Why was my car blocked as a duplicate?', 'Another active listing uses the same registration number or VIN. Check for typos against your RC. If the other listing isn\'t yours, contact us with a photo of your RC.'],
   ['Can a private seller list two cars?', 'No. Private seller accounts can have one active listing. Mark your current car as sold or remove it before listing another. Dealers can list multiple cars.'],
-  ['Does Drivana verify the car with the government?', 'No. We link you to the official portal so you can check the registration yourself. We check documents uploaded by sellers, not government records.'],
+  ['Does AutoDealer verify the car with the government?', 'No. We link you to the official portal so you can check the registration yourself. We check documents uploaded by sellers, not government records.'],
   ['Is the EMI calculator a loan offer?', 'No. It\'s an estimate. Lenders decide your rate and eligibility after checking your documents.'],
-  ['How do buyers pay for the car?', 'Directly to the seller, after inspecting the car and its papers. Drivana doesn\'t handle the car payment.'],
+  ['How do buyers pay for the car?', 'Directly to the seller, after inspecting the car and its papers. AutoDealer doesn\'t handle the car payment.'],
 ];
 
 export default function Support() {

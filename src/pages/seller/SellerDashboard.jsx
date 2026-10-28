@@ -44,7 +44,7 @@ export default function SellerDashboard() {
                   <p className="mt-2 font-display text-2xl font-bold num">{lakh(active.price)}</p>
                 </div>
                 <Plate value={active.regNumber} />
-                <dl className="grid grid-cols-3 gap-2 rounded-lg bg-mist-50 p-3">
+                <dl className="grid grid-cols-2 gap-2 rounded-lg bg-mist-50 p-3 sm:grid-cols-3">
                   <div>
                     <dt className="text-[11.5px] text-mist-500">Listing</dt>
                     <dd className="mt-1">
@@ -57,7 +57,7 @@ export default function SellerDashboard() {
                       <StatusBadge status={active.paymentStatus} />
                     </dd>
                   </div>
-                  <div>
+                  <div className="col-span-2 sm:col-span-1">
                     <dt className="text-[11.5px] text-mist-500">Documents</dt>
                     <dd className="mt-1">
                       <VerificationBadge status={active.verification} size="sm" />
@@ -103,7 +103,7 @@ export default function SellerDashboard() {
                   [true, 'Vehicle details complete'],
                   [active.paymentStatus === 'paid', active.paymentStatus === 'paid' ? 'Listing fee paid' : 'Listing fee not paid'],
                   [!!idDoc, idDoc ? 'Identity document uploaded' : 'Identity document missing'],
-                  [active.verification === 'verified', active.verification === 'verified' ? 'Documents verified by Drivana' : 'Document verification in progress (listing can be live meanwhile)'],
+                  [active.verification === 'verified', active.verification === 'verified' ? 'Documents verified by AutoDealer' : 'Document verification in progress (listing can be live meanwhile)'],
                 ].map(([ok, t]) => (
                   <li key={t} className="flex gap-2.5">
                     {ok ? <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-ok-600" /> : <CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-warn-600" />}

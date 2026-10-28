@@ -179,7 +179,7 @@ function Cluster({ mileage = 0, fuel }) {
   );
 }
 
-export function CarArt({ vehicle, view = 'side', className }) {
+export function CarArt({ vehicle, view = 'side', className, bare }) {
   const id = useId().replace(/:/g, '');
   const color = vehicle?.colorHex || '#2C5AA3';
   const body = vehicle?.bodyType || 'Sedan';
@@ -190,7 +190,7 @@ export function CarArt({ vehicle, view = 'side', className }) {
     cluster: 'bg-[#0C1016]',
   }[view];
   return (
-    <div className={cn('relative flex items-center justify-center overflow-hidden', bg, className)}>
+    <div className={cn('relative flex items-center justify-center overflow-hidden', !bare && bg, className)}>
       {view === 'interior' ? (
         <Interior color={color} uid={id} />
       ) : view === 'cluster' ? (

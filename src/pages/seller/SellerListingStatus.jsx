@@ -161,7 +161,7 @@ export default function SellerListingStatus() {
             )}
           </div>
         )}
-        <MockNotice className="mt-4">Checks only Drivana's own listings — not government records.</MockNotice>
+        <MockNotice className="mt-4">Checks only AutoDealer's own listings — not government records.</MockNotice>
       </Section>
 
       <Alert tone="info" icon={LifeBuoy} title="Still stuck?">

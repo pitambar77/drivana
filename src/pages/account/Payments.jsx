@@ -4,6 +4,7 @@ import { Receipt, RefreshCw } from 'lucide-react';
 import { useStore } from '../../store/AppStore';
 import { Button, DataTable, DL, EmptyState, KpiCard, MockNotice, Modal, PageHeader, Section, Segmented, StatusBadge, VerificationBadge } from '../../components/ui';
 import { PaymentStatusHero } from '../../components/payment/Payment';
+import { Confetti } from '../../components/interactive/Interactive';
 import { vehicleTitle } from '../../components/vehicle/VehicleCard';
 import { PLANS, ROLE_META, SITE } from '../../config/site';
 import { dateTime, inr } from '../../utils/format';
@@ -63,6 +64,7 @@ export function PaymentResult() {
 
   return (
     <div className="mx-auto max-w-2xl">
+      {txn.status === 'success' && <Confetti key={txn.id} />}
       <div className="card p-6 md:p-10">
         <PaymentStatusHero status={txn.status} />
         <div className="mt-8 grid grid-cols-1 gap-3 rounded-xl bg-mist-50 p-4 sm:grid-cols-3">

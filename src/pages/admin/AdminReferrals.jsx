@@ -49,7 +49,7 @@ export default function AdminReferrals() {
       { label: 'Commission earned (INR)', value: 'commission' },
       { label: 'Expected commission (INR)', value: 'expectedCommission' },
     ]);
-    tryDownload('drivana-loan-referrals.csv', text);
+    tryDownload('autodealer-loan-referrals.csv', text);
     setCsv(text);
   };
 
@@ -120,7 +120,7 @@ export default function AdminReferrals() {
         />
       </div>
       <MockNotice>Lender statuses would arrive by webhook from each partner. Here you can change them by hand to test the reports.</MockNotice>
-      <CsvModal open={!!csv} onClose={() => setCsv(null)} filename="drivana-loan-referrals.csv" csv={csv || ''} />
+      <CsvModal open={!!csv} onClose={() => setCsv(null)} filename="autodealer-loan-referrals.csv" csv={csv || ''} />
     </div>
   );
 }

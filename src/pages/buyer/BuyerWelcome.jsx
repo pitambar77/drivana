@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowRight, Check, Heart, MessageSquareText, Search } from 'lucide-react';
 import { useStore } from '../../store/AppStore';
-import { Button, Checkbox, Field, Input, MockNotice, OtpInput, Select, useToast } from '../../components/ui';
+import { Alert, Button, Checkbox, Field, Input, MockNotice, OtpInput, Select, useToast } from '../../components/ui';
 import { BODY_TYPES, CITIES } from '../../data/catalog';
 import { DEMO_OTP, useOtp } from '../auth/OtpVerify';
 import { cn, maskPhone, sleep } from '../../utils/format';
@@ -35,6 +35,7 @@ export default function BuyerWelcome() {
     const er = {};
     if (!/^[6-9]\d{9}$/.test(phone.replace(/\D/g, ''))) er.phone = 'Enter a 10-digit mobile number';
     if (!consent) er.consent = 'Agree to receive a one-time code to continue';
+    if (!er.phone && !findUserByPhone(full)) er.unregistered = true;
     setErr(er);
     if (Object.keys(er).length) return;
     setBusy(true);
@@ -55,7 +56,6 @@ export default function BuyerWelcome() {
       setErr({ otp: `This number belongs to a ${u.role} account. Buyers need a separate number, or browse as a guest.` });
       return;
     }
-    if (!u) u = registerUser({ phone: full, role: 'buyer', name: 'New buyer' });
     setUser(u);
     setStage('prefs');
   };
@@ -105,6 +105,14 @@ export default function BuyerWelcome() {
             <Checkbox checked={consent} onChange={(e) => setConsent(e.target.checked)} label="I agree to the Terms and Privacy Policy and to receive a one-time code by SMS." />
             {err.consent && <p className="field-error">{err.consent}</p>}
           </div>
+          {err.unregistered && (
+            <Alert tone="warn" className="mt-4" title="No buyer account with this number">
+              Create one in under a minute, or keep browsing as a guest.
+              <div className="mt-2">
+                <Button size="sm" to={`/register/buyer?phone=${phone.replace(/\D/g, '')}`}>Create buyer account</Button>
+              </div>
+            </Alert>
+          )}
           <Button type="submit" size="lg" className="mt-5 w-full" loading={busy}>
             Send code
           </Button>

@@ -15,6 +15,11 @@ import Support from '../pages/public/Support';
 import NotFound from '../pages/public/NotFound';
 // Auth & account (8–13)
 import RoleSelect from '../pages/auth/RoleSelect';
+import RegisterDealer from '../pages/auth/register/RegisterDealer';
+import RegisterSeller from '../pages/auth/register/RegisterSeller';
+import RegisterAgent from '../pages/auth/register/RegisterAgent';
+import RegisterBuyer from '../pages/auth/register/RegisterBuyer';
+import AdminInvite from '../pages/admin/AdminInvite';
 import PhoneSignIn from '../pages/auth/PhoneSignIn';
 import OtpVerify from '../pages/auth/OtpVerify';
 import Account from '../pages/account/Account';
@@ -75,11 +80,16 @@ export default function AppRoutes() {
 
       <Route element={<AuthLayout />}>
         <Route path="register" element={<RoleSelect />} />
+        <Route path="register/dealer" element={<RegisterDealer />} />
+        <Route path="register/seller" element={<RegisterSeller />} />
+        <Route path="register/agent" element={<RegisterAgent />} />
+        <Route path="register/buyer" element={<RegisterBuyer />} />
         <Route path="signin" element={<PhoneSignIn />} />
         <Route path="verify-otp" element={<OtpVerify />} />
         <Route path="buyer/welcome" element={<BuyerWelcome />} />
       </Route>
       <Route path="admin/login" element={<AdminLogin />} />
+      <Route path="admin/invite" element={<AdminInvite />} />
 
       <Route element={<ProtectedRoute roles={[...SELLERS, 'buyer']} />}>
         <Route element={<DashboardLayout />}>

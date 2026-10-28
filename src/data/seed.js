@@ -42,7 +42,7 @@ export const DEMO_USER_IDS = {
 };
 
 const users = [
-  U('u_admin', 'admin', 'Ops Admin', '+91 90000 00001', { email: 'admin@drivana.example', docStatus: 'verified' }),
+  U('u_admin', 'admin', 'Ops Admin', '+91 90000 00001', { email: 'admin@autodealer.example', docStatus: 'verified' }),
   U('u_dealer1', 'dealer', 'Rakesh Mohanty', '+91 98610 21001', { business: 'Kalinga Motors', gstin: '21AAKCK4471M1Z6', docStatus: 'verified', registeredAt: daysAgo(310) }),
   U('u_dealer2', 'dealer', 'Sneha Kulkarni', '+91 98220 44120', { business: 'Deccan Auto Hub', city: 'Pune', docStatus: 'verified' }),
   U('u_dealer3', 'dealer', 'Imran Qureshi', '+91 98110 76321', { business: 'Capital Car Bazaar', city: 'Delhi', docStatus: 'pending' }),

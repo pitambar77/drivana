@@ -18,28 +18,28 @@ export function DocPreview({ doc, user }) {
       </div>
     );
   return (
-    <div className="mx-auto aspect-[1/1.3] w-full max-w-sm rounded-lg border border-mist-200 bg-[#FBFAF6] p-6 font-serif text-ink-900 shadow-card">
-      <div className="border-b-2 border-ink-900 pb-2 text-center">
-        <p className="text-[10px] uppercase tracking-[0.2em] text-mist-600">Sample document</p>
+    <div className="keep-light mx-auto aspect-[1/1.3] w-full max-w-sm rounded-lg border border-[#E1E6EE] bg-[#FBFAF6] p-6 font-serif text-[#0F1B2E] shadow-[0_2px_8px_rgba(0,0,0,.15)]">
+      <div className="border-b-2 border-[#0F1B2E] pb-2 text-center">
+        <p className="text-[10px] uppercase tracking-[0.2em] text-[#525E72]">Sample document</p>
         <p className="mt-1 text-base font-bold">{doc.label}</p>
       </div>
       <dl className="mt-5 space-y-3 text-[12.5px]">
         <div>
-          <dt className="text-[10px] uppercase tracking-wider text-mist-500">Name</dt>
+          <dt className="text-[10px] uppercase tracking-wider text-[#6E7B90]">Name</dt>
           <dd className="font-semibold">{user?.business || user?.name}</dd>
         </div>
         {doc.maskedNumber && (
           <div>
-            <dt className="text-[10px] uppercase tracking-wider text-mist-500">Number</dt>
+            <dt className="text-[10px] uppercase tracking-wider text-[#6E7B90]">Number</dt>
             <dd className="font-mono">{doc.maskedNumber}</dd>
           </div>
         )}
         <div>
-          <dt className="text-[10px] uppercase tracking-wider text-mist-500">Address</dt>
+          <dt className="text-[10px] uppercase tracking-wider text-[#6E7B90]">Address</dt>
           <dd>{user?.city}, India</dd>
         </div>
         <div>
-          <dt className="text-[10px] uppercase tracking-wider text-mist-500">File</dt>
+          <dt className="text-[10px] uppercase tracking-wider text-[#6E7B90]">File</dt>
           <dd className="font-mono text-[11px]">{doc.fileName}</dd>
         </div>
       </dl>

@@ -10,6 +10,124 @@ import { cn } from '../../utils/format';
 
 const PAGE = 12;
 
+// const resultsCar = {
+//   v1031: ["https://commons.wikimedia.org/wiki/Special:FilePath/Maruti_Suzuki_Brezza_-_front.jpg"],
+//   v1005: ["https://commons.wikimedia.org/wiki/Special:FilePath/Maruti_Suzuki_Brezza_-_front.jpg"],
+
+//   v1029: ["https://commons.wikimedia.org/wiki/Special:FilePath/Honda_Amaze_(front).png"],
+//   v1003: ["https://commons.wikimedia.org/wiki/Special:FilePath/Honda_Amaze_(front).png"],
+
+//   v1026: ["https://commons.wikimedia.org/wiki/Special:FilePath/Kia_Sonnet.jpg"],
+
+//   v1001: ["https://commons.wikimedia.org/wiki/Special:FilePath/2022_Maruti_Suzuki_Baleno_Alpha_(India)_front_view.jpg"],
+
+//   v1020: ["https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=900&q=80"],
+
+//   v1006: ["https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=900&q=80"],
+//   v1032: ["https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=900&q=80"],
+
+//   v1033: ["https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=900&q=80"],
+//   v1007: ["https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=900&q=80"],
+
+//   v1040: ["https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=900&q=80"],
+//   v1014: ["https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=900&q=80"],
+
+//   v1030: ["https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=900&q=80"],
+//   v1004: ["https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=900&q=80"],
+
+//   v1008: ["https://commons.wikimedia.org/wiki/Special:FilePath/2022_Volkswagen_Virtus_1.5_GT_(India)_front_view_01.png"],
+//   v1034: ["https://commons.wikimedia.org/wiki/Special:FilePath/2022_Volkswagen_Virtus_1.5_GT_(India)_front_view_01.png"],
+
+//   v1002: ["https://commons.wikimedia.org/wiki/Special:FilePath/2023_Tata_Nexon_XZA%2B_front_view.jpg"],
+//   v1028: ["https://commons.wikimedia.org/wiki/Special:FilePath/2023_Tata_Nexon_XZA%2B_front_view.jpg"],
+
+//   v1023: ["https://commons.wikimedia.org/wiki/Special:FilePath/2023_BMW_3-Series_Gran_Sedan_320Li_M_Sport.jpg"],
+
+//   v1038: ["https://commons.wikimedia.org/wiki/Category:Mercedes-Benz_C-Class"],
+//   v1012: ["https://commons.wikimedia.org/wiki/Category:Mercedes-Benz_C-Class"],
+
+//   v1017: ["https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=900&q=80"],
+
+//   v1035: ["https://commons.wikimedia.org/wiki/Category:Hyundai_i20"],
+//   v1100: ["https://commons.wikimedia.org/wiki/Category:Hyundai_i20"],
+
+//   v1011: ["https://commons.wikimedia.org/wiki/Category:Kia_Seltos"],
+//   v1037: ["https://commons.wikimedia.org/wiki/Category:Kia_Seltos"],
+
+//   v1013: ["https://commons.wikimedia.org/wiki/Category:Hyundai_Verna"],
+//   v1039: ["https://commons.wikimedia.org/wiki/Category:Hyundai_Verna"],
+
+//   v1022: ["https://commons.wikimedia.org/wiki/Category:Suzuki_Baleno"],
+
+//   v1019: ["https://commons.wikimedia.org/wiki/Category:Škoda_Slavia"],
+
+//   v1025: ["https://commons.wikimedia.org/wiki/Category:Mahindra_Thar"],
+//   v1010: ["https://commons.wikimedia.org/wiki/Category:Mahindra_Scorpio-N"],
+
+//   v1015: ["https://commons.wikimedia.org/wiki/Category:MG_Hector"],
+// };
+
+const resultsCar = {
+  // Maruti Suzuki
+  v1031: ["/m-brezza-2.jpeg"],
+  v1005: ["/m-brezza.avif"],
+  v1001: ["/m-swift.jpg"],
+  v1020: ["/m-ertiga.jpg"],
+  v1016: ["/m-baleno.jpg"],
+
+  // Honda
+  v1029: ["/hoda-ameze.avif"],
+  v1003: ["/hoda-ameze-2.jpg"],
+  v1040: ["/honda-city.jpg"],
+  v1014: ["/honda-city.jpg"],
+
+  // Kia
+  v1026: ["/kia-sonet.jpg"],
+  v1011: ["/kia-seltos.jpg"],
+  v1037: ["/kia-seltos.jpg"],
+
+  // Tata
+  v1006: ["/tata-harrier.jpg"],
+  v1032: ["/tata-harrier.jpg"],
+  v1002: ["/tata-nexon.jpg"],
+  v1028: ["/tata-nexon.jpg"],
+  v1017: ["/tata-punch.jpg"],
+
+  // Toyota
+  v1033: ["/toyota-fortuner.jpg"],
+  v1007: ["/toyota-fortuner.jpg"],
+  v1022: ["/toyota-glanza.jpg"],
+
+  // MG
+  v1030: ["/mg-zs-ev.jpg"],
+  v1004: ["/mg-zs-ev.jpg"],
+  v1015: ["/mg-hector.jpg"],
+
+  // Volkswagen
+  v1008: ["/volkswagen-virtus.jpg"],
+  v1034: ["/volkswagen-virtus.jpg"],
+
+  // BMW
+  v1023: ["/bmw-3-series.jpg"],
+
+  // Mercedes-Benz
+  v1038: ["/mercedes-c-class.jpg"],
+  v1012: ["/mercedes-c-class.jpg"],
+
+  // Hyundai
+  v1035: ["/hyundai-i20.jpg"],
+  v1100: ["/hyundai-i20.jpg"],
+  v1013: ["/hyundai-verna.jpg"],
+  v1039: ["/hyundai-verna.jpg"],
+
+  // Skoda
+  v1019: ["/skoda-slavia.jpg"],
+
+  // Mahindra
+  v1025: ["/mahindra-thar.jpg"],
+  v1010: ["/mahindra-scorpio-n.jpg"],
+};
+
 export default function Browse() {
   const { state, role, addSavedSearch } = useStore();
   const toast = useToast();
@@ -49,6 +167,18 @@ export default function Browse() {
   }, [params]);
 
   const results = useMemo(() => sortVehicles(applyFilters(state.vehicles.filter(isPublic), filters), sort, filters.q), [state.vehicles, filters, sort]);
+
+   console.log(
+    " Cars Landing vehicles:",
+    results.map((v) => ({
+      id: v.id,
+      make: v.make,
+      model: v.model,
+      photos: v.photos,
+    })),
+  );
+
+
   const chips = FILTER_KEYS.filter((k) => filters[k]);
   const title = filters.body ? `${filters.body}s` : filters.make ? `${filters.make} cars` : 'Cars for sale';
 
@@ -152,7 +282,13 @@ export default function Browse() {
             <>
               <div className={cn('grid gap-4', layout === 'grid' ? 'sm:grid-cols-2 xl:grid-cols-3' : 'grid-cols-1')}>
                 {results.slice(0, shown).map((v) => (
-                  <VehicleCard key={v.id} vehicle={v} layout={layout} />
+                  // <VehicleCard key={v.id} vehicle={v} layout={layout} />
+                  <VehicleCard
+                                    vehicle={{
+                                      ...v,
+                                      photos: resultsCar[v.id] || v.photos,
+                                    }}
+                                  />
                 ))}
               </div>
               <div className="mt-8 flex flex-col items-center gap-2">

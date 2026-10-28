@@ -4,8 +4,11 @@ import { BrowserRouter, MemoryRouter, useLocation } from 'react-router-dom';
 import AppRoutes from './routes/AppRoutes';
 import { StoreProvider } from './store/AppStore';
 import { ToastProvider } from './components/ui/Toast';
+import { ThemeProvider } from './store/StyleContext';
 import DemoNavigator from './components/layout/DemoNavigator';
 import './styles/index.css';
+import './styles/theme-dark-utilities.css';
+import './styles/theme.css';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -22,6 +25,7 @@ const Router = __SINGLE_FILE__ ? MemoryRouter : BrowserRouter;
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
+    <ThemeProvider>
     <StoreProvider>
       <ToastProvider>
         <Router>
@@ -31,5 +35,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         </Router>
       </ToastProvider>
     </StoreProvider>
+    </ThemeProvider>
   </React.StrictMode>,
 );
