@@ -77,7 +77,7 @@ export const SCREENS = [
     [26, 'Ownership / handover tracking', '/agent/handover', 'agent'], [27, 'Listings & enquiries', '/agent/listings', 'agent'],
   ]],
   ['Buyer', [
-    [28, 'Buyer sign-in / onboarding', '/buyer/welcome'], [29, 'Buyer dashboard', '/buyer', 'buyer'], [30, 'Saved vehicles', '/buyer/saved', 'buyer'], [31, 'Compare vehicles', '/compare'], [32, 'Contact / enquiry', '/cars/v1005/contact'],
+    [28, 'Buyer sign-in / onboarding', '/buyer/welcome'], [29, 'Buyer dashboard', '/buyer', 'buyer'], [30, 'Saved vehicles', '/buyer/saved', 'buyer'], [31, 'Compare vehicles', '/compare'], [32, 'Contact / enquiry', '/cars/v1005/contact'], [48, "Seller's other listings", '/sellers/u_dealer1'],
   ]],
   ['Administrator', [
     [33, 'Admin login', '/admin/login'], [34, 'Admin dashboard', '/admin', 'admin'], [35, 'Platform configuration', '/admin/settings', 'admin'], [36, 'User directory', '/admin/users', 'admin'],

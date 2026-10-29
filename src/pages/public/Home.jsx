@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   ArrowRight,
@@ -22,7 +22,7 @@ import { Button, Select } from "../../components/ui";
 import { VehicleCard } from "../../components/vehicle/VehicleCard";
 import { CarArt } from "../../components/vehicle/CarArt";
 import { CountUp, Reveal } from "../../components/interactive/Interactive";
-import bannerCar from "../../assets/defender-home.webp";
+import bannerCar from "../../assets/banner-bg-4.jpg";
 import { RangeInput } from "../../components/vehicle/EmiWidget";
 import {
   BODY_TYPES,
@@ -58,7 +58,7 @@ const recentVehicleImages = {
   v1003: ["/hoda-ameze.avif"],
   v1022: ["/verna-2.jpg"],
   v1023: ["/BMW-3-series.jpg"],
-  
+
   v1039: ["/i-20-2.jpeg"],
   v1100: ["/toyota-glanza.webp"],
   v1010: ["/scropio-n.jpg"],
@@ -66,6 +66,42 @@ const recentVehicleImages = {
   // Add more vehicle IDs and image paths here
   // v1021: ["/cars/creta.jpg"],
 };
+
+  // const formatTZS = (price) =>
+  // new Intl.NumberFormat('en-TZ', {
+  //   style: 'currency',
+  //   currency: 'TZS',
+  //   maximumFractionDigits: 0,
+  // }).format(price);
+
+  const INR_TO_TZS = 29; // Example rate only; update with the current rate
+
+const formatTZS = (priceInINR) => {
+  const priceInTZS = priceInINR * INR_TO_TZS;
+
+  return new Intl.NumberFormat("en-TZ", {
+    style: "currency",
+    currency: "TZS",
+    maximumFractionDigits: 0,
+  }).format(priceInTZS);
+};
+
+  const heroSlides = [
+  {
+    image: bannerCar,
+    label: "Find Your Car",
+  },
+  {
+    image:
+      "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=2000&q=85",
+    label: "Explore Premium",
+  },
+  {
+    image:
+      "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=2000&q=85",
+    label: "Drive Your Dream",
+  },
+];
 
 function HeroSearch() {
   const nav = useNavigate();
@@ -144,7 +180,7 @@ function HeroSearch() {
       </div>
       <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap gap-1.5">
-          {["Under ₹5 Lakh", "Automatic", "Electric"].map((t, i) => (
+          {["Under ₹1,38,73,550 Tsh", "Automatic", "Electric"].map((t, i) => (
             <Link
               key={t}
               to={
@@ -299,15 +335,26 @@ function AffordabilityBand({ live }) {
 
 export default function Home() {
   const { state } = useStore();
+
+  const [activeSlide, setActiveSlide] = useState(0);
+
+useEffect(() => {
+  const timer = setInterval(() => {
+    setActiveSlide((current) => (current + 1) % heroSlides.length);
+  }, 5000);
+
+  return () => clearInterval(timer);
+}, []);
+
+
   const live = useMemo(() => state.vehicles.filter(isPublic), [state.vehicles]);
   const featured = live.filter((v) => v.featured).slice(0, 4);
-
 
   const recent = [...live]
     .sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt))
     .slice(0, 8);
 
-      console.log(
+  console.log(
     "Featured vehicles:",
     recent.map((v) => ({
       id: v.id,
@@ -316,6 +363,7 @@ export default function Home() {
       photos: v.photos,
     })),
   );
+
 
 
   const brandCounts = MAKES.map((m) => ({
@@ -328,11 +376,10 @@ export default function Home() {
   const verifiedCount = live.filter(
     (v) => v.verification === "verified",
   ).length;
-
   return (
     <>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-[#13282D]">
+      {/* <section className="relative overflow-hidden bg-[#13282D]">
         <div
           className="pointer-events-none absolute inset-0"
           style={{
@@ -402,10 +449,257 @@ export default function Home() {
             <HeroSearch />
           </div>
         </div>
-      </section>
+      </section> */}
 
+  
+<section className="relative isolate mb-28 overflow-visible">
+  {/* Full-width background image */}
+  <div className="absolute inset-0 -z-10 overflow-hidden rounded-b-3xl bg-[#13282D]">
+    <img
+      src={bannerCar}
+      alt=""
+      aria-hidden="true"
+      className="absolute inset-0 h-full w-full object-cover object-center"
+    />
+
+    {/* Cinematic overlay */}
+    <div className="absolute inset-0 bg-gradient-to-r from-[#0B191D]/70 via-[#13282D]/25 to-[#13282D]/35" />
+    <div className="absolute inset-0 bg-gradient-to-t from-[#13282D]/25 via-transparent to-[#13282D]/10" />
+
+    {/* Accent lighting */}
+    <div
+      className="absolute inset-0"
+      style={{
+        background:
+          "radial-gradient(ellipse at 85% 20%, rgba(232,32,28,0.22), transparent 45%), radial-gradient(ellipse at 10% 90%, rgba(248,208,0,0.12), transparent 40%)",
+      }}
+    />
+  </div>
+
+  {/* Hero content */}
+  <div className="container-page relative pb-32 pt-14 sm:pb-36 sm:pt-20 lg:pb-40 lg:pt-24">
+    <div className="max-w-3xl">
+      {/* Live listing indicator */}
+      <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.08] px-4 py-2 backdrop-blur-md">
+        <span className="relative flex h-2.5 w-2.5">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400" />
+        </span>
+
+        <p className="text-xs font-semibold tracking-wide text-white sm:text-sm">
+          <CountUp value={live.length} /> cars live
+          <span className="mx-2 text-white/40">•</span>
+          <CountUp value={verifiedCount} /> with verified documents
+        </p>
+      </div>
+
+      {/* Main heading */}
+      <h1 className="mt-7 max-w-3xl text-4xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl">
+        Your next car.
+        <br />
+        <span className="text-[#F8D000]">Your deal.</span>{" "}
+        <span className="text-white">Your way.</span>
+      </h1>
+
+      {/* Accent divider */}
+      <div className="mt-6 flex h-1.5 w-28 overflow-hidden rounded-full">
+        <span className="w-[38%] bg-[#F8D000]" />
+        <span className="flex-1 bg-[#E8201C]" />
+      </div>
+
+      {/* Description */}
+      <p className="mt-6 max-w-xl text-base leading-7 text-white/80 sm:text-lg sm:leading-8">
+        Discover cars from trusted dealers, owners and agents across India.
+        Check registration details, estimate your EMI and connect directly
+        with the seller. No middleman. Just smarter car buying.
+      </p>
+
+      {/* CTA buttons */}
+      <div className="mt-8 flex flex-wrap items-center gap-3">
+        <Button to="/cars" size="lg" iconRight={ArrowRight}>
+          Explore cars
+        </Button>
+
+        <Link
+          to="/register"
+          className="btn btn-lg border border-white/30 bg-white/10 text-white backdrop-blur-sm transition hover:border-white/50 hover:bg-white/20"
+        >
+          Create free account
+        </Link>
+      </div>
+
+      {/* Trust indicators */}
+      <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-white/75">
+        <div className="flex items-center gap-2">
+          <BadgeCheck className="h-4 w-4 text-[#F8D000]" />
+          <span>Direct seller contact</span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <BadgeCheck className="h-4 w-4 text-[#F8D000]" />
+          <span>Verified documents</span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <BadgeCheck className="h-4 w-4 text-[#F8D000]" />
+          <span>No middleman</span>
+        </div>
+      </div>
+    </div>
+
+    {/* Mobile search */}
+    <div className="absolute inset-x-0 bottom-0 translate-y-1/2 px-4 lg:hidden">
+      <HeroSearch />
+    </div>
+  </div>
+
+  {/* Desktop search overlapping the banner */}
+  <div className="container-page absolute inset-x-0 bottom-0 z-10 hidden translate-y-1/2 lg:block">
+    <HeroSearch />
+  </div>
+</section>
+
+{/* Background image slider + hero content */}
+{/* <section className="relative isolate mb-28 overflow-visible">
+
+  <div className="absolute inset-0 -z-10 overflow-hidden rounded-b-3xl bg-[#13282D]">
+    {heroSlides.map((slide, index) => (
+      <img
+        key={slide.label}
+        src={slide.image}
+        alt=""
+        aria-hidden="true"
+        className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-1000 ${
+          activeSlide === index ? "opacity-100" : "opacity-0"
+        }`}
+      />
+    ))}
+
+    <div className="absolute inset-0 bg-gradient-to-r from-[#0B191D]/90 via-[#13282D]/65 to-[#13282D]/30" />
+    <div className="absolute inset-0 bg-gradient-to-t from-[#13282D]/80 via-transparent to-[#13282D]/20" />
+  </div>
+
+  <div className="container-page relative pb-32 pt-14 sm:pb-36 sm:pt-20 lg:pb-40 lg:pt-24">
+    <div className="max-w-3xl">
+      <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 backdrop-blur-md">
+        <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+        <p className="text-xs font-semibold text-white sm:text-sm">
+          <CountUp value={live.length} /> cars live
+          <span className="mx-2 text-white/50">•</span>
+          <CountUp value={verifiedCount} /> with verified documents
+        </p>
+      </div>
+
+      <h1 className="mt-7 max-w-3xl text-4xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl">
+        Your next car.
+        <br />
+        <span className="text-[#F8D000]">Your deal.</span>{" "}
+        Your way.
+      </h1>
+
+      <div className="mt-6 flex h-1.5 w-28 overflow-hidden rounded-full">
+        <span className="w-[38%] bg-[#F8D000]" />
+        <span className="flex-1 bg-[#E8201C]" />
+      </div>
+
+      <p className="mt-6 max-w-xl text-base leading-7 text-white/85 sm:text-lg sm:leading-8">
+        Discover cars from trusted dealers, owners and agents across India.
+        Check registration details, estimate your EMI and connect directly
+        with the seller. No middleman. Just smarter car buying.
+      </p>
+
+      <div className="mt-8 flex flex-wrap gap-3">
+        <Button to="/cars" size="lg" iconRight={ArrowRight}>
+          Explore cars
+        </Button>
+
+        <Link
+          to="/register"
+          className="btn btn-lg border border-white/30 bg-white/10 text-white backdrop-blur-md hover:bg-white/20"
+        >
+          Create free account
+        </Link>
+      </div>
+
+      <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm text-white/85">
+        <span className="flex items-center gap-2">
+          <BadgeCheck className="h-4 w-4 text-[#F8D000]" />
+          Direct seller contact
+        </span>
+        <span className="flex items-center gap-2">
+          <BadgeCheck className="h-4 w-4 text-[#F8D000]" />
+          Verified documents
+        </span>
+        <span className="flex items-center gap-2">
+          <BadgeCheck className="h-4 w-4 text-[#F8D000]" />
+          No middleman
+        </span>
+      </div>
+    </div>
+
+
+    <div className="absolute inset-x-0 bottom-0 px-4 translate-y-1/2 lg:hidden">
+      <HeroSearch />
+    </div>
+  </div>
+
+
+  <div className="absolute right-4 top-5 z-20 flex items-center gap-2 sm:right-8 sm:top-8">
+    <button
+      type="button"
+      onClick={() =>
+        setActiveSlide(
+          (current) =>
+            (current - 1 + heroSlides.length) % heroSlides.length
+        )
+      }
+      aria-label="Previous slide"
+      className="flex h-10 w-10 items-center justify-center rounded-full border border-white/25 bg-white/10 text-xl text-white backdrop-blur-xl transition hover:bg-white/25"
+    >
+      &#8592;
+    </button>
+
+    <div className="flex max-w-[65vw] items-center gap-1 overflow-x-auto rounded-full border border-white/20 bg-white/10 p-1.5 shadow-xl backdrop-blur-xl">
+      {heroSlides.map((slide, index) => (
+        <button
+          key={slide.label}
+          type="button"
+          onClick={() => setActiveSlide(index)}
+          aria-label={`Show ${slide.label}`}
+          aria-pressed={activeSlide === index}
+          className={`shrink-0 rounded-full px-3 py-2 text-xs font-semibold transition-all duration-300 sm:px-4 sm:text-sm ${
+            activeSlide === index
+              ? "bg-white text-[#13282D] shadow-md"
+              : "text-white hover:bg-white/15"
+          }`}
+        >
+          {slide.label}
+        </button>
+      ))}
+    </div>
+
+    <button
+      type="button"
+      onClick={() =>
+        setActiveSlide(
+          (current) => (current + 1) % heroSlides.length
+        )
+      }
+      aria-label="Next slide"
+      className="flex h-10 w-10 items-center justify-center rounded-full border border-white/25 bg-white/10 text-xl text-white backdrop-blur-xl transition hover:bg-white/25"
+    >
+      &#8594;
+    </button>
+  </div>
+
+  <div className="container-page absolute inset-x-0 bottom-0 z-10 hidden translate-y-1/2 lg:block">
+    <HeroSearch />
+  </div>
+</section> */}
+
+
+  
       {/* <AffordabilityBand live={live} /> */}
-
       {/* Categories */}
       <section className="container-page py-12">
         <div className="mb-5 flex items-end justify-between gap-4">
@@ -464,7 +758,6 @@ export default function Home() {
           })}
         </div>
       </section>
-
       {/* Featured */}
       <section className="bg-white py-12">
         <div className="container-page">
@@ -503,7 +796,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* Brands */}
       <section className="container-page py-12">
         <h2 className="mb-5 text-2xl font-bold">Popular brands</h2>
@@ -527,7 +819,6 @@ export default function Home() {
           ))}
         </div>
       </section>
-
       {/* Recently added */}
       <section className="bg-white py-12">
         <div className="container-page">
@@ -558,7 +849,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* How it works */}
       <section className="container-page py-14">
         <div className="max-w-2xl">
@@ -605,7 +895,6 @@ export default function Home() {
           ))}
         </ol>
       </section>
-
       {/* Benefits */}
       <section className="bg-white py-14">
         <div className="container-page grid gap-6 lg:grid-cols-2">
@@ -653,7 +942,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* Registration CTAs */}
       <section className="container-page py-14">
         <h2 className="text-[28px] font-bold">Choose how you sell</h2>
@@ -692,7 +980,6 @@ export default function Home() {
           ))}
         </div>
       </section>
-
       {/* Plans + support */}
       <section className="bg-white py-14">
         <div className="container-page grid gap-8 lg:grid-cols-[1.4fr_1fr]">
@@ -716,7 +1003,7 @@ export default function Home() {
                       className="mt-1 font-display text-2xl font-bold num"
                       style={{ fontStretch: "110%" }}
                     >
-                      {inr(p.price)}
+                      {formatTZS(p.price)}
                     </p>
                     <p className="text-[12px] text-mist-500">
                       + GST ·{" "}

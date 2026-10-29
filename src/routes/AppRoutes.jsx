@@ -8,6 +8,7 @@ import ProtectedRoute from './ProtectedRoute';
 import Home from '../pages/public/Home';
 import Browse from '../pages/public/Browse';
 import VehicleDetails from '../pages/public/VehicleDetails';
+import SellerListings from '../pages/public/SellerListings';
 import VerifyVehicle from '../pages/public/VerifyVehicle';
 import LoanCalculator from '../pages/public/LoanCalculator';
 import HowItWorks from '../pages/public/HowItWorks';
@@ -70,6 +71,7 @@ export default function AppRoutes() {
         <Route path="cars" element={<Browse />} />
         <Route path="cars/:id" element={<VehicleDetails />} />
         <Route path="cars/:id/contact" element={<VehicleContact />} />
+        <Route path="sellers/:id" element={<SellerListings />} />
         <Route path="verify-vehicle" element={<VerifyVehicle />} />
         <Route path="loan-calculator" element={<LoanCalculator />} />
         <Route path="how-it-works" element={<HowItWorks />} />

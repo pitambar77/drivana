@@ -1,14 +1,16 @@
 // Light / dark mode.
-// Follows the device setting until the user picks one; the choice is remembered on this browser.
-// Sets <html data-theme="light|dark">; theme-dark.css restyles the app from there.
+// Every visitor starts in DEFAULT_THEME. Clicking the sun/moon button switches mode,
+// and that choice is remembered on their browser.
+// Sets <html data-theme="light|dark">; theme.css restyles the app from there.
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Moon, Sun } from 'lucide-react';
 import { cn } from '../utils/format';
 
 const KEY = 'autodealer-theme';
-const Ctx = createContext({ theme: 'light', setTheme: () => {}, toggle: () => {} });
 
-const systemTheme = () => (typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+/** Change to 'dark' to open the site in dark mode by default. */
+export const DEFAULT_THEME = 'light';
+const Ctx = createContext({ theme: 'light', setTheme: () => {}, toggle: () => {} });
 
 function stored() {
   try {
@@ -22,16 +24,7 @@ function stored() {
 
 export function ThemeProvider({ children }) {
   const [choice, setChoice] = useState(stored);
-  const [system, setSystem] = useState(systemTheme);
-  const theme = choice || system;
-
-  useEffect(() => {
-    const mq = window.matchMedia?.('(prefers-color-scheme: dark)');
-    if (!mq) return undefined;
-    const on = (e) => setSystem(e.matches ? 'dark' : 'light');
-    mq.addEventListener?.('change', on);
-    return () => mq.removeEventListener?.('change', on);
-  }, []);
+  const theme = choice || DEFAULT_THEME;
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -55,11 +48,11 @@ export const useTheme = () => useContext(Ctx);
 export function ThemeToggle({ className, onDark, compact }) {
   const { theme, setTheme, toggle } = useTheme();
   if (compact) {
-    const Icon = theme === 'dark' ? Moon : Sun;
     const next = theme === 'dark' ? 'light' : 'dark';
+    const Icon = next === 'dark' ? Moon : Sun;
     return (
       <button type="button" onClick={toggle} className={cn('btn-icon theme-toggle-btn', className)} aria-label={`Switch to ${next} mode`} title={`Switch to ${next} mode`}>
-        <Icon className={cn('h-[18px] w-[18px]', theme === 'dark' ? 'text-sun-400' : 'text-accent-600')} strokeWidth={2.2} />
+        <Icon className={cn('h-[18px] w-[18px]', next === 'light' ? 'text-sun-400' : 'text-ink-700')} strokeWidth={2.2} />
       </button>
     );
   }

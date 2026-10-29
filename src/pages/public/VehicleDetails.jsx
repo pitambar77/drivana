@@ -1,18 +1,22 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Building2, CalendarDays, Car, Check, ExternalLink, Fuel, Gauge, GitCompareArrows, Handshake, Heart, MapPin, MessageSquare, Palette, Phone, Settings2, ShieldCheck, UserRound, Users } from 'lucide-react';
+import { ArrowRight, Building2, CalendarDays, Car, Check, ExternalLink, LayoutGrid, Fuel, Gauge, GitCompareArrows, Handshake, Heart, MapPin, MessageSquare, Palette, Phone, Settings2, ShieldCheck, UserRound, Users } from 'lucide-react';
 import { useStore, isPublic } from '../../store/AppStore';
 import { Alert, Avatar, Breadcrumbs, Button, CopyText, EmptyState, Plate, Section, StatusBadge, VerificationBadge, useToast } from '../../components/ui';
 import { Gallery } from '../../components/vehicle/Gallery';
 import { EmiWidget } from '../../components/vehicle/EmiWidget';
 import { EnquiryForm } from '../../components/vehicle/EnquiryForm';
 import { VehicleCard, vehicleTitle } from '../../components/vehicle/VehicleCard';
+import { SimilarComparison } from '../../components/vehicle/SimilarComparison';
+import { SELLER_TYPE, sellerName, useSellerListings } from './SellerListings';
 import { cn, date, km, lakh, num } from '../../utils/format';
 
 
 
 export function SellerCard({ vehicle: v, seller, compact }) {
   const [reveal, setReveal] = useState(false);
+  const listings = useSellerListings(v.sellerId);
+  const others = listings.filter((x) => x.id !== v.id).length;
   const Icon = v.sellerRole === 'dealer' ? Building2 : v.sellerRole === 'agent' ? Handshake : UserRound;
   const type = { dealer: 'Dealer', seller: 'Private owner', agent: 'Agent (selling for the owner)' }[v.sellerRole];
   return (
@@ -20,7 +24,9 @@ export function SellerCard({ vehicle: v, seller, compact }) {
       <div className="flex items-center gap-3">
         <Avatar name={seller?.business || seller?.agency || seller?.name} size={44} />
         <div className="min-w-0">
-          <p className="truncate font-bold text-ink-900">{seller?.business || seller?.agency || seller?.name}</p>
+          <Link to={`/sellers/${v.sellerId}?from=${v.id}`} className="block truncate font-bold text-ink-900 hover:text-accent-700">
+            {seller?.business || seller?.agency || seller?.name}
+          </Link>
           <p className="flex items-center gap-1 text-[13px] text-mist-600">
             <Icon className="h-3.5 w-3.5" /> {type}
           </p>
@@ -53,6 +59,16 @@ export function SellerCard({ vehicle: v, seller, compact }) {
           <CopyText text={seller?.phone || ''} />
         </div>
       )}
+      {!compact &&
+        (others > 0 ? (
+          <Button variant="secondary" icon={LayoutGrid} iconRight={ArrowRight} to={`/sellers/${v.sellerId}?from=${v.id}`} className="w-full">
+            See {others} more car{others === 1 ? '' : 's'} from this {SELLER_TYPE[v.sellerRole]?.label.toLowerCase() || 'seller'}
+          </Button>
+        ) : (
+          <Link to={`/sellers/${v.sellerId}?from=${v.id}`} className="block text-center text-[13px] font-semibold text-mist-600 hover:text-accent-700">
+            View seller profile · no other cars listed
+          </Link>
+        ))}
       {reveal && <p className="text-[12px] text-mist-500">Tell the seller you found the car on AutoDealer. Never pay a token amount before seeing the car and its RC.</p>}
     </div>
   );
@@ -277,7 +293,41 @@ export default function VehicleDetails() {
           </div>
         </section>
       )}
+
+      <SimilarComparison key={v.id} vehicle={v} />
+
+      <MoreFromSeller vehicle={v} seller={seller} />
     </div>
+  );
+}
+
+/** Up to four other live cars from the same seller, plus a link to all of them. */
+function MoreFromSeller({ vehicle: v, seller }) {
+  const others = useSellerListings(v.sellerId).filter((x) => x.id !== v.id);
+  if (!others.length) return null;
+  const T = SELLER_TYPE[v.sellerRole];
+  return (
+    <section className="mt-12" aria-labelledby="more-seller">
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="eyebrow">{T?.label}</p>
+          <h2 id="more-seller" className="mt-1 text-xl font-bold">
+            More from {sellerName(seller)}
+          </h2>
+          <p className="mt-1 text-sm text-mist-600">
+            {others.length} other car{others.length === 1 ? '' : 's'} for sale · {seller?.city}
+          </p>
+        </div>
+        <Button variant="secondary" iconRight={ArrowRight} to={`/sellers/${v.sellerId}?from=${v.id}`}>
+          See all {others.length + 1} cars from this {T?.label.toLowerCase()}
+        </Button>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {others.slice(0, 4).map((s) => (
+          <VehicleCard key={s.id} vehicle={s} />
+        ))}
+      </div>
+    </section>
   );
 }
 
