@@ -32,8 +32,10 @@ export const COLORS = [
   { name: 'Pearl Beige', hex: '#D6CAB4' },
 ];
 
-// price = approximate new ex-showroom price in INR
-export const MODELS = [
+// price = approximate new price in Tanzanian shillings (TSh).
+// Demo figures converted from Indian ex-showroom prices at TSh 29 per ₹1, rounded to TSh 100,000.
+const TZS_PER_INR = 29;
+const RAW_MODELS = [
   { make: 'Maruti Suzuki', model: 'Swift', body: 'Hatchback', fuels: ['Petrol', 'CNG'], price: 690000, cc: 1197, bhp: 82, seats: 5, variants: ['LXi', 'VXi', 'ZXi', 'ZXi+'], vin: 'MA3' },
   { make: 'Maruti Suzuki', model: 'Baleno', body: 'Hatchback', fuels: ['Petrol', 'CNG'], price: 760000, cc: 1197, bhp: 89, seats: 5, variants: ['Delta', 'Zeta', 'Alpha'], vin: 'MA3' },
   { make: 'Maruti Suzuki', model: 'Brezza', body: 'SUV', fuels: ['Petrol', 'CNG'], price: 1050000, cc: 1462, bhp: 102, seats: 5, variants: ['LXi', 'VXi', 'ZXi', 'ZXi+'], vin: 'MA3' },
@@ -61,6 +63,7 @@ export const MODELS = [
   { make: 'BMW', model: '3 Series Gran Limousine', body: 'Sedan', fuels: ['Petrol', 'Diesel'], price: 6200000, cc: 1998, bhp: 255, seats: 5, variants: ['330Li M Sport', '320Ld Luxury'], vin: 'WBA' },
   { make: 'Mercedes-Benz', model: 'C-Class', body: 'Sedan', fuels: ['Petrol', 'Diesel'], price: 6100000, cc: 1496, bhp: 201, seats: 5, variants: ['C 200', 'C 220d', 'C 300'], vin: 'W1K' },
 ];
+export const MODELS = RAW_MODELS.map((m) => ({ ...m, price: Math.round((m.price * TZS_PER_INR) / 100000) * 100000 }));
 
 export const MAKES = [...new Set(MODELS.map((m) => m.make))];
 export const modelsFor = (make) => MODELS.filter((m) => m.make === make).map((m) => m.model);

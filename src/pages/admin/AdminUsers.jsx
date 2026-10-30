@@ -5,7 +5,7 @@ import { useStore } from '../../store/AppStore';
 import { Avatar, Badge, Button, ConfirmDialog, CsvModal, DataTable, DL, Modal, PageHeader, SearchInput, Select, StatusBadge, Tabs, useToast } from '../../components/ui';
 import { vehicleTitle } from '../../components/vehicle/VehicleCard';
 import { ROLE_META } from '../../config/site';
-import { date, dateTime, inr, toCSV, tryDownload } from '../../utils/format';
+import { date, dateTime, tzs, toCSV, tryDownload } from '../../utils/format';
 
 export default function AdminUsers() {
   const { state, setUserStatus } = useStore();
@@ -185,7 +185,7 @@ export default function AdminUsers() {
                 <h3 className="mb-2 text-sm font-bold">Payments</h3>
                 <p className="text-sm text-mist-600">
                   {state.payments.filter((x) => x.userId === p.id && x.status === 'success').length} successful ·{' '}
-                  {inr(state.payments.filter((x) => x.userId === p.id && x.status === 'success').reduce((s, x) => s + x.total, 0))} total
+                  {tzs(state.payments.filter((x) => x.userId === p.id && x.status === 'success').reduce((s, x) => s + x.total, 0))} total
                 </p>
               </div>
             )}

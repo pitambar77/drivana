@@ -6,10 +6,10 @@ import { ChipsField, NavButtons, PhoneVerifyStep, RE, RegisterFrame, ReviewBlock
 
 const STEPS = ['Mobile', 'Profile', 'What you want', 'Alerts & review'];
 const BUDGETS = [
-  { value: '0-500000', label: 'Under ₹5 Lakh' },
-  { value: '500000-1200000', label: '₹5 – 12 Lakh' },
-  { value: '1200000-2500000', label: '₹12 – 25 Lakh' },
-  { value: '2500000-99999999', label: 'Above ₹25 Lakh' },
+  { value: '0-15000000', label: 'Under TSh 15M' },
+  { value: '15000000-40000000', label: 'TSh 15M – 40M' },
+  { value: '40000000-75000000', label: 'TSh 40M – 75M' },
+  { value: '75000000-9999999999', label: 'Above TSh 75M' },
 ];
 
 const V = {
@@ -24,7 +24,7 @@ export default function RegisterBuyer() {
   const [step, setStep] = useState(0);
   const [done, setDone] = useState(false);
   const [busy, setBusy] = useState(false);
-  const w = useWizard({ cc: '+91', bodies: [], fuels: [], budget: '500000-1200000', priceDrops: true, newMatches: true, weekly: false }, V);
+  const w = useWizard({ cc: '+91', bodies: [], fuels: [], budget: '15000000-40000000', priceDrops: true, newMatches: true, weekly: false }, V);
   const d = w.data;
 
   const submit = async () => {

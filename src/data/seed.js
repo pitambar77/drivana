@@ -101,9 +101,9 @@ function vehicle(i) {
   const age = 2026 - year;
   const mileage = isNew ? int(8, 45) : Math.max(1500, age * int(8500, 14500) + int(0, 4000));
   const fuel = pick(m.fuels);
-  const transmission = R() < 0.45 || m.price > 3000000 ? 'Automatic' : 'Manual';
+  const transmission = R() < 0.45 || m.price > 87000000 ? 'Automatic' : 'Manual';
   const condition = isNew ? 'New' : seller.role === 'dealer' && R() < 0.4 ? 'Certified pre-owned' : 'Used';
-  const price = Math.round((m.price * (isNew ? 1.02 : Math.max(0.32, 0.88 ** age)) * (0.92 + R() * 0.12)) / 5000) * 5000;
+  const price = Math.round((m.price * (isNew ? 1.02 : Math.max(0.32, 0.88 ** age)) * (0.92 + R() * 0.12)) / 50000) * 50000;
   const reg = isNew ? '' : `${city.state}${city.rto}${LETTERS[int(0, 22)]}${LETTERS[int(0, 22)]}${int(1000, 9999)}`;
   const color = COLORS[(i * 5) % COLORS.length];
   const created = int(1, 75);
@@ -133,7 +133,7 @@ function vehicle(i) {
       seats: m.seats,
       batteryKwh: fuel === 'Electric' ? int(30, 50) : null,
       mileageKmpl: fuel === 'Electric' ? null : Number((12 + R() * 10).toFixed(1)),
-      airbags: m.price > 1200000 ? 6 : 2,
+      airbags: m.price > 34800000 ? 6 : 2,
       features: ['Power steering', 'ABS with EBD', 'Rear parking sensors', 'Touchscreen infotainment', 'Apple CarPlay / Android Auto', 'Automatic climate control', 'Cruise control', 'Sunroof', 'Alloy wheels', 'Keyless entry'].filter(() => R() < 0.65),
     },
     description: DESC[i % DESC.length],
@@ -178,7 +178,7 @@ vehicles.push({
   variant: 'Asta (O)',
   bodyType: 'Hatchback',
   year: 2021,
-  price: 685000,
+  price: 19850000,
   mileage: 38420,
   fuel: 'Petrol',
   transmission: 'Manual',
@@ -235,7 +235,7 @@ vehicles.push({
   variant: 'Asta (O)',
   bodyType: 'Hatchback',
   year: 2021,
-  price: 690000,
+  price: 20000000,
   mileage: 38100,
   fuel: 'Petrol',
   transmission: 'Manual',
@@ -348,7 +348,7 @@ const REF_STATUS = ['referred', 'application', 'sanctioned', 'disbursed', 'disbu
 const referrals = Array.from({ length: 34 }, (_, i) => {
   const v = live[(i * 5) % live.length];
   const lender = LENDERS[i % 2];
-  const loanAmount = Math.round((v.price * (0.6 + R() * 0.25)) / 1000) * 1000;
+  const loanAmount = Math.round((v.price * (0.6 + R() * 0.25)) / 100000) * 100000;
   const status = REF_STATUS[i % REF_STATUS.length];
   return {
     id: `LR${5100 + i}`,
@@ -412,7 +412,7 @@ const notes = [{ id: 'n1', listingId: 'v1003', at: daysAgo(0, 9), author: 'Ops A
 
 export function buildSeed() {
   return {
-    version: 3,
+    version: 4,
     users: structuredClone(users),
     vehicles: structuredClone(vehicles),
     enquiries: structuredClone(enquiries),
@@ -428,9 +428,9 @@ export function buildSeed() {
     compare: ['v1005', 'v1012'],
     recent: ['v1014', 'v1005', 'v1030', 'v1012', 'v1008'],
     savedSearches: [
-      { id: 'ss1', label: 'SUVs under ₹12 Lakh in Bhubaneswar', query: { body: 'SUV', maxPrice: '1200000', city: 'Bhubaneswar' }, createdAt: daysAgo(6) },
+      { id: 'ss1', label: 'SUVs under TSh 40M in Bhubaneswar', query: { body: 'SUV', maxPrice: '40000000', city: 'Bhubaneswar' }, createdAt: daysAgo(6) },
       { id: 'ss2', label: 'Automatic hatchbacks, 2020 or newer', query: { body: 'Hatchback', transmission: 'Automatic', minYear: '2020' }, createdAt: daysAgo(14) },
     ],
-    buyerPrefs: { budget: '500000-1200000', bodies: ['SUV', 'Hatchback'], city: 'Bhubaneswar' },
+    buyerPrefs: { budget: '15000000-40000000', bodies: ['SUV', 'Hatchback'], city: 'Bhubaneswar' },
   };
 }

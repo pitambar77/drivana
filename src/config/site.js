@@ -8,7 +8,7 @@ export const SITE = {
   supportEmail: 'support@autodealer.example',
   supportHours: 'Mon–Sat, 9:00 am – 7:00 pm IST',
   address: '4th Floor, Infocity Square, Chandrasekharpur, Bhubaneswar 751024',
-  currency: 'INR',
+  currency: 'TZS',
   locale: 'en-IN',
   defaultCountryCode: '+91',
 };
@@ -33,13 +33,13 @@ export const DEFAULT_CONFIG = {
   defaultInterestRate: 9.25,
 };
 
-// Listing plans. Fees are in INR. (admin) configurable in a real backend.
+// Listing plans. Fees are in Tanzanian shillings (TSh). (admin) configurable in a real backend.
 export const PLANS = [
   {
     id: 'seller-basic',
     role: 'seller',
     name: 'Owner Listing',
-    price: 499,
+    price: 15000,
     validityDays: 60,
     vehicles: 1,
     features: ['1 active vehicle', '20 photos', 'Listed for 60 days', 'Call & chat enquiries'],
@@ -48,7 +48,7 @@ export const PLANS = [
     id: 'seller-boost',
     role: 'seller',
     name: 'Owner Listing + Boost',
-    price: 899,
+    price: 26000,
     validityDays: 60,
     vehicles: 1,
     highlight: true,
@@ -58,7 +58,7 @@ export const PLANS = [
     id: 'agent-standard',
     role: 'agent',
     name: 'Agent Listing',
-    price: 699,
+    price: 20000,
     validityDays: 60,
     vehicles: 1,
     features: ['Per vehicle', 'Owner details kept private', 'Handover tracker', 'Listed for 60 days'],
@@ -67,7 +67,7 @@ export const PLANS = [
     id: 'dealer-single',
     role: 'dealer',
     name: 'Dealer Single',
-    price: 599,
+    price: 17000,
     validityDays: 60,
     vehicles: 1,
     features: ['Per vehicle', 'Dealer profile badge', 'Lead inbox', 'Listed for 60 days'],
@@ -76,7 +76,7 @@ export const PLANS = [
     id: 'dealer-pro',
     role: 'dealer',
     name: 'Dealer Pro Pack',
-    price: 4999,
+    price: 145000,
     validityDays: 60,
     vehicles: 10,
     highlight: true,

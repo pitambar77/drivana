@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { AlertOctagon, BadgeIndianRupee, Car, CircleDashed, CreditCard, Landmark, Radio, Users } from 'lucide-react';
+import { AlertOctagon, Banknote, Car, CircleDashed, CreditCard, Landmark, Radio, Users } from 'lucide-react';
 import { useStore } from '../../store/AppStore';
 import { Badge, Button, KpiCard, PageHeader, Section } from '../../components/ui';
 import { AreaTrend, Bars, Donut, LegendList, Lines, bucket, CHART } from '../../components/charts/Charts';
-import { ago, inr, lakh, num } from '../../utils/format';
+import { ago, tzs, num, tzsShort } from '../../utils/format';
 
 export default function AdminDashboard() {
   const { state } = useStore();
@@ -62,10 +62,10 @@ export default function AdminDashboard() {
         <KpiCard label="Listings (total / live)" value={`${d.total} / ${d.live}`} icon={Car} />
         <KpiCard label="Live but unverified" value={d.unverified} icon={CircleDashed} tone="amber" sub="awaiting document review" />
         <KpiCard label="Flagged & blocked" value={d.flagged} icon={AlertOctagon} tone="red" sub="needs moderation" />
-        <KpiCard label="Listing-fee revenue" value={lakh(d.revenue)} icon={BadgeIndianRupee} tone="green" sub={`+ ${inr(d.gst)} GST collected`} />
+        <KpiCard label="Listing-fee revenue" value={tzsShort(d.revenue)} icon={Banknote} tone="green" sub={`+ ${tzs(d.gst)} GST collected`} />
         <KpiCard label="Payment success rate" value={`${successRate}%`} icon={CreditCard} sub={`${d.payStats[1].value} failed · ${d.payStats[3].value} pending`} />
-        <KpiCard label="Loan commissions earned" value={inr(d.commission)} icon={Landmark} tone="dark" sub="disbursed referrals" />
-        <KpiCard label="Commission pipeline" value={inr(d.pipeline)} icon={Radio} sub="if open referrals disburse" />
+        <KpiCard label="Loan commissions earned" value={tzsShort(d.commission)} icon={Landmark} tone="dark" sub="disbursed referrals" />
+        <KpiCard label="Commission pipeline" value={tzsShort(d.pipeline)} icon={Radio} sub="if open referrals disburse" />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.6fr_1fr]">

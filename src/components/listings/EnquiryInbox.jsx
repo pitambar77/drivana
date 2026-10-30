@@ -6,7 +6,7 @@ import { Avatar, Badge, CopyText, EmptyState, Pagination, SearchInput, Select, S
 import { LOAN_STEPS } from '../../data/partnerBanks';
 import { CarImage } from '../vehicle/CarArt';
 import { vehicleTitle } from '../vehicle/VehicleCard';
-import { ago, cn, dateTime, inr, lakh } from '../../utils/format';
+import { ago, cn, dateTime, tzs } from '../../utils/format';
 
 export const ENQ_STATUS = [
   { value: 'new', label: 'New' },
@@ -173,7 +173,7 @@ export function EnquiryInbox({ showVehicleFilter = true, compact }) {
                     <p className="text-[12px] font-semibold uppercase tracking-wide text-mist-500">About</p>
                     <p className="truncate font-semibold">{vehicleTitle(cv)}</p>
                     <p className="text-[13px] text-mist-500">
-                      {lakh(cv.price)} · {cv.id.toUpperCase()}
+                      {tzs(cv.price)} · {cv.id.toUpperCase()}
                     </p>
                   </div>
                 </Link>
@@ -206,10 +206,10 @@ function FinancePanel({ e }) {
       <div className="grid gap-4 p-4 sm:grid-cols-2">
         <dl className="space-y-1 text-[13.5px]">
           {[
-            ['Car price', inr(f.price)],
-            ['Down payment', inr(f.downPayment)],
-            ['Loan', `${inr(f.loanAmount)} · ${f.months} mo`],
-            ['EMI shown', `${inr(f.emi)}/mo at ${f.ratePct.toFixed(2)}%`],
+            ['Car price', tzs(f.price)],
+            ['Down payment', tzs(f.downPayment)],
+            ['Loan', `${tzs(f.loanAmount)} · ${f.months} mo`],
+            ['EMI shown', `${tzs(f.emi)}/mo at ${f.ratePct.toFixed(2)}%`],
           ].map(([k, v]) => (
             <div key={k} className="flex justify-between gap-3">
               <dt className="text-mist-600">{k}</dt>

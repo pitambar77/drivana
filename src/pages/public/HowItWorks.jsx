@@ -3,7 +3,7 @@ import { BadgeCheck, Building2, Car, Check, CreditCard, FileCheck2, Handshake, I
 import { Breadcrumbs, Button, Segmented, Badge } from '../../components/ui';
 import { PLANS } from '../../config/site';
 import { useStore } from '../../store/AppStore';
-import { cn, inr } from '../../utils/format';
+import { cn, tzs } from '../../utils/format';
 
 const JOURNEYS = {
   dealer: {
@@ -121,10 +121,10 @@ export default function HowItWorks() {
                       )}
                       <p className="font-semibold text-ink-900">{p.name}</p>
                       <p className="mt-2 font-display text-[34px] font-extrabold leading-none num" style={{ fontStretch: '112%' }}>
-                        {inr(p.price)}
+                        {tzs(p.price)}
                       </p>
                       <p className="mt-1 text-[13px] text-mist-500">
-                        + {inr(p.price * 0.18)} GST · {p.vehicles > 1 ? `${p.vehicles} vehicles` : 'one vehicle'} · {p.validityDays} days
+                        + {tzs(p.price * 0.18)} GST · {p.vehicles > 1 ? `${p.vehicles} vehicles` : 'one vehicle'} · {p.validityDays} days
                       </p>
                       <ul className="mt-5 flex-1 space-y-2 text-sm text-mist-700">
                         {p.features.map((f) => (

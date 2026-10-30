@@ -8,7 +8,7 @@ import { CarImage } from '../../components/vehicle/CarArt';
 import { vehicleTitle } from '../../components/vehicle/VehicleCard';
 import { requiredDocsFor } from '../../components/vehicle/VehicleFormWizard';
 import { PLANS, ROLE_META } from '../../config/site';
-import { cn, inr, lakh, sleep } from '../../utils/format';
+import { cn, tzs, sleep } from '../../utils/format';
 
 const METHODS = [
   { value: 'UPI', label: 'UPI', description: 'Any UPI app', icon: Smartphone },
@@ -91,7 +91,7 @@ export default function Checkout() {
       <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
         <div className="space-y-6">
           <Section title="1. Choose a plan">
-            <RadioCards name="plan" value={planId} onChange={setPlanId} columns={2} options={plans.map((p) => ({ value: p.id, label: `${p.name} · ${inr(p.price)}`, description: p.features.slice(0, 2).join(' · ') }))} />
+            <RadioCards name="plan" value={planId} onChange={setPlanId} columns={2} options={plans.map((p) => ({ value: p.id, label: `${p.name} · ${tzs(p.price)}`, description: p.features.slice(0, 2).join(' · ') }))} />
           </Section>
           <Section title="2. Payment method">
             <RadioCards name="method" value={method} onChange={setMethod} columns={2} options={METHODS} />
@@ -118,7 +118,7 @@ export default function Checkout() {
               <div>
                 <p className="font-bold text-ink-900">{vehicleTitle(v)}</p>
                 <p className="text-[13px] text-mist-500">
-                  {v.variant} · {lakh(v.price)}
+                  {v.variant} · {tzs(v.price)}
                 </p>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <Plate value={v.regNumber} size="sm" />
@@ -138,7 +138,7 @@ export default function Checkout() {
                 {termsErr && <p className="field-error">Accept the listing terms to continue.</p>}
               </div>
               <Button size="lg" className="w-full" icon={Lock} onClick={submit} disabled={missingDocs.length > 0 || processing}>
-                Pay {inr(plan.price * 1.18)}
+                Pay {tzs(plan.price * 1.18)}
               </Button>
             </div>
           </div>

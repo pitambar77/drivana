@@ -1,4 +1,4 @@
-import { lakh, num } from './format';
+import { num, tzsShort } from './format';
 
 export const FILTER_KEYS = ['q', 'make', 'model', 'minPrice', 'maxPrice', 'minYear', 'maxYear', 'maxKm', 'fuel', 'transmission', 'city', 'condition', 'body'];
 
@@ -63,9 +63,9 @@ export function chipLabel(key, value) {
     case 'q':
       return `"${value}"`;
     case 'minPrice':
-      return `From ${lakh(value)}`;
+      return `From ${tzsShort(value)}`;
     case 'maxPrice':
-      return `Up to ${lakh(value)}`;
+      return `Up to ${tzsShort(value)}`;
     case 'minYear':
       return `${value} or newer`;
     case 'maxYear':
@@ -79,4 +79,5 @@ export function chipLabel(key, value) {
   }
 }
 
-export const PRICE_STEPS = [200000, 300000, 500000, 700000, 1000000, 1500000, 2000000, 3000000, 5000000, 8000000];
+// TSh price steps for budget filters.
+export const PRICE_STEPS = [5000000, 10000000, 15000000, 20000000, 30000000, 40000000, 60000000, 80000000, 120000000, 200000000];

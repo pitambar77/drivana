@@ -5,7 +5,7 @@ import { useStore } from '../../store/AppStore';
 import { Button, CsvModal, DataTable, DateRangeFilter, KpiCard, PageHeader, Section, StatusBadge, VerificationBadge, inRange, presetRange } from '../../components/ui';
 import { AreaTrend, Bars, Donut, LegendList, Lines, bucket, CHART } from '../../components/charts/Charts';
 import { vehicleTitle } from '../../components/vehicle/VehicleCard';
-import { dateTime, inr, lakh, num, toCSV, tryDownload } from '../../utils/format';
+import { dateTime, tzs, num, toCSV, tryDownload, tzsShort } from '../../utils/format';
 
 export default function AdminReports() {
   const { state, user } = useStore();
@@ -53,7 +53,7 @@ export default function AdminReports() {
   const exports = {
     activity: () => exp('activity-report.csv', r.activity, [{ label: 'Period', value: 'label' }, { label: 'Registrations', value: 'registrations' }, { label: 'New listings', value: 'listings' }, { label: 'Enquiries', value: 'enquiries' }]),
     listings: () => exp('listing-statistics.csv', r.vehicles, [{ label: 'ID', value: 'id' }, { label: 'Vehicle', value: (v) => vehicleTitle(v) }, { label: 'City', value: 'city' }, { label: 'Seller type', value: 'sellerRole' }, { label: 'Price', value: 'price' }, { label: 'Status', value: 'status' }, { label: 'Verification', value: 'verification' }, { label: 'Created', value: (v) => v.createdAt.slice(0, 10) }]),
-    revenue: () => exp('revenue-report.csv', r.revenue, [{ label: 'Period', value: 'label' }, { label: 'Listing fees (INR)', value: 'fees' }, { label: 'GST (INR)', value: 'gst' }]),
+    revenue: () => exp('revenue-report.csv', r.revenue, [{ label: 'Period', value: 'label' }, { label: 'Listing fees (TZS)', value: 'fees' }, { label: 'GST (TZS)', value: 'gst' }]),
     flagged: () => exp('flagged-listings.csv', r.flagged, [{ label: 'ID', value: 'id' }, { label: 'Vehicle', value: (v) => vehicleTitle(v) }, { label: 'Status', value: 'status' }, { label: 'Verification', value: 'verification' }, { label: 'Seller', value: (v) => user(v.sellerId)?.name }]),
   };
 
@@ -69,7 +69,7 @@ export default function AdminReports() {
         <KpiCard label="New users" value={num(r.users.length)} />
         <KpiCard label="New listings" value={num(r.vehicles.length)} />
         <KpiCard label="Enquiries" value={num(r.enq.length)} />
-        <KpiCard label="Fee revenue" value={lakh(fees)} tone="green" />
+        <KpiCard label="Fee revenue" value={tzsShort(fees)} tone="green" />
         <KpiCard label="Flagged now" value={r.flagged.length} tone="red" />
       </div>
 
@@ -89,7 +89,7 @@ export default function AdminReports() {
         </Section>
       </div>
 
-      <Section title="Revenue" description={`Listing fees and GST per ${r.unit} · total ${inr(fees)}`} actions={<Button size="sm" variant="ghost" icon={Download} onClick={exports.revenue}>CSV</Button>}>
+      <Section title="Revenue" description={`Listing fees and GST per ${r.unit} · total ${tzs(fees)}`} actions={<Button size="sm" variant="ghost" icon={Download} onClick={exports.revenue}>CSV</Button>}>
         <Lines money data={r.revenue} series={[{ key: 'fees', name: 'Listing fees', color: CHART.navy }, { key: 'gst', name: 'GST', color: CHART.amber }]} />
       </Section>
 

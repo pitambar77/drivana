@@ -9,7 +9,7 @@ import { CarImage } from './CarArt';
 import { vehicleTitle } from './VehicleCard';
 import { calcEmi } from '../../utils/emi';
 import { MATCH_MODES, findMatches } from '../../utils/similarity';
-import { cn, inr, km, lakh, num } from '../../utils/format';
+import { cn, tzs, km, num } from '../../utils/format';
 
 const PREVIEW = 4; // matches shown before "Compare all"
 const SELLER = { dealer: 'Dealer', seller: 'Private owner', agent: 'Agent' };
@@ -21,7 +21,7 @@ function rowsFor(base, rate) {
     {
       group: 'Price & ownership',
       rows: [
-        ['Price', (c) => <span className="font-display text-[15px] font-bold">{lakh(c.price)}</span>, (c) => -c.price, (c) => c.price],
+        ['Price', (c) => <span className="font-display text-[15px] font-bold">{tzs(c.price)}</span>, (c) => -c.price, (c) => c.price],
         [
           'Price vs this car',
           (c) => {
@@ -32,14 +32,14 @@ function rowsFor(base, rate) {
             return (
               <span className={cn('inline-flex items-center gap-1 font-semibold', d < 0 ? 'text-ok-700' : 'text-bad-600')}>
                 <Icon className="h-3.5 w-3.5" />
-                {lakh(Math.abs(d))} {d < 0 ? 'cheaper' : 'more'}
+                {tzs(Math.abs(d))} {d < 0 ? 'cheaper' : 'more'}
               </span>
             );
           },
           null,
           (c) => c.price,
         ],
-        ['Est. EMI (20% down, 5 yrs)', (c) => `${inr(emi(c))}/mo`, (c) => -c.price],
+        ['Est. EMI (20% down, 5 yrs)', (c) => `${tzs(emi(c))}/mo`, (c) => -c.price],
         ['Model year', (c) => c.year, (c) => c.year],
         ['Kilometres', (c) => km(c.mileage), (c) => -c.mileage],
         ['Ownership', (c) => c.owners],
@@ -132,7 +132,7 @@ export function SimilarComparison({ vehicle: base }) {
   const pick = (fn) => all.reduce((best, c) => (fn(c) > fn(best) ? c : best), all[0]);
   const verdicts = matches.length
     ? [
-        ['Lowest price', pick((c) => -c.price), (c) => lakh(c.price)],
+        ['Lowest price', pick((c) => -c.price), (c) => tzs(c.price)],
         ['Lowest kilometres', pick((c) => -c.mileage), (c) => km(c.mileage)],
         ['Newest', pick((c) => c.year), (c) => `${c.year} model`],
         ['Most features', pick((c) => (c.specs?.features || []).length), (c) => `${(c.specs?.features || []).length} features`],
@@ -189,7 +189,7 @@ export function SimilarComparison({ vehicle: base }) {
               </button>
             ))}
             <span className="px-2 text-[12px] text-mist-500 num">
-              {lakh(base.price * (1 - band / 100))} – {lakh(base.price * (1 + band / 100))}
+              {tzs(base.price * (1 - band / 100))} – {tzs(base.price * (1 + band / 100))}
             </span>
           </div>
         )}

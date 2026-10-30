@@ -4,7 +4,7 @@ import { Download, HandCoins, Landmark, Send, TrendingUp } from 'lucide-react';
 import { useStore } from '../../store/AppStore';
 import { Button, CsvModal, DataTable, DateRangeFilter, KpiCard, MockNotice, PageHeader, Section, SearchInput, Select, StatusBadge, inRange, useToast } from '../../components/ui';
 import { Bars, CHART } from '../../components/charts/Charts';
-import { date, inr, lakh, toCSV, tryDownload } from '../../utils/format';
+import { date, tzs, toCSV, tryDownload, tzsShort } from '../../utils/format';
 
 const STATUSES = [
   { value: 'referred', label: 'Referred' },
@@ -44,11 +44,11 @@ export default function AdminReferrals() {
       { label: 'Lender', value: 'lender' },
       { label: 'Buyer', value: (r) => (r.buyerId ? user(r.buyerId)?.name : r.buyerName) },
       { label: 'Vehicle', value: (r) => r.vehicleId || '' },
-      { label: 'Loan amount (INR)', value: 'loanAmount' },
+      { label: 'Loan amount (TZS)', value: 'loanAmount' },
       { label: 'Tenure (months)', value: 'tenureMonths' },
       { label: 'Status', value: 'status' },
-      { label: 'Commission earned (INR)', value: 'commission' },
-      { label: 'Expected commission (INR)', value: 'expectedCommission' },
+      { label: 'Commission earned (TZS)', value: 'commission' },
+      { label: 'Expected commission (TZS)', value: 'expectedCommission' },
     ]);
     tryDownload('autodealer-loan-referrals.csv', text);
     setCsv(text);
@@ -59,9 +59,9 @@ export default function AdminReferrals() {
       <PageHeader title="Loan referrals & commissions" description="Buyers referred to lending partners from the EMI calculator. Commission accrues only when a loan is disbursed." actions={<Button variant="secondary" icon={Download} onClick={exportCsv}>Export report</Button>} />
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <KpiCard label="Referrals" value={rows.length} icon={Send} sub="in selected range" />
-        <KpiCard label="Disbursed loans" value={rows.filter((r) => r.status === 'disbursed').length} icon={Landmark} tone="green" sub={lakh(rows.filter((r) => r.status === 'disbursed').reduce((s, r) => s + r.loanAmount, 0))} />
-        <KpiCard label="Commission earned" value={inr(rows.reduce((s, r) => s + r.commission, 0))} icon={HandCoins} tone="dark" />
-        <KpiCard label="Pipeline" value={inr(rows.filter((r) => ['referred', 'application', 'sanctioned'].includes(r.status)).reduce((s, r) => s + r.expectedCommission, 0))} icon={TrendingUp} tone="amber" sub="if open referrals disburse" />
+        <KpiCard label="Disbursed loans" value={rows.filter((r) => r.status === 'disbursed').length} icon={Landmark} tone="green" sub={tzs(rows.filter((r) => r.status === 'disbursed').reduce((s, r) => s + r.loanAmount, 0))} />
+        <KpiCard label="Commission earned" value={tzsShort(rows.reduce((s, r) => s + r.commission, 0))} icon={HandCoins} tone="dark" />
+        <KpiCard label="Pipeline" value={tzsShort(rows.filter((r) => ['referred', 'application', 'sanctioned'].includes(r.status)).reduce((s, r) => s + r.expectedCommission, 0))} icon={TrendingUp} tone="amber" sub="if open referrals disburse" />
       </div>
       <Section title="Commission by lender">
         <Bars money data={byLender} series={[{ key: 'earned', name: 'Earned', color: CHART.navy }, { key: 'pipeline', name: 'Pipeline', color: CHART.blue }]} height={220} />
@@ -110,10 +110,10 @@ export default function AdminReferrals() {
                 );
               },
             },
-            { key: 'amount', header: 'Loan', align: 'right', sort: (r) => r.loanAmount, render: (r) => lakh(r.loanAmount) },
+            { key: 'amount', header: 'Loan', align: 'right', sort: (r) => r.loanAmount, render: (r) => tzs(r.loanAmount) },
             { key: 'tenure', header: 'Tenure', align: 'right', render: (r) => `${r.tenureMonths} mo` },
             { key: 'status', header: 'Status', render: (r) => <StatusBadge status={r.status} /> },
-            { key: 'commission', header: 'Commission', align: 'right', sort: (r) => r.commission, render: (r) => (r.commission ? <span className="font-semibold text-ok-700">{inr(r.commission)}</span> : <span className="text-mist-500">{inr(r.expectedCommission)} exp.</span>) },
+            { key: 'commission', header: 'Commission', align: 'right', sort: (r) => r.commission, render: (r) => (r.commission ? <span className="font-semibold text-ok-700">{tzs(r.commission)}</span> : <span className="text-mist-500">{tzs(r.expectedCommission)} exp.</span>) },
             {
               key: 'update',
               header: 'Update',

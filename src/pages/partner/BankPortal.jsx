@@ -12,7 +12,7 @@ import { Badge, CopyText, EmptyState, Input, KpiCard, MockNotice, SearchInput, S
 import { CarImage } from '../../components/vehicle/CarArt';
 import { LOAN_STEPS, bankInfo } from '../../data/partnerBanks';
 import { sellerDisplayName } from '../../utils/finance';
-import { ago, cn, dateTime, inr, lakh } from '../../utils/format';
+import { ago, cn, dateTime, tzs, tzsShort } from '../../utils/format';
 
 const OPEN = ['referred', 'contacted', 'application', 'sanctioned'];
 const NEXT = {
@@ -91,7 +91,7 @@ export default function BankPortal() {
           <KpiCard label="New leads" value={leads.filter((r) => r.status === 'referred').length} icon={Inbox} tone="amber" sub="waiting for a call" />
           <KpiCard label="In progress" value={leads.filter((r) => ['contacted', 'application'].includes(r.status)).length} icon={Clock} />
           <KpiCard label="Sanctioned" value={leads.filter((r) => r.status === 'sanctioned').length} icon={CheckCircle2} tone="green" />
-          <KpiCard label="Paid to dealers" value={lakh(leads.filter((r) => r.status === 'disbursed').reduce((t, r) => t + r.loanAmount, 0))} icon={Landmark} tone="dark" />
+          <KpiCard label="Paid to dealers" value={tzsShort(leads.filter((r) => r.status === 'disbursed').reduce((t, r) => t + r.loanAmount, 0))} icon={Landmark} tone="dark" />
         </div>
 
         {alerts.length > 0 && (
@@ -151,7 +151,7 @@ export default function BankPortal() {
                               <span className="shrink-0 text-[11.5px] text-mist-500">{ago(r.createdAt)}</span>
                             </div>
                             <p className="truncate text-[12.5px] text-mist-500">
-                              {r.id} · {inr(r.loanAmount)} · {v ? `${v.make} ${v.model}` : 'No car chosen'}
+                              {r.id} · {tzs(r.loanAmount)} · {v ? `${v.make} ${v.model}` : 'No car chosen'}
                             </p>
                             <div className="mt-1 flex items-center gap-2">
                               <StatusBadge status={r.status} />
@@ -261,13 +261,13 @@ function LeadDetail({ r, name, note, setNote, onUpdate }) {
         </Box>
 
         <Box icon={Send} title="Loan requested">
-          {price ? <Line k="Car price">{inr(price)}</Line> : null}
-          {r.downPayment !== undefined && <Line k="Down payment">{inr(r.downPayment)}</Line>}
-          <Line k="Loan amount">{inr(r.loanAmount)}</Line>
+          {price ? <Line k="Car price">{tzs(price)}</Line> : null}
+          {r.downPayment !== undefined && <Line k="Down payment">{tzs(r.downPayment)}</Line>}
+          <Line k="Loan amount">{tzs(r.loanAmount)}</Line>
           {price ? <Line k="Funding">{Math.round((r.loanAmount / price) * 100)}% of price</Line> : null}
           <Line k="Tenure">{r.tenureMonths} months</Line>
           {r.ratePct && <Line k="Rate shown">{r.ratePct.toFixed(2)}%</Line>}
-          {r.emi && <Line k="EMI shown">{inr(r.emi)}/mo</Line>}
+          {r.emi && <Line k="EMI shown">{tzs(r.emi)}/mo</Line>}
         </Box>
 
         {v && (

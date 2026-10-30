@@ -9,7 +9,7 @@ import { CarImage } from '../../components/vehicle/CarArt';
 import { LOAN_STEPS, bankInfo } from '../../data/partnerBanks';
 import { sellerDisplayName } from '../../utils/finance';
 import { sellerPath } from './SellerListings';
-import { cn, dateTime, inr, lakh } from '../../utils/format';
+import { cn, dateTime, tzs } from '../../utils/format';
 
 const CHANNEL_ICON = { Dashboard: Monitor, SMS: Smartphone, Email: Mail, 'Lead desk': Landmark };
 
@@ -214,9 +214,9 @@ export default function FinanceEnquiryStatus() {
               )}
               <dl className="mt-3 space-y-2 text-[13.5px]">
                 {[
-                  ['Car price', lakh(f.price)],
-                  ['Down payment', inr(f.downPayment)],
-                  ['Loan amount', inr(f.loanAmount)],
+                  ['Car price', tzs(f.price)],
+                  ['Down payment', tzs(f.downPayment)],
+                  ['Loan amount', tzs(f.loanAmount)],
                   ['Interest rate', `${f.ratePct.toFixed(2)}% p.a. (indicative)`],
                   ['Tenure', `${f.months} months`],
                 ].map(([k, val]) => (
@@ -227,7 +227,7 @@ export default function FinanceEnquiryStatus() {
                 ))}
                 <div className="flex justify-between gap-3 border-t border-mist-100 pt-2">
                   <dt className="font-semibold text-ink-900">Estimated EMI</dt>
-                  <dd className="font-bold text-ink-900 num">{inr(f.emi)}/mo</dd>
+                  <dd className="font-bold text-ink-900 num">{tzs(f.emi)}/mo</dd>
                 </div>
               </dl>
             </div>

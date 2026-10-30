@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Info } from 'lucide-react';
 import { calcEmi } from '../../utils/emi';
-import { inr, lakh } from '../../utils/format';
+import { tzs, tzsShort } from '../../utils/format';
 
 export function EmiDisclaimer({ className = '' }) {
   return (
@@ -29,7 +29,7 @@ function Range({ id, label, value, min, max, step, onChange, display }) {
 
 /** Compact calculator used on the vehicle details page. */
 export function EmiWidget({ price, rate = 9.25, vehicleId }) {
-  const [down, setDown] = useState(Math.round((price * 0.2) / 10000) * 10000);
+  const [down, setDown] = useState(Math.round((price * 0.2) / 100000) * 100000);
   const [months, setMonths] = useState(60);
   const r = useMemo(() => calcEmi({ price, downPayment: down, ratePct: rate, months }), [price, down, rate, months]);
   return (
@@ -37,18 +37,18 @@ export function EmiWidget({ price, rate = 9.25, vehicleId }) {
       <div className="rounded-xl bg-ink-900 p-4 text-white">
         <p className="text-[12px] font-medium text-ink-200">Estimated EMI</p>
         <p className="font-display text-[28px] font-bold leading-tight num" style={{ fontStretch: '110%' }}>
-          {inr(r.emi)}
+          {tzs(r.emi)}
           <span className="text-sm font-medium text-ink-300"> /month</span>
         </p>
         <p className="mt-1 text-[12px] text-ink-300 num">
-          {months} months at {rate}% · loan {lakh(r.principal)}
+          {months} months at {rate}% · loan {tzs(r.principal)}
         </p>
       </div>
-      <Range id="emi-down" label="Down payment" value={down} min={0} max={Math.round(price * 0.8)} step={10000} onChange={setDown} display={lakh(down)} />
+      <Range id="emi-down" label="Down payment" value={down} min={0} max={Math.round(price * 0.8)} step={100000} onChange={setDown} display={tzsShort(down)} />
       <Range id="emi-tenure" label="Tenure" value={months} min={12} max={84} step={12} onChange={setMonths} display={`${months / 12} yrs`} />
       <div className="flex items-center justify-between text-[13px]">
         <span className="text-mist-600">Total interest</span>
-        <span className="font-semibold num">{inr(r.totalInterest)}</span>
+        <span className="font-semibold num">{tzs(r.totalInterest)}</span>
       </div>
       {vehicleId ? (
         <div className="grid gap-2">

@@ -1,21 +1,22 @@
 export const cn = (...c) => c.filter(Boolean).join(' ');
 
-const inrFmt = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
-const numFmt = new Intl.NumberFormat('en-IN');
-
-export const inr = (n) => inrFmt.format(Math.round(Number(n) || 0));
+// Money is stored and shown in Tanzanian shillings (TZS).
+const numFmt = new Intl.NumberFormat('en-US');
 export const num = (n) => numFmt.format(Math.round(Number(n) || 0));
 
-const tzsFmt = new Intl.NumberFormat('en-TZ', { style: 'currency', currency: 'TZS', maximumFractionDigits: 0 });
-/** Tanzanian shilling, same format as the vehicle cards: TSh 930,000 */
-export const tzs = (n) => tzsFmt.format(Math.round(Number(n) || 0));
+export const CURRENCY = { code: 'TZS', symbol: 'TSh' };
 
-/** Indian price convention: ₹8.45 Lakh / ₹1.2 Crore */
-export function lakh(n) {
-  const v = Number(n) || 0;
-  if (v >= 1e7) return `₹${(v / 1e7).toFixed(v % 1e7 === 0 ? 0 : 2).replace(/\.?0+$/, '')} Crore`;
-  if (v >= 1e5) return `₹${(v / 1e5).toFixed(2).replace(/\.?0+$/, '')} Lakh`;
-  return inr(v);
+/** Full amount: TSh 26,400,000 */
+export const tzs = (n) => `TSh ${num(n)}`;
+
+/** Compact amount for tight spaces: TSh 26.4M · TSh 850K · TSh 1.2B */
+export function tzsShort(n) {
+  const v = Math.round(Number(n) || 0);
+  const trim = (x, d) => String(parseFloat(x.toFixed(d)));
+  if (Math.abs(v) >= 1e9) return `TSh ${trim(v / 1e9, 2)}B`;
+  if (Math.abs(v) >= 1e6) return `TSh ${trim(v / 1e6, Math.abs(v) >= 1e8 ? 0 : Math.abs(v) >= 1e7 ? 1 : 2)}M`;
+  if (Math.abs(v) >= 1e4) return `TSh ${trim(v / 1e3, 0)}K`;
+  return tzs(v);
 }
 
 export const km = (n) => `${num(n)} km`;

@@ -6,11 +6,11 @@ import { Breadcrumbs, Button, EmptyState, Modal, SearchInput, VerificationBadge,
 import { CarImage } from '../../components/vehicle/CarArt';
 import { vehicleTitle } from '../../components/vehicle/VehicleCard';
 import { calcEmi } from '../../utils/emi';
-import { cn, inr, km, lakh, num } from '../../utils/format';
+import { cn, tzs, km, num } from '../../utils/format';
 
 const ROWS = [
-  ['Price', (v) => lakh(v.price), (v) => -v.price],
-  ['Est. EMI (20% down, 5 yrs)', (v) => `${inr(calcEmi({ price: v.price, downPayment: v.price * 0.2, ratePct: 9.25, months: 60 }).emi)}/mo`, (v) => -v.price],
+  ['Price', (v) => tzs(v.price), (v) => -v.price],
+  ['Est. EMI (20% down, 5 yrs)', (v) => `${tzs(calcEmi({ price: v.price, downPayment: v.price * 0.2, ratePct: 9.25, months: 60 }).emi)}/mo`, (v) => -v.price],
   ['Model year', (v) => v.year, (v) => v.year],
   ['Kilometres', (v) => km(v.mileage), (v) => -v.mileage],
   ['Fuel', (v) => v.fuel],
@@ -185,7 +185,7 @@ export default function Compare() {
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold">{vehicleTitle(v)}</p>
                   <p className="text-[12.5px] text-mist-500">
-                    {lakh(v.price)} · {km(v.mileage)}
+                    {tzs(v.price)} · {km(v.mileage)}
                   </p>
                 </div>
                 <Plus className="h-4 w-4 text-accent-600" />

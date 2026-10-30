@@ -6,7 +6,7 @@ import { Alert, Button, KpiCard, PageHeader, Section, StatusBadge } from '../../
 import { AreaTrend, Bars, bucket } from '../../components/charts/Charts';
 import { vehicleTitle } from '../../components/vehicle/VehicleCard';
 import { CarImage } from '../../components/vehicle/CarArt';
-import { ago, inr, lakh } from '../../utils/format';
+import { ago, tzs, tzsShort } from '../../utils/format';
 
 /** Builds the KPI + chart data every seller-side dashboard needs. */
 export function useSellerStats() {
@@ -87,7 +87,7 @@ export default function DealerDashboard() {
   const docOk = me.docStatus === 'verified';
   const activity = [
     ...s.enq.slice(0, 6).map((e) => ({ id: e.id, at: e.createdAt, icon: Inbox, text: `${e.buyerName} enquired about ${vehicleTitle(state.vehicles.find((v) => v.id === e.vehicleId) || {})}`, to: '/dealer/enquiries' })),
-    ...s.pays.slice(0, 4).map((p) => ({ id: p.id, at: p.createdAt, icon: CreditCard, text: `Payment ${p.id} ${p.status === 'success' ? 'succeeded' : p.status} · ${inr(p.total)}`, to: '/payments' })),
+    ...s.pays.slice(0, 4).map((p) => ({ id: p.id, at: p.createdAt, icon: CreditCard, text: `Payment ${p.id} ${p.status === 'success' ? 'succeeded' : p.status} · ${tzs(p.total)}`, to: '/payments' })),
   ]
     .sort((a, b) => new Date(b.at) - new Date(a.at))
     .slice(0, 7);
@@ -119,7 +119,7 @@ export default function DealerDashboard() {
         <KpiCard label="Active (live)" value={s.live.length} icon={Radio} tone="green" trend={12} sub="vs last month" />
         <KpiCard label="Pending verification" value={s.pendingVerification} icon={Clock} tone="amber" sub="live, docs in review" />
         <KpiCard label="Enquiries" value={s.enq.length} icon={Inbox} trend={8} sub={`${s.newEnq} new`} />
-        <KpiCard label="Listing expenses" value={inr(s.spend)} icon={Wallet} tone="dark" sub="all time, incl. GST" />
+        <KpiCard label="Listing expenses" value={tzsShort(s.spend)} icon={Wallet} tone="dark" sub="all time, incl. GST" />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
@@ -151,9 +151,9 @@ export default function DealerDashboard() {
       </div>
 
       <Section title="Stock value" description="Asking price of live listings">
-        <p className="font-display text-3xl font-bold num">{lakh(s.live.reduce((t, v) => t + v.price, 0))}</p>
+        <p className="font-display text-3xl font-bold num">{tzs(s.live.reduce((t, v) => t + v.price, 0))}</p>
         <p className="mt-1 text-sm text-mist-500">
-          across {s.live.length} live vehicles · average {lakh(s.live.length ? s.live.reduce((t, v) => t + v.price, 0) / s.live.length : 0)}
+          across {s.live.length} live vehicles · average {tzs(s.live.length ? s.live.reduce((t, v) => t + v.price, 0) / s.live.length : 0)}
         </p>
       </Section>
     </div>

@@ -5,7 +5,7 @@ import { useStore } from '../../store/AppStore';
 import { Button, ConfirmDialog, DataTable, EmptyState, Plate, SearchInput, Select, StatusBadge, VerificationBadge, useToast } from '../ui';
 import { CarImage } from '../vehicle/CarArt';
 import { vehicleTitle } from '../vehicle/VehicleCard';
-import { cn, date, lakh, num } from '../../utils/format';
+import { cn, date, tzs, num } from '../../utils/format';
 
 const STATUS_OPTS = [
   { value: 'live', label: 'Live' },
@@ -101,7 +101,7 @@ export function ListingsManager({ base, showOwner }) {
     },
     { key: 'reg', header: 'Registration', render: (v) => <Plate value={v.regNumber} size="sm" /> },
     ...(showOwner ? [{ key: 'owner', header: 'Owner (private)', render: (v) => <span className="text-[13px]">{v.ownerInfo?.name || '—'}</span> }] : []),
-    { key: 'price', header: 'Price', align: 'right', sort: (v) => v.price, render: (v) => <span className="font-semibold">{lakh(v.price)}</span> },
+    { key: 'price', header: 'Price', align: 'right', sort: (v) => v.price, render: (v) => <span className="font-semibold">{tzs(v.price)}</span> },
     { key: 'status', header: 'Listing', sort: (v) => v.status, render: (v) => <StatusBadge status={v.status} /> },
     { key: 'verification', header: 'Documents', render: (v) => <VerificationBadge status={v.verification} size="sm" /> },
     { key: 'views', header: 'Views', align: 'right', sort: (v) => v.views, render: (v) => num(v.views) },
@@ -153,7 +153,7 @@ export function ListingsManager({ base, showOwner }) {
                   <VerificationBadge status={v.verification} size="sm" />
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="font-display font-bold">{lakh(v.price)}</span>
+                  <span className="font-display font-bold">{tzs(v.price)}</span>
                   <RowActions v={v} base={base} onDelete={setDel} onSold={setSold} />
                 </div>
               </div>

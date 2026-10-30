@@ -12,7 +12,7 @@ import { VehicleCard } from '../../components/vehicle/VehicleCard';
 import { BODY_TYPES, FUELS, TRANSMISSIONS } from '../../data/catalog';
 import { SORTS, sortVehicles } from '../../utils/filters';
 import { dayRange, dealerProfile, dealerTrust, fmtTime, openStatus } from '../../utils/dealers';
-import { cn, date, km, tzs } from '../../utils/format';
+import { cn, date, km, tzs, tzsShort } from '../../utils/format';
 
 export const SELLER_TYPE = {
   dealer: { label: 'Dealer', icon: Building2 },
@@ -138,7 +138,7 @@ export default function SellerListings() {
         <dl className="grid grid-cols-2 border-t border-mist-100 sm:grid-cols-4">
           {[
             ['Cars for sale', cars.length],
-            ['Price range', cars.length ? (prices.length > 1 ? `${tzs(Math.min(...prices))} – ${tzs(Math.max(...prices))}` : tzs(prices[0])) : '—'],
+            ['Price range', cars.length ? (prices.length > 1 ? `${tzsShort(Math.min(...prices))} – ${tzsShort(Math.max(...prices))}` : tzs(prices[0])) : '—'],
             ['Cars with verified documents', `${verifiedCars} of ${cars.length}`],
             isDealer ? ['In business since', firstYear] : ['On AutoDealer since', date(seller.registeredAt, { month: 'short', year: 'numeric' })],
           ].map(([k, val], i) => (

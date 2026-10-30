@@ -34,7 +34,7 @@ import {
 } from "../../data/catalog";
 import { PLANS } from "../../config/site";
 import { PRICE_STEPS } from "../../utils/filters";
-import { cn, inr, lakh, num } from "../../utils/format";
+import { cn, tzs, num, tzsShort } from "../../utils/format";
 
 const categoryImages = {
   SUV: "/suv2.jpg",
@@ -65,25 +65,6 @@ const recentVehicleImages = {
 
   // Add more vehicle IDs and image paths here
   // v1021: ["/cars/creta.jpg"],
-};
-
-  // const formatTZS = (price) =>
-  // new Intl.NumberFormat('en-TZ', {
-  //   style: 'currency',
-  //   currency: 'TZS',
-  //   maximumFractionDigits: 0,
-  // }).format(price);
-
-  const INR_TO_TZS = 29; // Example rate only; update with the current rate
-
-const formatTZS = (priceInINR) => {
-  const priceInTZS = priceInINR * INR_TO_TZS;
-
-  return new Intl.NumberFormat("en-TZ", {
-    style: "currency",
-    currency: "TZS",
-    maximumFractionDigits: 0,
-  }).format(priceInTZS);
 };
 
   const heroSlides = [
@@ -153,7 +134,7 @@ function HeroSearch() {
           placeholder="Any budget"
           options={PRICE_STEPS.map((p) => ({
             value: String(p),
-            label: `Up to ${lakh(p)}`,
+            label: `Up to ${tzsShort(p)}`,
           }))}
         />
         <Select
@@ -180,12 +161,12 @@ function HeroSearch() {
       </div>
       <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap gap-1.5">
-          {["Under ₹1,38,73,550 Tsh", "Automatic", "Electric"].map((t, i) => (
+          {["Under TSh 15M", "Automatic", "Electric"].map((t, i) => (
             <Link
               key={t}
               to={
                 [
-                  "/cars?maxPrice=500000",
+                  "/cars?maxPrice=15000000",
                   "/cars?transmission=Automatic",
                   "/cars?fuel=Electric",
                 ][i]
@@ -206,13 +187,13 @@ function HeroSearch() {
 
 /** "What can I afford?" — monthly budget slider that reverse-calculates a price and shows matching cars live. */
 function AffordabilityBand({ live }) {
-  const [emi, setEmi] = useState(18000);
+  const [emi, setEmi] = useState(550000);
   const [downPct, setDownPct] = useState(20);
   const [months, setMonths] = useState(60);
   const rate = 9.25 / 1200;
   const loan =
     (emi * ((1 + rate) ** months - 1)) / (rate * (1 + rate) ** months);
-  const maxPrice = Math.round(loan / (1 - downPct / 100) / 5000) * 5000;
+  const maxPrice = Math.round(loan / (1 - downPct / 100) / 100000) * 100000;
   const matches = live
     .filter((v) => v.price <= maxPrice)
     .sort((a, b) => b.price - a.price);
@@ -233,11 +214,11 @@ function AffordabilityBand({ live }) {
               id="aff-emi"
               label="Monthly EMI"
               value={emi}
-              min={5000}
-              max={80000}
-              step={1000}
+              min={150000}
+              max={2500000}
+              step={50000}
               onChange={setEmi}
-              display={`${inr(emi)}/mo`}
+              display={`${tzs(emi)}/mo`}
             />
             <RangeInput
               id="aff-down"
@@ -276,7 +257,7 @@ function AffordabilityBand({ live }) {
                 style={{ fontStretch: "112%" }}
                 aria-live="polite"
               >
-                {lakh(maxPrice)}
+                {tzsShort(maxPrice)}
               </p>
               <p className="text-[12px] text-ink-300">
                 Estimate at 9.25% p.a. Not a loan offer.
@@ -314,7 +295,7 @@ function AffordabilityBand({ live }) {
                       {v.year} {v.make} {v.model}
                     </p>
                     <p className="font-display font-bold text-ink-900 num">
-                      {lakh(v.price)}
+                      {tzs(v.price)}
                     </p>
                   </div>
                 </Link>
@@ -1003,7 +984,7 @@ useEffect(() => {
                       className="mt-1 font-display text-2xl font-bold num"
                       style={{ fontStretch: "110%" }}
                     >
-                      {formatTZS(p.price)}
+                      {tzs(p.price)}
                     </p>
                     <p className="text-[12px] text-mist-500">
                       + GST ·{" "}

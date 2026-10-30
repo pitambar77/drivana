@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BadgeIndianRupee, Clock, Download, Percent, XCircle } from 'lucide-react';
+import { Banknote, Clock, Download, Percent, XCircle } from 'lucide-react';
 import { useStore } from '../../store/AppStore';
 import { Button, CsvModal, DataTable, DateRangeFilter, KpiCard, PageHeader, SearchInput, Select, StatusBadge, inRange } from '../../components/ui';
 import { ReceiptModal } from '../account/Payments';
 import { PLANS, ROLE_META } from '../../config/site';
-import { dateTime, inr, lakh, toCSV, tryDownload } from '../../utils/format';
+import { dateTime, tzs, toCSV, tryDownload, tzsShort } from '../../utils/format';
 
 export default function AdminPayments() {
   const { state, user, vehicle } = useStore();
@@ -37,9 +37,9 @@ export default function AdminPayments() {
       { label: 'Role', value: (p) => user(p.userId)?.role },
       { label: 'Listing', value: 'listingId' },
       { label: 'Plan', value: (p) => PLANS.find((x) => x.id === p.planId)?.name },
-      { label: 'Fee (INR)', value: 'amount' },
-      { label: 'GST (INR)', value: 'gst' },
-      { label: 'Total (INR)', value: 'total' },
+      { label: 'Fee (TZS)', value: 'amount' },
+      { label: 'GST (TZS)', value: 'gst' },
+      { label: 'Total (TZS)', value: 'total' },
       { label: 'Method', value: 'method' },
       { label: 'Status', value: 'status' },
     ]);
@@ -51,7 +51,7 @@ export default function AdminPayments() {
     <div className="space-y-5">
       <PageHeader title="Payments & listing-fee ledger" description="Every listing-fee transaction from the payment gateway. Payment status is independent of document verification." actions={<Button variant="secondary" icon={Download} onClick={exportCsv}>Export CSV</Button>} />
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <KpiCard label="Fee revenue (filtered)" value={lakh(ok.reduce((s, p) => s + p.amount, 0))} icon={BadgeIndianRupee} tone="green" sub={`+ ${inr(ok.reduce((s, p) => s + p.gst, 0))} GST`} />
+        <KpiCard label="Fee revenue (filtered)" value={tzsShort(ok.reduce((s, p) => s + p.amount, 0))} icon={Banknote} tone="green" sub={`+ ${tzs(ok.reduce((s, p) => s + p.gst, 0))} GST`} />
         <KpiCard label="Success rate" value={`${Math.round((ok.length / Math.max(1, rows.length)) * 100)}%`} icon={Percent} sub={`${ok.length} of ${rows.length}`} />
         <KpiCard label="Failed / cancelled" value={rows.filter((p) => ['failed', 'cancelled'].includes(p.status)).length} icon={XCircle} tone="red" sub="never activated a listing" />
         <KpiCard label="Pending" value={rows.filter((p) => p.status === 'pending').length} icon={Clock} tone="amber" sub="awaiting bank confirmation" />
@@ -110,9 +110,9 @@ export default function AdminPayments() {
               },
             },
             { key: 'plan', header: 'Plan', render: (p) => <span className="text-[13px]">{PLANS.find((x) => x.id === p.planId)?.name}</span> },
-            { key: 'fee', header: 'Fee', align: 'right', sort: (p) => p.amount, render: (p) => inr(p.amount) },
-            { key: 'gst', header: 'GST', align: 'right', render: (p) => <span className="text-mist-600">{inr(p.gst)}</span> },
-            { key: 'total', header: 'Total', align: 'right', sort: (p) => p.total, render: (p) => <span className="font-semibold">{inr(p.total)}</span> },
+            { key: 'fee', header: 'Fee', align: 'right', sort: (p) => p.amount, render: (p) => tzs(p.amount) },
+            { key: 'gst', header: 'GST', align: 'right', render: (p) => <span className="text-mist-600">{tzs(p.gst)}</span> },
+            { key: 'total', header: 'Total', align: 'right', sort: (p) => p.total, render: (p) => <span className="font-semibold">{tzs(p.total)}</span> },
             { key: 'method', header: 'Method', render: (p) => p.method },
             { key: 'status', header: 'Status', render: (p) => <StatusBadge status={p.status} /> },
             {

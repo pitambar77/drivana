@@ -2,7 +2,7 @@ import { RotateCcw } from 'lucide-react';
 import { Select, Checkbox } from '../ui';
 import { BODY_TYPES, CITIES, CONDITIONS, FUELS, MAKES, TRANSMISSIONS, modelsFor } from '../../data/catalog';
 import { PRICE_STEPS } from '../../utils/filters';
-import { lakh, num } from '../../utils/format';
+import { num, tzsShort } from '../../utils/format';
 
 const YEARS = Array.from({ length: 11 }, (_, i) => 2026 - i);
 const KMS = [10000, 25000, 50000, 75000, 100000, 150000];
@@ -37,8 +37,8 @@ export function FilterPanel({ filters, onChange, onReset }) {
       </Group>
       <Group title="Budget">
         <div className="grid grid-cols-2 gap-2">
-          <Select aria-label="Minimum price" value={filters.minPrice || ''} onChange={set('minPrice')} placeholder="Min" options={PRICE_STEPS.map((p) => ({ value: String(p), label: lakh(p) }))} />
-          <Select aria-label="Maximum price" value={filters.maxPrice || ''} onChange={set('maxPrice')} placeholder="Max" options={PRICE_STEPS.map((p) => ({ value: String(p), label: lakh(p) }))} />
+          <Select aria-label="Minimum price" value={filters.minPrice || ''} onChange={set('minPrice')} placeholder="Min" options={PRICE_STEPS.map((p) => ({ value: String(p), label: tzsShort(p) }))} />
+          <Select aria-label="Maximum price" value={filters.maxPrice || ''} onChange={set('maxPrice')} placeholder="Max" options={PRICE_STEPS.map((p) => ({ value: String(p), label: tzsShort(p) }))} />
         </div>
       </Group>
       <Group title="Model year">

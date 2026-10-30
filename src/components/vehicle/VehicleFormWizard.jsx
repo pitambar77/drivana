@@ -8,7 +8,7 @@ import { Alert, Button, Checkbox, Field, Input, Modal, MockNotice, PhotoUploader
 import { VehicleCard } from './VehicleCard';
 import { useStore, ACTIVE_STATUSES } from '../../store/AppStore';
 import { BODY_TYPES, CITIES, COLORS, CONDITIONS, FUELS, MAKES, OWNERSHIP, TRANSMISSIONS, findModel, modelsFor } from '../../data/catalog';
-import { cn, km, lakh, normId, prettyReg } from '../../utils/format';
+import { cn, km, tzs, normId, prettyReg } from '../../utils/format';
 
 const REG_RE = /^([A-Z]{2}\d{1,2}[A-Z]{0,3}\d{4}|\d{2}BH\d{4}[A-Z]{1,2})$/;
 const VIN_RE = /^[A-HJ-NPR-Z0-9]{17}$/;
@@ -20,8 +20,8 @@ const numStr = (msg, min, max) =>
     .trim()
     .min(1, msg)
     .refine((v) => !Number.isNaN(Number(v.replace(/,/g, ''))), 'Enter numbers only')
-    .refine((v) => Number(v.replace(/,/g, '')) >= min, `Must be at least ${min.toLocaleString('en-IN')}`)
-    .refine((v) => Number(v.replace(/,/g, '')) <= max, `Must be ${max.toLocaleString('en-IN')} or less`);
+    .refine((v) => Number(v.replace(/,/g, '')) >= min, `Must be at least ${min.toLocaleString('en-US')}`)
+    .refine((v) => Number(v.replace(/,/g, '')) <= max, `Must be ${max.toLocaleString('en-US')} or less`);
 
 const schema = z
   .object({
@@ -31,7 +31,7 @@ const schema = z
     year: z.string().min(1, 'Choose the model year'),
     bodyType: z.string().min(1, 'Choose a body type'),
     color: z.string().min(1, 'Choose a colour'),
-    price: numStr('Enter your asking price', 50000, 50000000),
+    price: numStr('Enter your asking price', 1000000, 2000000000),
     mileage: numStr('Enter kilometres driven', 0, 500000),
     condition: z.string().min(1, 'Choose the condition'),
     fuel: z.string().min(1, 'Choose the fuel type'),
@@ -344,8 +344,8 @@ export default function VehicleFormWizard({ mode, listingId, onCancelTo }) {
 
           {key === 'pricing' && (
             <div className="grid gap-4 md:grid-cols-2">
-              <Field label="Asking price" required error={errors.price?.message} htmlFor="vf-price" hint={watch('price') && !errors.price ? `Shown to buyers as ${lakh(Number(String(watch('price')).replace(/,/g, '')))}` : 'Enter the full amount in rupees'}>
-                <Input id="vf-price" prefix="₹" inputMode="numeric" {...register('price')} error={errors.price} placeholder="685000" />
+              <Field label="Asking price" required error={errors.price?.message} htmlFor="vf-price" hint={watch('price') && !errors.price ? `Shown to buyers as ${tzs(Number(String(watch('price')).replace(/,/g, '')))}` : 'Enter the full amount in Tanzanian shillings'}>
+                <Input id="vf-price" prefix="TSh" inputMode="numeric" {...register('price')} error={errors.price} placeholder="19850000" />
               </Field>
               <Field label="Kilometres driven" required error={errors.mileage?.message} htmlFor="vf-km" hint="Read it from the odometer">
                 <Input id="vf-km" suffix="km" inputMode="numeric" {...register('mileage')} error={errors.mileage} placeholder="38420" />
@@ -494,7 +494,7 @@ export default function VehicleFormWizard({ mode, listingId, onCancelTo }) {
                 <DL
                   cols={2}
                   items={[
-                    ['Price', lakh(preview.price)],
+                    ['Price', tzs(preview.price)],
                     ['Kilometres', km(preview.mileage)],
                     ['Fuel / gearbox', `${preview.fuel} · ${preview.transmission}`],
                     ['Ownership', preview.owners],
@@ -582,7 +582,7 @@ export default function VehicleFormWizard({ mode, listingId, onCancelTo }) {
             {[watch('year'), make, model].filter(Boolean).join(' ') || 'Your car'}
           </p>
           <p className="text-sm text-mist-500">{watch('variant') || 'Variant'}</p>
-          <p className="mt-2 font-display text-xl font-bold num">{watch('price') ? lakh(Number(String(watch('price')).replace(/,/g, ''))) : '₹ —'}</p>
+          <p className="mt-2 font-display text-xl font-bold num">{watch('price') ? tzs(Number(String(watch('price')).replace(/,/g, ''))) : 'TSh —'}</p>
           {regNumber && (
             <div className="mt-3">
               <Plate value={regNumber} size="sm" />

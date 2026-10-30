@@ -8,7 +8,7 @@ import { vehicleTitle } from '../../components/vehicle/VehicleCard';
 import { DocPreview } from '../../components/documents/DocumentCard';
 import { DuplicateReview, MOD } from './AdminListings';
 import { ROLE_META } from '../../config/site';
-import { dateTime, inr, km, lakh, num } from '../../utils/format';
+import { dateTime, tzs, km, num } from '../../utils/format';
 
 export default function AdminListingDetail() {
   const { id } = useParams();
@@ -108,7 +108,7 @@ export default function AdminListingDetail() {
             <DL
               cols={3}
               items={[
-                ['Price', lakh(v.price)],
+                ['Price', tzs(v.price)],
                 ['Kilometres', km(v.mileage)],
                 ['Year', v.year],
                 ['Fuel / gearbox', `${v.fuel} · ${v.transmission}`],
@@ -137,7 +137,7 @@ export default function AdminListingDetail() {
                     <span className="font-mono font-semibold">{p.id}</span>
                     <span className="text-mist-500">{dateTime(p.createdAt)}</span>
                     <span className="text-mist-500">{p.method}</span>
-                    <span className="ml-auto font-semibold num">{inr(p.total)}</span>
+                    <span className="ml-auto font-semibold num">{tzs(p.total)}</span>
                     <StatusBadge status={p.status} />
                   </li>
                 ))}

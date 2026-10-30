@@ -6,7 +6,7 @@ import { CarImage } from '../../components/vehicle/CarArt';
 import { vehicleTitle } from '../../components/vehicle/VehicleCard';
 import { EnquiryInbox } from '../../components/listings/EnquiryInbox';
 import { AttentionList } from '../dealer/DealerDashboard';
-import { date, km, lakh, num } from '../../utils/format';
+import { date, km, tzs, num } from '../../utils/format';
 
 export default function SellerDashboard() {
   const { state, me, setListingStatus } = useStore();
@@ -41,7 +41,7 @@ export default function SellerDashboard() {
                   <p className="text-sm text-mist-500">
                     {active.variant} · {km(active.mileage)} · {active.fuel}
                   </p>
-                  <p className="mt-2 font-display text-2xl font-bold num">{lakh(active.price)}</p>
+                  <p className="mt-2 font-display text-2xl font-bold num">{tzs(active.price)}</p>
                 </div>
                 <Plate value={active.regNumber} />
                 <dl className="grid grid-cols-2 gap-2 rounded-lg bg-mist-50 p-3 sm:grid-cols-3">

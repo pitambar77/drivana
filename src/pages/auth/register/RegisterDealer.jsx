@@ -3,7 +3,7 @@ import { useStore } from '../../../store/AppStore';
 import { Checkbox, Field, FileUpload, RadioCards, Alert } from '../../../components/ui';
 import { CITIES, MAKES } from '../../../data/catalog';
 import { PLANS } from '../../../config/site';
-import { inr } from '../../../utils/format';
+import { tzs } from '../../../utils/format';
 import { ChipsField, LANGUAGES, NavButtons, PhoneVerifyStep, RE, RegisterFrame, ReviewBlock, STATES, SelectField, SuccessPanel, TextField, useWizard } from './RegisterKit';
 
 const STEPS = ['Mobile', 'Business', 'Contact person', 'Showroom', 'Documents', 'Plan & review'];
@@ -166,7 +166,7 @@ export default function RegisterDealer() {
       'Choose a plan and review',
       "You won't be charged now. You pay when you publish each listing.",
       <div key="r" className="space-y-4">
-        <RadioCards name="plan" columns={2} value={d.plan} onChange={(v) => w.set('plan', v)} options={PLANS.filter((p) => p.role === 'dealer').map((p) => ({ value: p.id, label: `${p.name} · ${inr(p.price)}`, description: p.features.slice(0, 2).join(' · ') }))} />
+        <RadioCards name="plan" columns={2} value={d.plan} onChange={(v) => w.set('plan', v)} options={PLANS.filter((p) => p.role === 'dealer').map((p) => ({ value: p.id, label: `${p.name} · ${tzs(p.price)}`, description: p.features.slice(0, 2).join(' · ') }))} />
         <ReviewBlock title="Business" onEdit={() => setStep(1)} rows={[['Name', d.businessName], ['Type', d.businessType], ['Since', d.yearEstablished], ['PAN', d.pan?.toUpperCase()], ['GSTIN', d.gstin?.toUpperCase()], ['Stock', d.stockSize]]} />
         <ReviewBlock title="Contact" onEdit={() => setStep(2)} rows={[['Name', d.name], ['Designation', d.designation], ['Email', d.email], ['Mobile', d.phone]]} />
         <ReviewBlock title="Showroom" onEdit={() => setStep(3)} rows={[['Address', [d.line1, d.line2, d.landmark].filter(Boolean).join(', ')], ['City', `${d.city || ''}${state ? `, ${state}` : ''} ${d.pin || ''}`], ['Hours', `${(d.days || []).join(', ')} · ${d.open}–${d.close}`]]} />

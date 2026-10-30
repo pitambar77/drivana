@@ -14,7 +14,7 @@ function load() {
     const raw = localStorage.getItem(KEY);
     if (raw) {
       const s = JSON.parse(raw);
-      if (s && s.version === 3) return withFinanceDemo(s);
+      if (s && s.version === 4) return withFinanceDemo(s);
     }
   } catch {
     /* storage unavailable — use fresh seed */

@@ -6,7 +6,7 @@ import { Alert, Avatar, Button, CopyText, EmptyState, MockNotice, Segmented, Tex
 import { CarImage } from '../../components/vehicle/CarArt';
 import { EnquiryForm } from '../../components/vehicle/EnquiryForm';
 import { vehicleTitle } from '../../components/vehicle/VehicleCard';
-import { cn, km, lakh, sleep } from '../../utils/format';
+import { cn, km, tzs, sleep } from '../../utils/format';
 
 const QUICK = ['Is it still available?', 'What is your best price?', 'Can I book a test drive this weekend?', 'Are service records available?'];
 
@@ -121,7 +121,7 @@ export default function VehicleContact() {
               <p className="text-[13px] text-mist-500">
                 {v.variant} · {km(v.mileage)} · {v.city}
               </p>
-              <p className="mt-2 font-display text-xl font-bold num">{lakh(v.price)}</p>
+              <p className="mt-2 font-display text-xl font-bold num">{tzs(v.price)}</p>
             </div>
           </div>
           <div className="card space-y-4 p-4">

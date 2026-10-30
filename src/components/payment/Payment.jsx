@@ -1,6 +1,6 @@
 import { CheckCircle2, Clock, Ban, XCircle } from 'lucide-react';
 import { PLANS } from '../../config/site';
-import { cn, inr } from '../../utils/format';
+import { cn, tzs } from '../../utils/format';
 
 export function PaymentSummary({ planId, vehicleTitle, className }) {
   const plan = PLANS.find((p) => p.id === planId);
@@ -14,15 +14,15 @@ export function PaymentSummary({ planId, vehicleTitle, className }) {
           <p className="truncate text-[13px] text-mist-500">{vehicleTitle}</p>
           <p className="text-[12.5px] text-mist-500">Valid {plan.validityDays} days from publishing</p>
         </div>
-        <p className="shrink-0 font-semibold num">{inr(plan.price)}</p>
+        <p className="shrink-0 font-semibold num">{tzs(plan.price)}</p>
       </div>
       <div className="flex justify-between text-mist-600">
         <span>GST (18%)</span>
-        <span className="num">{inr(gst)}</span>
+        <span className="num">{tzs(gst)}</span>
       </div>
       <div className="flex justify-between border-t border-mist-200 pt-3 text-base font-bold text-ink-900">
         <span>Total payable</span>
-        <span className="num">{inr(plan.price + gst)}</span>
+        <span className="num">{tzs(plan.price + gst)}</span>
       </div>
     </div>
   );

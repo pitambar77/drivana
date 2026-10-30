@@ -7,7 +7,7 @@ import { PaymentStatusHero } from '../../components/payment/Payment';
 import { Confetti } from '../../components/interactive/Interactive';
 import { vehicleTitle } from '../../components/vehicle/VehicleCard';
 import { PLANS, ROLE_META, SITE } from '../../config/site';
-import { dateTime, inr } from '../../utils/format';
+import { dateTime, tzs, tzsShort } from '../../utils/format';
 
 export function ReceiptModal({ txn, open, onClose, vehicle, user }) {
   if (!txn) return null;
@@ -35,15 +35,15 @@ export function ReceiptModal({ txn, open, onClose, vehicle, user }) {
         <div className="rounded-lg border border-mist-200">
           <div className="flex justify-between border-b border-mist-100 px-4 py-2.5">
             <span>{plan?.name || txn.planId}</span>
-            <span className="num">{inr(txn.amount)}</span>
+            <span className="num">{tzs(txn.amount)}</span>
           </div>
           <div className="flex justify-between border-b border-mist-100 px-4 py-2.5 text-mist-600">
             <span>GST 18%</span>
-            <span className="num">{inr(txn.gst)}</span>
+            <span className="num">{tzs(txn.gst)}</span>
           </div>
           <div className="flex justify-between px-4 py-2.5 font-bold">
             <span>Total</span>
-            <span className="num">{inr(txn.total)}</span>
+            <span className="num">{tzs(txn.total)}</span>
           </div>
         </div>
         <MockNotice>Sample receipt. A real GST invoice is issued by the backend after payment capture.</MockNotice>
@@ -85,7 +85,7 @@ export function PaymentResult() {
           className="mt-6"
           items={[
             ['Transaction', <span key="t" className="font-mono">{txn.id}</span>],
-            ['Amount', inr(txn.total)],
+            ['Amount', tzs(txn.total)],
             ['Method', txn.method],
             ['Date', dateTime(txn.createdAt)],
             ['Vehicle', v ? vehicleTitle(v) : txn.listingId],
@@ -144,7 +144,7 @@ export function PaymentHistory() {
     <div>
       <PageHeader title="Payments" description="Listing fees and receipts. Payment status is separate from document verification." />
       <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <KpiCard label="Total spent" value={inr(paid.reduce((s, p) => s + p.total, 0))} sub="incl. GST" />
+        <KpiCard label="Total spent" value={tzsShort(paid.reduce((s, p) => s + p.total, 0))} sub="incl. GST" />
         <KpiCard label="Successful" value={paid.length} tone="green" />
         <KpiCard label="Failed / cancelled" value={mine.filter((p) => p.status === 'failed' || p.status === 'cancelled').length} tone="red" />
         <KpiCard label="Pending" value={mine.filter((p) => p.status === 'pending').length} tone="amber" />
@@ -175,7 +175,7 @@ export function PaymentHistory() {
               },
             },
             { key: 'plan', header: 'Plan', render: (p) => PLANS.find((x) => x.id === p.planId)?.name },
-            { key: 'total', header: 'Amount', align: 'right', sort: (p) => p.total, render: (p) => inr(p.total) },
+            { key: 'total', header: 'Amount', align: 'right', sort: (p) => p.total, render: (p) => tzs(p.total) },
             { key: 'status', header: 'Status', render: (p) => <StatusBadge status={p.status} /> },
             {
               key: 'actions',

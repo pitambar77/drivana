@@ -9,7 +9,7 @@ import { CITIES } from '../../data/catalog';
 import { CALL_TIMES, EMPLOYMENT, INCOME } from '../../data/partnerBanks';
 import { sellerDisplayName } from '../../utils/finance';
 import { calcEmi } from '../../utils/emi';
-import { cn, inr, lakh } from '../../utils/format';
+import { cn, tzs } from '../../utils/format';
 
 export const carTitle = (v) => `${v.year} ${v.make} ${v.model}`;
 
@@ -17,7 +17,7 @@ export const carTitle = (v) => `${v.year} ${v.make} ${v.model}`;
 export function bankFit(bank, { price, down, months }) {
   if (!bank || !price) return '';
   const minDown = Math.ceil((price * (1 - bank.maxFundingPct / 100)) / 1000) * 1000;
-  if (down < minDown) return `Funds up to ${bank.maxFundingPct}% — needs at least ${lakh(minDown)} down`;
+  if (down < minDown) return `Funds up to ${bank.maxFundingPct}% — needs at least ${tzs(minDown)} down`;
   if (months > bank.maxMonths) return `Maximum tenure is ${bank.maxMonths} months`;
   return '';
 }
@@ -54,7 +54,7 @@ export function CarPicker({ onPick, autoFocus }) {
                   {v.variant} · {v.city}
                 </span>
               </span>
-              <span className="shrink-0 text-sm font-bold text-ink-900 num">{lakh(v.price)}</span>
+              <span className="shrink-0 text-sm font-bold text-ink-900 num">{tzs(v.price)}</span>
             </button>
           </li>
         ))}
@@ -103,7 +103,7 @@ export function FinancingCar({ car, seller, onChange, onClear }) {
           {carTitle(car)} <span className="font-medium text-mist-500">{car.variant}</span>
         </Link>
         <p className="truncate text-[13px] text-mist-600">
-          <span className="font-semibold text-ink-900 num">{lakh(car.price)}</span> · sold by {sellerDisplayName(seller)}, {car.city}
+          <span className="font-semibold text-ink-900 num">{tzs(car.price)}</span> · sold by {sellerDisplayName(seller)}, {car.city}
         </p>
       </div>
       <div className="flex shrink-0 flex-col gap-1 sm:flex-row">
@@ -154,7 +154,7 @@ export function BankChooser({ banks, value, onChange, onMore, loan }) {
                 </span>
                 <span className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[12.5px] text-mist-500 num">
                   <span>
-                    EMI about <span className="font-semibold text-ink-800">{inr(r.emi)}</span>/mo
+                    EMI about <span className="font-semibold text-ink-800">{tzs(r.emi)}</span>/mo
                   </span>
                   <span>Up to {b.maxFundingPct}% funding</span>
                   <span>Fee: {b.processingFee}</span>
@@ -221,7 +221,7 @@ export function BankInfoModal({ bank, loan, onClose, onEnquire }) {
         <div className="rounded-xl border border-mist-200 p-4">
           <p className="text-[12px] font-semibold uppercase tracking-wide text-mist-500">Your estimate with {bank.short}</p>
           <p className="mt-1 text-[15px] text-ink-800 num">
-            Loan of <b>{inr(r.principal)}</b> over {loan.months} months · EMI about <b>{inr(r.emi)}</b>/month
+            Loan of <b>{tzs(r.principal)}</b> over {loan.months} months · EMI about <b>{tzs(r.emi)}</b>/month
           </p>
           {warn && (
             <p className="mt-1.5 flex items-start gap-1.5 text-[13px] font-semibold text-warn-700">
@@ -338,13 +338,13 @@ export function FinanceEnquiryModal({ open, onClose, car, seller, bank, loan, on
                   {sellerDisplayName(seller)} · {car.city}
                 </p>
               </div>
-              <span className="shrink-0 font-bold text-ink-900 num">{lakh(car.price)}</span>
+              <span className="shrink-0 font-bold text-ink-900 num">{tzs(car.price)}</span>
             </div>
             <dl className="grid grid-cols-2 gap-px border-t border-mist-200 bg-mist-200 sm:grid-cols-4">
               {[
                 ['Bank', bank?.short || '—'],
-                ['Loan', inr(r.principal)],
-                ['EMI', `${inr(r.emi)}/mo`],
+                ['Loan', tzs(r.principal)],
+                ['EMI', `${tzs(r.emi)}/mo`],
                 ['Terms', `${loan.months} mo · ${Number(loan.rate).toFixed(2)}%`],
               ].map(([k, val]) => (
                 <div key={k} className="min-w-0 bg-white px-3 py-2">

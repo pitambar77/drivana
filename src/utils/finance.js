@@ -5,7 +5,7 @@
 // Pure helpers so the store and the demo data build records the same way.
 import { calcEmi } from './emi';
 import { bankInfo } from '../data/partnerBanks';
-import { inr } from './format';
+import { tzs } from './format';
 
 export const sellerDisplayName = (u) => u?.business || u?.agency || u?.name || 'Seller';
 
@@ -41,7 +41,7 @@ export function buildFinanceRecords(state, input, { id, at }) {
 
   const message = [
     `Finance enquiry for the ${title}.`,
-    `Wants a loan of ${inr(calc.principal)} from ${bank?.name} over ${input.months} months (EMI about ${inr(calc.emi)} at ${Number(input.ratePct).toFixed(2)}%), paying ${inr(input.downPayment)} down.`,
+    `Wants a loan of ${tzs(calc.principal)} from ${bank?.name} over ${input.months} months (EMI about ${tzs(calc.emi)} at ${Number(input.ratePct).toFixed(2)}%), paying ${tzs(input.downPayment)} down.`,
     extras.length ? `Also interested in ${extras.join(' and ')}.` : '',
     input.message ? `Message: “${input.message.trim()}”` : '',
   ]
@@ -104,7 +104,7 @@ export function buildFinanceRecords(state, input, { id, at }) {
       contact: [seller?.phone, seller?.email].filter(Boolean).join(' · '),
       channels: ['Dashboard', 'SMS', 'Email'],
       title: `New finance enquiry: ${title}`,
-      body: `${enquiry.buyerName} wants a ${bank?.short || 'bank'} loan of ${inr(calc.principal)} for your ${title}. ${bank?.name} has also been notified.`,
+      body: `${enquiry.buyerName} wants a ${bank?.short || 'bank'} loan of ${tzs(calc.principal)} for your ${title}. ${bank?.name} has also been notified.`,
       link: '/dealer/enquiries',
       refId: id,
     },
@@ -117,7 +117,7 @@ export function buildFinanceRecords(state, input, { id, at }) {
       contact: [bank?.desk?.email, bank?.desk?.phone].filter(Boolean).join(' · '),
       channels: ['Lead desk', 'Email'],
       title: `New car loan lead ${refId}`,
-      body: `${enquiry.buyerName} (${input.city}) wants ${inr(calc.principal)} over ${input.months} months for a ${title} from ${sellerDisplayName(seller)}.`,
+      body: `${enquiry.buyerName} (${input.city}) wants ${tzs(calc.principal)} over ${input.months} months for a ${title} from ${sellerDisplayName(seller)}.`,
       link: `/bank-portal?bank=${bank?.id}&lead=${refId}`,
       refId: id,
     },
@@ -141,7 +141,7 @@ export function withFinanceDemo(s) {
       vehicleId: v.id,
       lenderId: lender.id,
       price: v.price,
-      downPayment: Math.round((v.price * 0.2) / 10000) * 10000,
+      downPayment: Math.round((v.price * 0.2) / 100000) * 100000,
       ratePct: bankInfo(lender).rate,
       months: 60,
       buyerId: buyer.id,
@@ -150,7 +150,7 @@ export function withFinanceDemo(s) {
       buyerEmail: buyer.email,
       city: buyer.city,
       employment: 'Salaried',
-      income: '₹50,000 – ₹1 lakh',
+      income: 'TSh 1.5M – 3M',
       callTime: 'Evening (4–8)',
       testDrive: true,
       message: 'Can I get delivery before the end of the month?',

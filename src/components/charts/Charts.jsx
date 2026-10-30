@@ -1,5 +1,5 @@
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { lakh, num } from '../../utils/format';
+import { num, tzsShort } from '../../utils/format';
 
 // Chart palette — accent first, then navy and supporting hues. Text always uses mist tokens.
 export const CHART = {
@@ -24,14 +24,14 @@ function Tip({ active, payload, label, money }) {
       {payload.map((p) => (
         <p key={p.dataKey} className="flex items-center gap-2 text-mist-700 num">
           <span className="h-2 w-2 rounded-full" style={{ background: p.color || p.fill }} />
-          {p.name}: <span className="font-semibold text-ink-900">{money ? lakh(p.value) : num(p.value)}</span>
+          {p.name}: <span className="font-semibold text-ink-900">{money ? tzsShort(p.value) : num(p.value)}</span>
         </p>
       ))}
     </div>
   );
 }
 
-const fmtTick = (money) => (v) => (money ? (v >= 1e5 ? `₹${(v / 1e5).toFixed(v >= 1e6 ? 0 : 1)}L` : `₹${Math.round(v / 1000)}k`) : num(v));
+const fmtTick = (money) => (v) => (money ? tzsShort(v).replace('TSh ', '') : num(v));
 
 export function AreaTrend({ data, series, height = 260, money }) {
   return (

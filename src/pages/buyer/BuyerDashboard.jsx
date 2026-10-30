@@ -4,7 +4,7 @@ import { Calculator, FileSearch, GitCompareArrows, Heart, History, MessageSquare
 import { useStore, isPublic } from '../../store/AppStore';
 import { Badge, Button, EmptyState, IconButton, PageHeader, Section, useToast } from '../../components/ui';
 import { VehicleCard, vehicleTitle } from '../../components/vehicle/VehicleCard';
-import { ago, lakh } from '../../utils/format';
+import { ago, tzs } from '../../utils/format';
 
 export default function BuyerDashboard() {
   const { state, me, vehicle, removeSavedSearch } = useStore();
@@ -105,7 +105,7 @@ export default function BuyerDashboard() {
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-semibold">{v ? vehicleTitle(v) : e.vehicleId}</p>
                         <p className="truncate text-[12.5px] text-mist-500">
-                          {v ? lakh(v.price) : ''} · sent {ago(e.createdAt)}
+                          {v ? tzs(v.price) : ''} · sent {ago(e.createdAt)}
                         </p>
                       </div>
                       <Badge tone={e.status === 'new' ? 'neutral' : 'blue'} dot>{e.status === 'new' ? 'Sent' : 'Seller replied'}</Badge>

@@ -9,7 +9,7 @@ import { EnquiryForm } from '../../components/vehicle/EnquiryForm';
 import { VehicleCard, vehicleTitle } from '../../components/vehicle/VehicleCard';
 import { SimilarComparison } from '../../components/vehicle/SimilarComparison';
 import { SELLER_TYPE, sellerName, sellerPath, useSellerListings } from './SellerListings';
-import { cn, date, km, lakh, num } from '../../utils/format';
+import { cn, date, km, tzs, num } from '../../utils/format';
 
 
 
@@ -343,7 +343,7 @@ function TitleBlock({ v }) {
         {v.variant} · {v.fuel} · {v.transmission}
       </p>
       <p className="mt-3 font-display text-[32px] font-extrabold leading-none text-ink-900 num" style={{ fontStretch: '112%' }}>
-        {v.price}
+        {tzs(v.price)}
       </p>
       <p className="mt-1 text-[12.5px] text-mist-500 num">
         Listed {date(v.publishedAt || v.createdAt)} · {num(v.views)} views · ID {v.id.toUpperCase()}

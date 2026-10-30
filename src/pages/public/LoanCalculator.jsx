@@ -8,7 +8,7 @@ import { AreaTrend, Donut, CHART } from '../../components/charts/Charts';
 import { BankChooser, BankInfoModal, EnquireCta, FinanceEnquiryModal, FinancingCar } from '../../components/finance/FinanceParts';
 import { partnerBanks } from '../../data/partnerBanks';
 import { amortisation, calcEmi } from '../../utils/emi';
-import { inr, lakh } from '../../utils/format';
+import { tzs, tzsShort } from '../../utils/format';
 
 function NumberField({ id, label, value, onChange, prefix, suffix, min, max, step, error, disabled, hint }) {
   return (
@@ -18,7 +18,7 @@ function NumberField({ id, label, value, onChange, prefix, suffix, min, max, ste
   );
 }
 
-const roundDown = (price) => Math.round((price * 0.2) / 10000) * 10000;
+const roundDown = (price) => Math.round((price * 0.2) / 100000) * 100000;
 
 export default function LoanCalculator() {
   const [params, setParams] = useSearchParams();
@@ -30,8 +30,8 @@ export default function LoanCalculator() {
   const [car, setCar] = useState(paramCar && isPublic(paramCar) ? paramCar : null);
   const startBank = banks.find((b) => b.id === params.get('bank')) || banks[0];
   const init = {
-    price: car?.price || Number(params.get('price')) || 850000,
-    down: Number(params.get('down')) || (car ? roundDown(car.price) : 170000),
+    price: car?.price || Number(params.get('price')) || 25000000,
+    down: Number(params.get('down')) || (car ? roundDown(car.price) : 5000000),
     rate: Number(params.get('rate')) || startBank?.rate || state.config.defaultInterestRate,
     months: Number(params.get('months')) || 60,
     bank: startBank?.id,
@@ -48,7 +48,7 @@ export default function LoanCalculator() {
   const seller = car ? user(car.sellerId) : null;
 
   const errors = {
-    price: price === '' || price < 50000 ? 'Enter a vehicle price of at least ₹50,000' : price > 50000000 ? 'Price looks too high' : '',
+    price: price === '' || price < 1000000 ? 'Enter a vehicle price of at least TSh 1,000,000' : price > 2000000000 ? 'Price looks too high' : '',
     down: down === '' || down < 0 ? 'Enter 0 or more' : down >= price ? 'Down payment must be less than the price' : '',
     rate: rate === '' || rate <= 0 || rate > 30 ? 'Enter a rate between 0.1% and 30%' : '',
     months: months === '' || months < 6 || months > 96 ? 'Tenure must be 6 to 96 months' : '',
@@ -124,8 +124,8 @@ export default function LoanCalculator() {
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-ink-900 text-[12px] text-white">1</span> Adjust your loan
             </h2>
             <div className="grid gap-4 sm:grid-cols-2">
-              <NumberField id="lc-price" label="Vehicle price" prefix="₹" value={price} onChange={setPrice} step={10000} error={errors.price} disabled={!!car} hint={car ? 'Set by the listing' : undefined} />
-              <NumberField id="lc-down" label="Down payment" prefix="₹" value={down} onChange={setDown} step={10000} error={errors.down} />
+              <NumberField id="lc-price" label="Vehicle price" prefix="TSh" value={price} onChange={setPrice} step={100000} error={errors.price} disabled={!!car} hint={car ? 'Set by the listing' : undefined} />
+              <NumberField id="lc-down" label="Down payment" prefix="TSh" value={down} onChange={setDown} step={100000} error={errors.down} />
               <NumberField id="lc-rate" label="Interest rate (per year)" suffix="%" value={rate} onChange={setRate} step={0.05} error={errors.rate} hint={bank && Number(rate) !== bank.rate ? `${bank.short}'s indicative rate is ${bank.rate.toFixed(2)}%` : undefined} />
               <Field label="Loan duration" htmlFor="lc-months" error={errors.months}>
                 <Select id="lc-months" value={String(months)} onChange={(e) => setMonths(Number(e.target.value))} options={[12, 24, 36, 48, 60, 72, 84].map((m) => ({ value: String(m), label: `${m} months (${m / 12} yr${m > 12 ? 's' : ''})` }))} />
@@ -133,7 +133,7 @@ export default function LoanCalculator() {
             </div>
             {ok && (
               <div className="space-y-4 border-t border-mist-100 pt-5">
-                <RangeInput id="lc-down-r" label="Down payment" value={down} min={0} max={Math.round(price * 0.9)} step={10000} onChange={setDown} display={`${lakh(down)} (${Math.round((down / price) * 100)}%)`} />
+                <RangeInput id="lc-down-r" label="Down payment" value={down} min={0} max={Math.round(price * 0.9)} step={100000} onChange={setDown} display={`${tzsShort(down)} (${Math.round((down / price) * 100)}%)`} />
                 <RangeInput id="lc-rate-r" label="Interest rate" value={rate} min={6} max={18} step={0.05} onChange={setRate} display={`${Number(rate).toFixed(2)}%`} />
                 <RangeInput id="lc-months-r" label="Tenure" value={months} min={12} max={84} step={12} onChange={setMonths} display={`${months} months`} />
               </div>
@@ -170,7 +170,7 @@ export default function LoanCalculator() {
               <p className="mb-2.5 text-[13px] text-mist-600 num">
                 {r && bank ? (
                   <>
-                    <b className="text-ink-900">{inr(r.emi)}/month</b> with {bank.short} for {months} months
+                    <b className="text-ink-900">{tzs(r.emi)}/month</b> with {bank.short} for {months} months
                   </>
                 ) : (
                   'Fix the highlighted fields to continue'
@@ -186,7 +186,7 @@ export default function LoanCalculator() {
             <div className="bg-ink-950 p-6 text-white">
               <p className="text-sm text-ink-300">Estimated monthly EMI{bank ? ` with ${bank.name}` : ''}</p>
               <p className="mt-1 font-display text-[44px] font-extrabold leading-none num" style={{ fontStretch: '112%' }} aria-live="polite">
-                {r ? inr(r.emi) : '—'}
+                {r ? tzs(r.emi) : '—'}
               </p>
               <p className="mt-2 text-[13px] text-ink-300 num">{r ? `for ${months} months at ${Number(rate).toFixed(2)}% p.a.` : 'Fix the highlighted fields to see your EMI'}</p>
               <div className="mt-5 border-t border-white/10 pt-5">
@@ -212,11 +212,11 @@ export default function LoanCalculator() {
                 />
                 <dl className="space-y-2.5 text-sm">
                   {[
-                    ['Loan amount (principal)', inr(r.principal), CHART.navy],
-                    ['Total interest', inr(r.totalInterest), CHART.blue],
-                    ['Total payable to lender', inr(r.totalPayable)],
-                    ['Down payment', inr(down)],
-                    ['Total cost of the car', inr(r.totalPayable + Number(down))],
+                    ['Loan amount (principal)', tzs(r.principal), CHART.navy],
+                    ['Total interest', tzs(r.totalInterest), CHART.blue],
+                    ['Total payable to lender', tzs(r.totalPayable)],
+                    ['Down payment', tzs(down)],
+                    ['Total cost of the car', tzs(r.totalPayable + Number(down))],
                   ].map(([k, val, c]) => (
                     <div key={k} className="flex items-center justify-between gap-3 border-b border-mist-100 pb-2.5 last:border-0">
                       <dt className="flex items-center gap-2 text-mist-600">

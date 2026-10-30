@@ -6,7 +6,7 @@ import { ArrowRight, BadgeCheck, Building2, CalendarDays, Car, Check, Clock, Lay
 import { Avatar, Badge, Breadcrumbs, Button, CopyText, EmptyState, SearchInput, Select } from '../../components/ui';
 import { CarImage } from '../../components/vehicle/CarArt';
 import { DEALER_SORTS, dealerHaystack, openStatus, sortDealers, useDealers } from '../../utils/dealers';
-import { cn, num, tzs } from '../../utils/format';
+import { cn, num, tzs, tzsShort } from '../../utils/format';
 
 const pill = (on) =>
   cn(
@@ -288,8 +288,8 @@ function DealerCard({ d }) {
           </div>
           <div className="min-w-0">
             <dt className="text-[11.5px] text-mist-500">From</dt>
-            <dd className="truncate font-bold text-ink-900 num" title={d.cars.length ? tzs(d.minPrice) : ''}>
-              {d.cars.length ? tzs(d.minPrice) : '—'}
+            <dd className="truncate font-bold text-ink-900 num" title={d.cars.length ? tzsShort(d.minPrice) : ''}>
+              {d.cars.length ? tzsShort(d.minPrice) : '—'}
             </dd>
           </div>
           <div className="min-w-0">
@@ -349,7 +349,7 @@ function DealerRow({ d }) {
           </ul>
           <p className="mt-1.5 text-[13px] num">
             <span className="font-bold text-ink-900">{d.cars.length} car{d.cars.length === 1 ? '' : 's'} for sale</span>
-            {d.cars.length > 0 && <span className="text-mist-600"> · from {tzs(d.minPrice)}</span>}
+            {d.cars.length > 0 && <span className="text-mist-600"> · from {tzsShort(d.minPrice)}</span>}
             {d.stockMakes.length > 0 && <span className="text-mist-500"> · {d.stockMakes.slice(0, 4).join(', ')}</span>}
           </p>
           <OpenNow hours={d.hours} className="mt-1" />

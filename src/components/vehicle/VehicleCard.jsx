@@ -4,7 +4,7 @@ import { CarImage } from './CarArt';
 import { VerificationBadge } from '../ui';
 import { useStore } from '../../store/AppStore';
 import { useToast } from '../ui/Toast';
-import { cn, km, lakh } from '../../utils/format';
+import { cn, km, tzs } from '../../utils/format';
 import { useTilt } from '../interactive/Interactive';
 
 export function vehicleTitle(v) {
@@ -15,13 +15,6 @@ export function SellerTypeTag({ role }) {
   const map = { dealer: 'Dealer', seller: 'Owner', agent: 'Agent' };
   return <span className="rounded bg-mist-100 px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-mist-600">{map[role] || role}</span>;
 }
-
-const formatTZS = (price) =>
-  new Intl.NumberFormat('en-TZ', {
-    style: 'currency',
-    currency: 'TZS',
-    maximumFractionDigits: 0,
-  }).format(price);
 
 export function VehicleCard({ vehicle: v, layout = 'grid', onRemove, actions }) {
   const { state, toggleSaved, toggleCompare } = useStore();
@@ -93,7 +86,7 @@ export function VehicleCard({ vehicle: v, layout = 'grid', onRemove, actions }) 
         </ul>
         <div className="mt-auto flex flex-wrap items-end justify-between gap-x-2 gap-y-1.5 pt-1">
           <p className="whitespace-nowrap font-display text-sm font-bold text-ink-900 num" style={{ fontStretch: '110%' }}>
-            {formatTZS(v.price)}
+            {tzs(v.price)}
           </p>
           <VerificationBadge status={v.verification} size="sm" />
         </div>

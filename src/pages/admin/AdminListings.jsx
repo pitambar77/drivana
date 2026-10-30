@@ -7,7 +7,7 @@ import { CarImage } from '../../components/vehicle/CarArt';
 import { vehicleTitle } from '../../components/vehicle/VehicleCard';
 import { CITIES } from '../../data/catalog';
 import { ROLE_META } from '../../config/site';
-import { date, lakh, normId } from '../../utils/format';
+import { date, tzs, normId } from '../../utils/format';
 
 export const MOD = {
   flag: { label: 'Flag for review', tone: 'danger', msg: 'Marks the listing as under review. It stays live; buyers see "Under review" instead of a verified badge.', confirm: 'Flag listing', done: 'Listing flagged' },
@@ -219,7 +219,7 @@ export default function AdminListings() {
             },
             { key: 'reg', header: 'Reg. no.', render: (v) => <Plate value={v.regNumber} size="sm" /> },
             { key: 'city', header: 'City', sort: (v) => v.city },
-            { key: 'price', header: 'Price', align: 'right', sort: (v) => v.price, render: (v) => lakh(v.price) },
+            { key: 'price', header: 'Price', align: 'right', sort: (v) => v.price, render: (v) => tzs(v.price) },
             { key: 'status', header: 'Listing', render: (v) => <StatusBadge status={v.status} /> },
             { key: 'ver', header: 'Verification', render: (v) => <VerificationBadge status={v.verification} size="sm" /> },
             { key: 'created', header: 'Created', sort: (v) => v.createdAt, render: (v) => date(v.createdAt) },
