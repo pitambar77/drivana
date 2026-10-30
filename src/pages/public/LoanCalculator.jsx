@@ -112,7 +112,7 @@ export default function LoanCalculator() {
       <Breadcrumbs items={[...(car ? [{ label: 'Buy a car', to: '/cars' }, { label: `${car.make} ${car.model}`, to: `/cars/${car.id}` }] : []), { label: 'Loan calculator' }]} className="mb-4" />
       <div className="mb-6 max-w-2xl">
         <h1 className="text-[28px] font-bold md:text-[32px]">Car loan EMI calculator</h1>
-        <p className="mt-1.5 text-mist-600">Set your down payment and tenure, pick a partner bank, then make an enquiry. The dealer and the bank are both notified and follow up with you.</p>
+        <p className="mt-1.5 text-mist-600">Set your down payment and tenure, pick a perfect partner bank, then make an enquiry. The dealer and the bank are both notified and follow up with you.</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_1.1fr]">
