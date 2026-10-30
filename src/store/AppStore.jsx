@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState } from 
 import { buildSeed } from '../data/seed';
 import { normId, uid } from '../utils/format';
 import { PLANS } from '../config/site';
+import { buildFinanceRecords, withFinanceDemo } from '../utils/finance';
 
 const KEY = 'autodealer-demo-state-v1';
 const Ctx = createContext(null);
@@ -13,12 +14,12 @@ function load() {
     const raw = localStorage.getItem(KEY);
     if (raw) {
       const s = JSON.parse(raw);
-      if (s && s.version === 3) return s;
+      if (s && s.version === 3) return withFinanceDemo(s);
     }
   } catch {
     /* storage unavailable — use fresh seed */
   }
-  return buildSeed();
+  return withFinanceDemo(buildSeed());
 }
 
 /** Listing statuses that count as "active" for the one-listing rule and duplicate checks. */
@@ -66,7 +67,7 @@ export function StoreProvider({ children }) {
         } catch {
           /* ignore */
         }
-        setState(buildSeed());
+        setState(withFinanceDemo(buildSeed()));
       },
 
       // ── Session (mock auth)
@@ -362,11 +363,58 @@ export function StoreProvider({ children }) {
           return { ...s, referrals: [r, ...s.referrals] };
         });
       },
-      setReferralStatus(id, status) {
-        setState((s) => ({
-          ...s,
-          referrals: s.referrals.map((r) => (r.id === id ? { ...r, status, commission: status === 'disbursed' ? r.expectedCommission : 0 } : r)),
-        }));
+      setReferralStatus(id, status, note = '') {
+        setState((s) => {
+          const r0 = s.referrals.find((r) => r.id === id);
+          if (!r0 || r0.status === status) return s;
+          const at = now();
+          const next = {
+            ...s,
+            referrals: s.referrals.map((r) =>
+              r.id === id ? { ...r, status, commission: status === 'disbursed' ? r.expectedCommission : 0, history: [{ status, at, by: r.lender, note }, ...(r.history || [])] } : r,
+            ),
+          };
+          // Leads that came from a finance enquiry keep the selling dealer in the loop.
+          if (!r0.enquiryId || !r0.dealerId) return next;
+          const label = { contacted: 'contacted the buyer', application: 'started the loan application', sanctioned: 'sanctioned the loan', disbursed: 'paid the loan amount to you', rejected: 'declined the loan', referred: 'reopened the lead' }[status] || status;
+          const n = {
+            id: uid('nt'),
+            at,
+            audience: 'dealer',
+            recipientId: r0.dealerId,
+            recipientName: '',
+            channels: ['Dashboard', 'SMS'],
+            title: `${r0.lender} ${label}`,
+            body: `Loan for ${r0.buyerName} (${r0.id})${note ? ` — ${note}` : ''}.`,
+            link: '/dealer/enquiries',
+            refId: r0.enquiryId,
+          };
+          return { ...next, notifications: [n, ...(next.notifications || [])] };
+        });
+      },
+
+      /** Calculator "Make an enquiry": notifies the selling dealer and the chosen partner bank. */
+      submitFinanceEnquiry(input) {
+        const s = ref.current;
+        let n;
+        do n = Math.floor(1100 + Math.random() * 8800);
+        while (s.enquiries.some((e) => e.id === `FE-${n}`) || s.referrals.some((r) => r.id === `LR${n}`));
+        const id = `FE-${n}`;
+        const at = now();
+        const buyerId = s.session?.role === 'buyer' ? s.session.userId : null;
+        const { enquiry, referral, notifications } = buildFinanceRecords(s, { ...input, buyerId }, { id, at });
+        setState((st) =>
+          withAudit(
+            {
+              ...st,
+              enquiries: [enquiry, ...st.enquiries],
+              referrals: [referral, ...st.referrals],
+              notifications: [...notifications, ...(st.notifications || [])],
+            },
+            { action: 'Finance enquiry sent', entityType: 'listing', entityId: enquiry.vehicleId, note: `${id}: dealer and ${referral.lender} notified (lead ${referral.id}).` },
+          ),
+        );
+        return { enquiry, referral, notifications };
       },
 
       // ── Agent handover

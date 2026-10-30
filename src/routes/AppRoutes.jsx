@@ -9,6 +9,8 @@ import Home from '../pages/public/Home';
 import Browse from '../pages/public/Browse';
 import VehicleDetails from '../pages/public/VehicleDetails';
 import DealerDirectory from '../pages/public/DealerDirectory';
+import FinanceEnquiryStatus from '../pages/public/FinanceEnquiryStatus';
+import BankPortal from '../pages/partner/BankPortal';
 import SellerListings from '../pages/public/SellerListings';
 import VerifyVehicle from '../pages/public/VerifyVehicle';
 import LoanCalculator from '../pages/public/LoanCalculator';
@@ -77,6 +79,7 @@ export default function AppRoutes() {
         <Route path="dealers/:id" element={<SellerListings />} />
         <Route path="verify-vehicle" element={<VerifyVehicle />} />
         <Route path="loan-calculator" element={<LoanCalculator />} />
+        <Route path="finance-enquiry/:id" element={<FinanceEnquiryStatus />} />
         <Route path="how-it-works" element={<HowItWorks />} />
         <Route path="support" element={<Support />} />
         <Route path="compare" element={<Compare />} />
@@ -93,6 +96,7 @@ export default function AppRoutes() {
         <Route path="verify-otp" element={<OtpVerify />} />
         <Route path="buyer/welcome" element={<BuyerWelcome />} />
       </Route>
+      <Route path="bank-portal" element={<BankPortal />} />
       <Route path="admin/login" element={<AdminLogin />} />
       <Route path="admin/invite" element={<AdminInvite />} />
 

@@ -8,6 +8,7 @@ import { date, inr, lakh, toCSV, tryDownload } from '../../utils/format';
 
 const STATUSES = [
   { value: 'referred', label: 'Referred' },
+  { value: 'contacted', label: 'Contacted' },
   { value: 'application', label: 'Application' },
   { value: 'sanctioned', label: 'Sanctioned' },
   { value: 'disbursed', label: 'Disbursed' },
@@ -78,7 +79,20 @@ export default function AdminReferrals() {
           rows={rows}
           initialSort={{ key: 'date', dir: 'desc' }}
           columns={[
-            { key: 'id', header: 'Referral', render: (r) => <span className="font-mono text-[13px] font-semibold">{r.id}</span> },
+            {
+              key: 'id',
+              header: 'Referral',
+              render: (r) => (
+                <span>
+                  <span className="block font-mono text-[13px] font-semibold">{r.id}</span>
+                  {r.enquiryId && (
+                    <Link to={`/finance-enquiry/${r.enquiryId}`} className="text-[12px] text-accent-700 hover:underline">
+                      {r.enquiryId}
+                    </Link>
+                  )}
+                </span>
+              ),
+            },
             { key: 'date', header: 'Date', sort: (r) => r.createdAt, render: (r) => date(r.createdAt) },
             { key: 'lender', header: 'Lender', render: (r) => <span className="text-[13px]">{r.lender}</span> },
             { key: 'buyer', header: 'Buyer', render: (r) => <span className="text-[13px]">{r.buyerId ? user(r.buyerId)?.name : r.buyerName}</span> },
@@ -92,7 +106,7 @@ export default function AdminReferrals() {
                     {v.year} {v.make} {v.model}
                   </Link>
                 ) : (
-                  <span className="text-[13px] text-mist-500">From calculator</span>
+                  <span className="text-[13px] text-mist-500">No car chosen</span>
                 );
               },
             },

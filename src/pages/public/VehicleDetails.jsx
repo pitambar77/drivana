@@ -230,7 +230,7 @@ export default function VehicleDetails() {
           </Section>
 
           <Section title="Loan estimate" className="lg:hidden">
-            <EmiWidget price={v.price} rate={state.config.defaultInterestRate} />
+            <EmiWidget price={v.price} rate={state.config.defaultInterestRate} vehicleId={v.id} />
           </Section>
         </div>
 
@@ -273,7 +273,7 @@ export default function VehicleDetails() {
           </div>
           <div className="card hidden p-5 lg:block">
             <h2 className="mb-3 text-[15px] font-bold">Loan estimate</h2>
-            <EmiWidget price={v.price} rate={state.config.defaultInterestRate} />
+            <EmiWidget price={v.price} rate={state.config.defaultInterestRate} vehicleId={v.id} />
           </div>
         </aside>
       </div>

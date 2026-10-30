@@ -65,7 +65,12 @@ export default function DashboardLayout() {
 
   const notifications = role === 'admin'
     ? state.audit.slice(0, 6).map((a) => ({ id: a.id, text: `${a.action} · ${a.entityId}`, at: a.at, to: a.entityType === 'listing' ? `/admin/listings/${a.entityId}` : '/admin/users' }))
-    : state.enquiries.filter((e) => e.sellerId === me?.id).slice(0, 5).map((e) => ({ id: e.id, text: `New enquiry from ${e.buyerName}`, at: e.createdAt, to: role === 'agent' ? '/agent/listings' : role === 'dealer' ? '/dealer/enquiries' : '/seller' }));
+    : [
+        ...(state.notifications || []).filter((n) => n.audience === 'dealer' && n.recipientId === me?.id).map((n) => ({ id: n.id, text: n.title, sub: n.body, at: n.at, to: role === 'agent' ? '/agent/listings' : role === 'dealer' ? '/dealer/enquiries' : '/seller' })),
+        ...state.enquiries.filter((e) => e.sellerId === me?.id && e.type !== 'finance').slice(0, 5).map((e) => ({ id: e.id, text: `New enquiry from ${e.buyerName}`, at: e.createdAt, to: role === 'agent' ? '/agent/listings' : role === 'dealer' ? '/dealer/enquiries' : '/seller' })),
+      ]
+        .sort((a, b) => new Date(b.at) - new Date(a.at))
+        .slice(0, 6);
 
   const sidebar = (
     <div className="flex h-full flex-col gap-6 bg-ink-950 px-3 pb-4 pt-5">
@@ -152,6 +157,7 @@ export default function DashboardLayout() {
                       <li key={n.id}>
                         <Link to={n.to} className="block px-4 py-2.5 hover:bg-mist-50">
                           <p className="text-[13px] font-medium text-ink-800">{n.text}</p>
+                          {n.sub && <p className="line-clamp-2 text-[12px] text-mist-600">{n.sub}</p>}
                           <p className="text-[11.5px] text-mist-500">{ago(n.at)}</p>
                         </Link>
                       </li>

@@ -28,7 +28,7 @@ function Range({ id, label, value, min, max, step, onChange, display }) {
 }
 
 /** Compact calculator used on the vehicle details page. */
-export function EmiWidget({ price, rate = 9.25 }) {
+export function EmiWidget({ price, rate = 9.25, vehicleId }) {
   const [down, setDown] = useState(Math.round((price * 0.2) / 10000) * 10000);
   const [months, setMonths] = useState(60);
   const r = useMemo(() => calcEmi({ price, downPayment: down, ratePct: rate, months }), [price, down, rate, months]);
@@ -50,9 +50,18 @@ export function EmiWidget({ price, rate = 9.25 }) {
         <span className="text-mist-600">Total interest</span>
         <span className="font-semibold num">{inr(r.totalInterest)}</span>
       </div>
-      <Link to={`/loan-calculator?price=${price}&down=${down}&months=${months}`} className="btn btn-sm btn-secondary w-full">
-        Open full loan calculator
-      </Link>
+      {vehicleId ? (
+        <div className="grid gap-2">
+          <Link to={`/loan-calculator?car=${vehicleId}&down=${down}&months=${months}`} className="btn btn-md btn-primary w-full">
+            Get finance for this car
+          </Link>
+          <p className="text-center text-[12px] text-mist-500">Compare partner banks and send one enquiry to the bank and the dealer.</p>
+        </div>
+      ) : (
+        <Link to={`/loan-calculator?price=${price}&down=${down}&months=${months}`} className="btn btn-sm btn-secondary w-full">
+          Open full loan calculator
+        </Link>
+      )}
       <EmiDisclaimer />
     </div>
   );

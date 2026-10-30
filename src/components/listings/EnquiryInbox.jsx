@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Inbox, Mail, MessageCircle, Phone } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, CircleDot, Inbox, Landmark, Mail, MessageCircle, Phone, XCircle } from 'lucide-react';
 import { useStore } from '../../store/AppStore';
-import { Avatar, CopyText, EmptyState, Pagination, SearchInput, Select, StatusBadge, Tabs, useToast } from '../ui';
+import { Avatar, Badge, CopyText, EmptyState, Pagination, SearchInput, Select, StatusBadge, Tabs, useToast } from '../ui';
+import { LOAN_STEPS } from '../../data/partnerBanks';
 import { CarImage } from '../vehicle/CarArt';
 import { vehicleTitle } from '../vehicle/VehicleCard';
-import { ago, cn, dateTime, lakh } from '../../utils/format';
+import { ago, cn, dateTime, inr, lakh } from '../../utils/format';
 
 export const ENQ_STATUS = [
   { value: 'new', label: 'New' },
@@ -33,6 +34,7 @@ export function EnquiryInbox({ showVehicleFilter = true, compact }) {
     if (tab === 'open' && !isOpen(e)) return false;
     if (tab === 'new' && e.status !== 'new') return false;
     if (tab === 'closed' && isOpen(e)) return false;
+    if (tab === 'finance' && e.type !== 'finance') return false;
     if (veh && e.vehicleId !== veh) return false;
     const t = q.trim().toLowerCase();
     if (t && !`${e.buyerName} ${e.buyerPhone} ${e.message}`.toLowerCase().includes(t)) return false;
@@ -60,6 +62,7 @@ export function EnquiryInbox({ showVehicleFilter = true, compact }) {
           tabs={[
             { value: 'open', label: 'Open', count: mine.filter(isOpen).length },
             { value: 'new', label: 'New', count: mine.filter((e) => e.status === 'new').length },
+            ...(mine.some((e) => e.type === 'finance') ? [{ value: 'finance', label: 'Finance', count: mine.filter((e) => e.type === 'finance').length }] : []),
             { value: 'closed', label: 'Closed', count: mine.filter((e) => !isOpen(e)).length },
             { value: 'all', label: 'All', count: mine.length },
           ]}
@@ -93,7 +96,10 @@ export function EnquiryInbox({ showVehicleFilter = true, compact }) {
                         <p className="truncate text-[12.5px] text-mist-500">{v ? vehicleTitle(v) : e.vehicleId}</p>
                         <div className="mt-1 flex items-center justify-between gap-2">
                           <p className="truncate text-[13px] text-mist-600">{e.message}</p>
-                          <StatusBadge status={e.status} className="shrink-0" />
+                          <span className="flex shrink-0 items-center gap-1">
+                            {e.type === 'finance' && <Badge tone="info" icon={Landmark}>Finance</Badge>}
+                            <StatusBadge status={e.status} />
+                          </span>
                         </div>
                       </div>
                     </button>
@@ -123,6 +129,7 @@ export function EnquiryInbox({ showVehicleFilter = true, compact }) {
               <Select aria-label="Enquiry status" value={current.status} onChange={(ev) => setStatus(current.id, ev.target.value)} options={ENQ_STATUS} className="w-[190px]" />
             </div>
 
+            {current.type === 'finance' && <FinancePanel e={current} />}
             <div className="mt-5 whitespace-pre-line rounded-xl bg-mist-50 p-4 text-[14.5px] leading-relaxed text-ink-800">{current.message}</div>
 
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -175,6 +182,75 @@ export function EnquiryInbox({ showVehicleFilter = true, compact }) {
             <p className="mt-4 text-[12px] text-mist-500">Status changes are for your own tracking; buyers don't see them.</p>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+/** Loan terms and the partner bank's live progress for a finance enquiry. */
+function FinancePanel({ e }) {
+  const { state } = useStore();
+  const f = e.finance;
+  const ref = state.referrals.find((r) => r.id === f.referralId);
+  const status = ref?.status || 'referred';
+  const step = LOAN_STEPS.findIndex((s) => s.value === status);
+  const last = ref?.history?.[0];
+  return (
+    <div className="mt-5 overflow-hidden rounded-xl border border-info-100">
+      <div className="flex flex-wrap items-center justify-between gap-2 bg-info-50 px-4 py-2.5">
+        <p className="flex items-center gap-2 text-[13.5px] font-bold text-info-700">
+          <Landmark className="h-4 w-4" /> Finance enquiry · {f.lender} also notified
+        </p>
+        <span className="font-mono text-[12px] font-semibold text-info-700">Lead {f.referralId}</span>
+      </div>
+      <div className="grid gap-4 p-4 sm:grid-cols-2">
+        <dl className="space-y-1 text-[13.5px]">
+          {[
+            ['Car price', inr(f.price)],
+            ['Down payment', inr(f.downPayment)],
+            ['Loan', `${inr(f.loanAmount)} · ${f.months} mo`],
+            ['EMI shown', `${inr(f.emi)}/mo at ${f.ratePct.toFixed(2)}%`],
+          ].map(([k, v]) => (
+            <div key={k} className="flex justify-between gap-3">
+              <dt className="text-mist-600">{k}</dt>
+              <dd className="text-right font-semibold text-ink-900 num">{v}</dd>
+            </div>
+          ))}
+        </dl>
+        <dl className="space-y-1 text-[13.5px]">
+          {[
+            ['Earns as', f.employment],
+            ['Income', f.income || 'Not shared'],
+            ['Best time to call', f.callTime],
+            ['Also wants', [f.testDrive && 'Test drive', f.exchange && 'Exchange'].filter(Boolean).join(', ') || '—'],
+          ].map(([k, v]) => (
+            <div key={k} className="flex justify-between gap-3">
+              <dt className="text-mist-600">{k}</dt>
+              <dd className="text-right font-semibold text-ink-900">{v}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+      <div className="border-t border-mist-100 px-4 py-3">
+        <p className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-mist-500">Bank progress</p>
+        <ol className="flex flex-wrap gap-1.5">
+          {LOAN_STEPS.map((s, i) => (
+            <li key={s.value} className={cn('flex items-center gap-1 rounded-full px-2.5 py-1 text-[12px] font-semibold', status !== 'rejected' && i <= step ? 'bg-ok-50 text-ok-700' : 'bg-mist-100 text-mist-500')}>
+              {status !== 'rejected' && i <= step ? <CheckCircle2 className="h-3.5 w-3.5" /> : <CircleDot className="h-3.5 w-3.5" />} {s.label}
+            </li>
+          ))}
+          {status === 'rejected' && (
+            <li className="flex items-center gap-1 rounded-full bg-bad-50 px-2.5 py-1 text-[12px] font-semibold text-bad-700">
+              <XCircle className="h-3.5 w-3.5" /> Declined by bank
+            </li>
+          )}
+        </ol>
+        {last && (
+          <p className="mt-2 text-[12.5px] text-mist-600">
+            Last update {ago(last.at)}{last.note ? `: “${last.note}”` : ''}
+          </p>
+        )}
+        <p className="mt-2 text-[12.5px] text-mist-500">Next step for you: confirm the car with the buyer and send the proforma invoice to {f.lender}.</p>
       </div>
     </div>
   );
