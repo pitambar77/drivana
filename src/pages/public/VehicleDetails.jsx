@@ -8,7 +8,7 @@ import { EmiWidget } from '../../components/vehicle/EmiWidget';
 import { EnquiryForm } from '../../components/vehicle/EnquiryForm';
 import { VehicleCard, vehicleTitle } from '../../components/vehicle/VehicleCard';
 import { SimilarComparison } from '../../components/vehicle/SimilarComparison';
-import { SELLER_TYPE, sellerName, useSellerListings } from './SellerListings';
+import { SELLER_TYPE, sellerName, sellerPath, useSellerListings } from './SellerListings';
 import { cn, date, km, lakh, num } from '../../utils/format';
 
 
@@ -24,7 +24,7 @@ export function SellerCard({ vehicle: v, seller, compact }) {
       <div className="flex items-center gap-3">
         <Avatar name={seller?.business || seller?.agency || seller?.name} size={44} />
         <div className="min-w-0">
-          <Link to={`/sellers/${v.sellerId}?from=${v.id}`} className="block truncate font-bold text-ink-900 hover:text-accent-700">
+          <Link to={`${sellerPath(v.sellerRole, v.sellerId)}?from=${v.id}`} className="block truncate font-bold text-ink-900 hover:text-accent-700">
             {seller?.business || seller?.agency || seller?.name}
           </Link>
           <p className="flex items-center gap-1 text-[13px] text-mist-600">
@@ -61,11 +61,11 @@ export function SellerCard({ vehicle: v, seller, compact }) {
       )}
       {!compact &&
         (others > 0 ? (
-          <Button variant="secondary" icon={LayoutGrid} iconRight={ArrowRight} to={`/sellers/${v.sellerId}?from=${v.id}`} className="w-full">
+          <Button variant="secondary" icon={LayoutGrid} iconRight={ArrowRight} to={`${sellerPath(v.sellerRole, v.sellerId)}?from=${v.id}`} className="w-full">
             See {others} more car{others === 1 ? '' : 's'} from this {SELLER_TYPE[v.sellerRole]?.label.toLowerCase() || 'seller'}
           </Button>
         ) : (
-          <Link to={`/sellers/${v.sellerId}?from=${v.id}`} className="block text-center text-[13px] font-semibold text-mist-600 hover:text-accent-700">
+          <Link to={`${sellerPath(v.sellerRole, v.sellerId)}?from=${v.id}`} className="block text-center text-[13px] font-semibold text-mist-600 hover:text-accent-700">
             View seller profile · no other cars listed
           </Link>
         ))}
@@ -318,7 +318,7 @@ function MoreFromSeller({ vehicle: v, seller }) {
             {others.length} other car{others.length === 1 ? '' : 's'} for sale · {seller?.city}
           </p>
         </div>
-        <Button variant="secondary" iconRight={ArrowRight} to={`/sellers/${v.sellerId}?from=${v.id}`}>
+        <Button variant="secondary" iconRight={ArrowRight} to={`${sellerPath(v.sellerRole, v.sellerId)}?from=${v.id}`}>
           See all {others.length + 1} cars from this {T?.label.toLowerCase()}
         </Button>
       </div>
@@ -343,7 +343,7 @@ function TitleBlock({ v }) {
         {v.variant} · {v.fuel} · {v.transmission}
       </p>
       <p className="mt-3 font-display text-[32px] font-extrabold leading-none text-ink-900 num" style={{ fontStretch: '112%' }}>
-        {lakh(v.price)}
+        {v.price}
       </p>
       <p className="mt-1 text-[12.5px] text-mist-500 num">
         Listed {date(v.publishedAt || v.createdAt)} · {num(v.views)} views · ID {v.id.toUpperCase()}

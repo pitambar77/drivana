@@ -11,6 +11,7 @@ import { cn } from '../utils/format';
 
 const LINKS = [
   { to: '/cars', label: 'Buy a car' },
+  { to: '/dealers', label: 'Dealers' },
   { to: '/how-it-works', label: 'Sell your car' },
   { to: '/loan-calculator', label: 'Loan calculator' },
   { to: '/verify-vehicle', label: 'Verify a vehicle' },
@@ -30,16 +31,16 @@ export function Navbar() {
 
   return (
     <header className="sticky z-40 border-b border-mist-200 bg-white/95 backdrop-blur" style={{ top: 'env(safe-area-inset-top, 0px)' }}>
-      <div className="container-page flex h-16 items-center gap-4 xl:gap-6">
+      <div className="container-page flex h-16 items-center gap-4 2xl:gap-6">
         <Logo />
         <nav className="hidden items-center gap-0.5 xl:flex" aria-label="Main">
           {LINKS.map((l) => (
-            <NavLink key={l.to} to={l.to} className={({ isActive }) => cn('whitespace-nowrap rounded-lg px-2.5 py-2 text-[14px] font-semibold transition-colors', isActive ? 'text-accent-700' : 'text-ink-700 hover:bg-mist-100 hover:text-ink-900')}>
+            <NavLink key={l.to} to={l.to} className={({ isActive }) => cn('whitespace-nowrap rounded-lg px-2 py-2 text-[14px] font-semibold transition-colors 2xl:px-2.5', isActive ? 'text-accent-700' : 'text-ink-700 hover:bg-mist-100 hover:text-ink-900')}>
               {l.label}
             </NavLink>
           ))}
         </nav>
-        <div className="ml-auto flex items-center gap-1.5">
+        <div className="ml-auto flex items-center gap-1 2xl:gap-1.5">
           <StyleToggle compact className="hidden sm:inline-flex" />
           <Link to="/compare" className="btn-icon relative" aria-label="Compare cars" title="Compare">
             <GitCompareArrows className="h-[18px] w-[18px]" />
@@ -131,7 +132,7 @@ export function Navbar() {
 
 export function Footer() {
   const cols = [
-    ['Buy', [['Browse all cars', '/cars'], ['SUVs', '/cars?body=SUV'], ['Electric cars', '/cars?fuel=Electric'], ['Compare cars', '/compare'], ['Loan calculator', '/loan-calculator']]],
+    ['Buy', [['Browse all cars', '/cars'], ['Dealer directory', '/dealers'], ['SUVs', '/cars?body=SUV'], ['Electric cars', '/cars?fuel=Electric'], ['Compare cars', '/compare'], ['Loan calculator', '/loan-calculator']]],
     ['Sell', [['How it works', '/how-it-works'], ['Listing plans', '/how-it-works#plans'], ['Register as dealer', '/register/dealer'], ['Sell as owner', '/register/seller'], ['Join as agent', '/register/agent']]],
     ['Help', [['Support & FAQ', '/support'], ['Verify a vehicle', '/verify-vehicle'], ['Create buyer account', '/register/buyer'], ['Buyer sign-in', '/buyer/welcome'], ['Admin console', '/admin/login']]],
   ];

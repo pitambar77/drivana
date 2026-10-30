@@ -6,6 +6,10 @@ const numFmt = new Intl.NumberFormat('en-IN');
 export const inr = (n) => inrFmt.format(Math.round(Number(n) || 0));
 export const num = (n) => numFmt.format(Math.round(Number(n) || 0));
 
+const tzsFmt = new Intl.NumberFormat('en-TZ', { style: 'currency', currency: 'TZS', maximumFractionDigits: 0 });
+/** Tanzanian shilling, same format as the vehicle cards: TSh 930,000 */
+export const tzs = (n) => tzsFmt.format(Math.round(Number(n) || 0));
+
 /** Indian price convention: ₹8.45 Lakh / ₹1.2 Crore */
 export function lakh(n) {
   const v = Number(n) || 0;
