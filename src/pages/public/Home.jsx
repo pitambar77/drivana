@@ -36,7 +36,12 @@ import {
 import { PLANS } from "../../config/site";
 import { PRICE_STEPS } from "../../utils/filters";
 import { cn, tzs, num, tzsShort } from "../../utils/format";
-import { TYPE_KEYS, VEHICLE_TYPES, categoryOf, vehiclePath } from '../../data/vehicleTypes';
+import {
+  TYPE_KEYS,
+  VEHICLE_TYPES,
+  categoryOf,
+  vehiclePath,
+} from "../../data/vehicleTypes";
 
 const categoryImages = {
   SUV: "/suv2.jpg",
@@ -69,7 +74,22 @@ const recentVehicleImages = {
   // v1021: ["/cars/creta.jpg"],
 };
 
-  const heroSlides = [
+const vehicleTypeImages = {
+  car: {
+    src: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1000&q=85",
+    alt: "Premium sports car",
+  },
+  motorcycle: {
+    src: "https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=1000&q=85",
+    alt: "Motorcycle on the road",
+  },
+  lorry: {
+    src: "https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=1000&q=85",
+    alt: "Heavy commercial truck",
+  },
+};
+
+const heroSlides = [
   {
     image: bannerCar,
     label: "Find Your Car",
@@ -119,7 +139,11 @@ function HeroSearch() {
       className="rounded-2xl bg-white p-4 shadow-pop md:p-5"
       aria-label={`Search ${T.nounPlural}`}
     >
-      <div role="tablist" aria-label="What are you looking for?" className="mb-3 flex gap-1.5 overflow-x-auto">
+      <div
+        role="tablist"
+        aria-label="What are you looking for?"
+        className="mb-3 flex gap-1.5 overflow-x-auto"
+      >
         {TYPE_KEYS.map((k) => {
           const Ty = VEHICLE_TYPES[k];
           const on = k === type;
@@ -132,7 +156,9 @@ function HeroSearch() {
               onClick={() => switchType(k)}
               className={cn(
                 "inline-flex shrink-0 items-center gap-2 rounded-xl px-3.5 py-2 text-[14px] font-semibold transition-colors",
-                on ? "bg-ink-900 text-white" : "bg-mist-100 text-ink-700 hover:bg-mist-200",
+                on
+                  ? "bg-ink-900 text-white"
+                  : "bg-mist-100 text-ink-700 hover:bg-mist-200",
               )}
             >
               <Ty.icon className="h-4 w-4" /> {Ty.plural}
@@ -191,10 +217,22 @@ function HeroSearch() {
       <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap gap-1.5">
           {(type === "lorry"
-            ? [["Tippers", "/lorries?body=Tipper"], ["10+ tonnes", "/lorries?payload=10"], ["Light trucks", "/lorries?body=Light%20truck"]]
+            ? [
+                ["Tippers", "/lorries?body=Tipper"],
+                ["10+ tonnes", "/lorries?payload=10"],
+                ["Light trucks", "/lorries?body=Light%20truck"],
+              ]
             : type === "motorcycle"
-              ? [["Scooters", "/motorcycles?body=Scooter"], ["Under TSh 3M", "/motorcycles?maxPrice=3000000"], ["Electric", "/motorcycles?fuel=Electric"]]
-              : [["Under TSh 15M", "/cars?maxPrice=15000000"], ["Automatic", "/cars?transmission=Automatic"], ["Electric", "/cars?fuel=Electric"]]
+              ? [
+                  ["Scooters", "/motorcycles?body=Scooter"],
+                  ["Under TSh 3M", "/motorcycles?maxPrice=3000000"],
+                  ["Electric", "/motorcycles?fuel=Electric"],
+                ]
+              : [
+                  ["Under TSh 15M", "/cars?maxPrice=15000000"],
+                  ["Automatic", "/cars?transmission=Automatic"],
+                  ["Electric", "/cars?fuel=Electric"],
+                ]
           ).map(([t, to]) => (
             <Link
               key={t}
@@ -347,14 +385,13 @@ export default function Home() {
 
   const [activeSlide, setActiveSlide] = useState(0);
 
-useEffect(() => {
-  const timer = setInterval(() => {
-    setActiveSlide((current) => (current + 1) % heroSlides.length);
-  }, 5000);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveSlide((current) => (current + 1) % heroSlides.length);
+    }, 5000);
 
-  return () => clearInterval(timer);
-}, []);
-
+    return () => clearInterval(timer);
+  }, []);
 
   const live = useMemo(() => state.vehicles.filter(isPublic), [state.vehicles]);
   const featured = live.filter((v) => v.featured).slice(0, 4);
@@ -373,10 +410,10 @@ useEffect(() => {
     })),
   );
 
-
-
   const liveCars = live.filter((v) => categoryOf(v) === "car");
-  const typeCounts = Object.fromEntries(TYPE_KEYS.map((k) => [k, live.filter((v) => categoryOf(v) === k).length]));
+  const typeCounts = Object.fromEntries(
+    TYPE_KEYS.map((k) => [k, live.filter((v) => categoryOf(v) === k).length]),
+  );
   const brandCounts = MAKES.map((m) => ({
     make: m,
     count: liveCars.filter((v) => v.make === m).length,
@@ -462,116 +499,116 @@ useEffect(() => {
         </div>
       </section> */}
 
-  
-<section className="relative isolate mb-28 overflow-visible">
-  {/* Full-width background image */}
-  <div className="absolute inset-0 -z-10 overflow-hidden rounded-b-3xl bg-[#13282D]">
-    <img
-      src={bannerCar}
-      alt=""
-      aria-hidden="true"
-      className="absolute inset-0 h-full w-full object-cover object-center"
-    />
+      <section className="relative isolate mb-28 overflow-visible">
+        {/* Full-width background image */}
+        <div className="absolute inset-0 -z-10 overflow-hidden rounded-b-3xl bg-[#13282D]">
+          <img
+            src={bannerCar}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full object-cover object-center"
+          />
 
-    {/* Cinematic overlay */}
-    <div className="absolute inset-0 bg-gradient-to-r from-[#0B191D]/70 via-[#13282D]/25 to-[#13282D]/35" />
-    <div className="absolute inset-0 bg-gradient-to-t from-[#13282D]/25 via-transparent to-[#13282D]/10" />
+          {/* Cinematic overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0B191D]/70 via-[#13282D]/25 to-[#13282D]/35" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#13282D]/25 via-transparent to-[#13282D]/10" />
 
-    {/* Accent lighting */}
-    <div
-      className="absolute inset-0"
-      style={{
-        background:
-          "radial-gradient(ellipse at 85% 20%, rgba(232,32,28,0.22), transparent 45%), radial-gradient(ellipse at 10% 90%, rgba(248,208,0,0.12), transparent 40%)",
-      }}
-    />
-  </div>
-
-  {/* Hero content */}
-  <div className="container-page relative pb-32 pt-14 sm:pb-36 sm:pt-20 lg:pb-40 lg:pt-24">
-    <div className="max-w-3xl">
-      {/* Live listing indicator */}
-      <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.08] px-4 py-2 backdrop-blur-md">
-        <span className="relative flex h-2.5 w-2.5">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
-          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400" />
-        </span>
-
-        <p className="text-xs font-semibold tracking-wide text-white sm:text-sm">
-          <CountUp value={live.length} /> vehicles live
-          <span className="mx-2 text-white/40">•</span>
-          <CountUp value={verifiedCount} /> with verified documents
-        </p>
-      </div>
-
-      {/* Main heading */}
-      <h1 className="mt-7 max-w-3xl text-4xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl">
-        Your next ride.
-        <br />
-        <span className="text-[#F8D000]">Your deal.</span>{" "}
-        <span className="text-white">Your way.</span>
-      </h1>
-
-      {/* Accent divider */}
-      <div className="mt-6 flex h-1.5 w-28 overflow-hidden rounded-full">
-        <span className="w-[38%] bg-[#F8D000]" />
-        <span className="flex-1 bg-[#E8201C]" />
-      </div>
-
-      {/* Description */}
-      <p className="mt-6 max-w-xl text-base leading-7 text-white/80 sm:text-lg sm:leading-8">
-        Discover cars, motorcycles and lorries from trusted dealers, owners
-        and agents across India. Check registration details, estimate your EMI
-        and connect directly with the seller. No middleman.
-      </p>
-
-      {/* CTA buttons */}
-      <div className="mt-8 flex flex-wrap items-center gap-3">
-        <Button to="/cars" size="lg" iconRight={ArrowRight}>
-          Explore cars
-        </Button>
-
-        <Link
-          to="/register"
-          className="btn btn-lg border border-white/30 bg-white/10 text-white backdrop-blur-sm transition hover:border-white/50 hover:bg-white/20"
-        >
-          Create free account
-        </Link>
-      </div>
-
-      {/* Trust indicators */}
-      <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-white/75">
-        <div className="flex items-center gap-2">
-          <BadgeCheck className="h-4 w-4 text-[#F8D000]" />
-          <span>Direct seller contact</span>
+          {/* Accent lighting */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(ellipse at 85% 20%, rgba(232,32,28,0.22), transparent 45%), radial-gradient(ellipse at 10% 90%, rgba(248,208,0,0.12), transparent 40%)",
+            }}
+          />
         </div>
 
-        <div className="flex items-center gap-2">
-          <BadgeCheck className="h-4 w-4 text-[#F8D000]" />
-          <span>Verified documents</span>
+        {/* Hero content */}
+        <div className="container-page relative pb-32 pt-14 sm:pb-36 sm:pt-20 lg:pb-40 lg:pt-24">
+          <div className="max-w-3xl">
+            {/* Live listing indicator */}
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.08] px-4 py-2 backdrop-blur-md">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400" />
+              </span>
+
+              <p className="text-xs font-semibold tracking-wide text-white sm:text-sm">
+                <CountUp value={live.length} /> vehicles live
+                <span className="mx-2 text-white/40">•</span>
+                <CountUp value={verifiedCount} /> with verified documents
+              </p>
+            </div>
+
+            {/* Main heading */}
+            <h1 className="mt-7 max-w-3xl text-4xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl">
+              Your next ride.
+              <br />
+              <span className="text-[#F8D000]">Your deal.</span>{" "}
+              <span className="text-white">Your way.</span>
+            </h1>
+
+            {/* Accent divider */}
+            <div className="mt-6 flex h-1.5 w-28 overflow-hidden rounded-full">
+              <span className="w-[38%] bg-[#F8D000]" />
+              <span className="flex-1 bg-[#E8201C]" />
+            </div>
+
+            {/* Description */}
+            <p className="mt-6 max-w-xl text-base leading-7 text-white/80 sm:text-lg sm:leading-8">
+              Discover cars, motorcycles and lorries from trusted dealers,
+              owners and agents across India. Check registration details,
+              estimate your EMI and connect directly with the seller. No
+              middleman.
+            </p>
+
+            {/* CTA buttons */}
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <Button to="/cars" size="lg" iconRight={ArrowRight}>
+                Explore cars
+              </Button>
+
+              <Link
+                to="/register"
+                className="btn btn-lg border border-white/30 bg-white/10 text-white backdrop-blur-sm transition hover:border-white/50 hover:bg-white/20"
+              >
+                Create free account
+              </Link>
+            </div>
+
+            {/* Trust indicators */}
+            <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-white/75">
+              <div className="flex items-center gap-2">
+                <BadgeCheck className="h-4 w-4 text-[#F8D000]" />
+                <span>Direct seller contact</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <BadgeCheck className="h-4 w-4 text-[#F8D000]" />
+                <span>Verified documents</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <BadgeCheck className="h-4 w-4 text-[#F8D000]" />
+                <span>No middleman</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile search */}
+          <div className="absolute inset-x-0 bottom-0 translate-y-1/2 px-4 lg:hidden">
+            <HeroSearch />
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <BadgeCheck className="h-4 w-4 text-[#F8D000]" />
-          <span>No middleman</span>
+        {/* Desktop search overlapping the banner */}
+        <div className="container-page absolute inset-x-0 bottom-0 z-10 hidden translate-y-1/2 lg:block">
+          <HeroSearch />
         </div>
-      </div>
-    </div>
+      </section>
 
-    {/* Mobile search */}
-    <div className="absolute inset-x-0 bottom-0 translate-y-1/2 px-4 lg:hidden">
-      <HeroSearch />
-    </div>
-  </div>
-
-  {/* Desktop search overlapping the banner */}
-  <div className="container-page absolute inset-x-0 bottom-0 z-10 hidden translate-y-1/2 lg:block">
-    <HeroSearch />
-  </div>
-</section>
-
-{/* Background image slider + hero content */}
-{/* <section className="relative isolate mb-28 overflow-visible">
+      {/* Background image slider + hero content */}
+      {/* <section className="relative isolate mb-28 overflow-visible">
 
   <div className="absolute inset-0 -z-10 overflow-hidden rounded-b-3xl bg-[#13282D]">
     {heroSlides.map((slide, index) => (
@@ -708,16 +745,16 @@ useEffect(() => {
   </div>
 </section> */}
 
-
-  
       {/* <AffordabilityBand live={live} /> */}
       {/* Vehicle types */}
       <section className="container-page pt-12" aria-labelledby="types-title">
         <div className="mb-5">
           <p className="eyebrow">Buy & sell</p>
-          <h2 id="types-title" className="mt-1 text-2xl font-bold">Cars, motorcycles and lorries</h2>
+          <h2 id="types-title" className="mt-1 text-2xl font-bold">
+            Cars, motorcycles and lorries
+          </h2>
         </div>
-        <div className="grid gap-4 md:grid-cols-3">
+        {/* <div className="grid gap-4 md:grid-cols-3">
           {TYPE_KEYS.map((k) => {
             const Ty = VEHICLE_TYPES[k];
             const sample = { category: k, bodyType: { car: "SUV", motorcycle: "Sport", lorry: "Tipper" }[k], colorHex: { car: "#2E5744", motorcycle: "#A8262E", lorry: "#2C5AA3" }[k] };
@@ -736,6 +773,61 @@ useEffect(() => {
                 <div className="flex flex-wrap gap-1.5 border-t border-mist-100 px-4 py-3">
                   {Ty.bodies.slice(0, 4).map((b) => (
                     <span key={b} className="rounded-md bg-mist-100 px-2 py-0.5 text-[12px] font-semibold text-mist-700">
+                      {b}
+                    </span>
+                  ))}
+                </div>
+              </Link>
+            );
+          })}
+        </div> */}
+
+        <div className="grid gap-4 md:grid-cols-3">
+          {TYPE_KEYS.map((k) => {
+            const Ty = VEHICLE_TYPES[k];
+            const image = vehicleTypeImages[k];
+
+            return (
+              <Link
+                key={k}
+                to={Ty.path}
+                className="card group overflow-hidden transition-shadow hover:shadow-lift"
+              >
+                {/* Real vehicle image */}
+                <div className="aspect-[16/8] w-full overflow-hidden bg-mist-100">
+                  <img
+                    src={image.src}
+                    alt={image.alt}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                </div>
+
+                {/* Vehicle information */}
+                <div className="flex items-start justify-between gap-3 p-4">
+                  <div className="min-w-0">
+                    <p className="flex items-center gap-2 font-display text-lg font-bold text-ink-900 group-hover:text-accent-700">
+                      <Ty.icon className="h-5 w-5" />
+                      {Ty.plural}
+                    </p>
+
+                    <p className="mt-0.5 text-[13.5px] text-mist-600">
+                      {Ty.tagline}
+                    </p>
+                  </div>
+
+                  <span className="shrink-0 rounded-full bg-mist-100 px-2.5 py-1 text-[12.5px] font-semibold text-ink-800 num">
+                    {typeCounts[k]} for sale
+                  </span>
+                </div>
+
+                {/* Vehicle body types */}
+                <div className="flex flex-wrap gap-1.5 border-t border-mist-100 px-4 py-3">
+                  {Ty.bodies.slice(0, 4).map((b) => (
+                    <span
+                      key={b}
+                      className="rounded-md bg-mist-100 px-2 py-0.5 text-[12px] font-semibold text-mist-700"
+                    >
                       {b}
                     </span>
                   ))}
