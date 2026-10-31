@@ -13,6 +13,7 @@ import { CarImage } from '../../components/vehicle/CarArt';
 import { LOAN_STEPS, bankInfo } from '../../data/partnerBanks';
 import { sellerDisplayName } from '../../utils/finance';
 import { ago, cn, dateTime, tzs, tzsShort } from '../../utils/format';
+import { vehiclePath } from '../../data/vehicleTypes';
 
 const OPEN = ['referred', 'contacted', 'application', 'sanctioned'];
 const NEXT = {
@@ -272,7 +273,7 @@ function LeadDetail({ r, name, note, setNote, onUpdate }) {
 
         {v && (
           <Box icon={Car} title="Car">
-            <Link to={`/cars/${v.id}`} target="_blank" className="flex gap-3 hover:text-accent-700">
+            <Link to={`${vehiclePath(v)}`} target="_blank" className="flex gap-3 hover:text-accent-700">
               <CarImage vehicle={v} className="h-14 w-20 shrink-0 rounded-md object-cover" />
               <span className="min-w-0">
                 <span className="block truncate font-semibold">

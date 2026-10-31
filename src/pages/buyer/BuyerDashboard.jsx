@@ -5,6 +5,7 @@ import { useStore, isPublic } from '../../store/AppStore';
 import { Badge, Button, EmptyState, IconButton, PageHeader, Section, useToast } from '../../components/ui';
 import { VehicleCard, vehicleTitle } from '../../components/vehicle/VehicleCard';
 import { ago, tzs } from '../../utils/format';
+import { typeFor } from '../../data/vehicleTypes';
 
 export default function BuyerDashboard() {
   const { state, me, vehicle, removeSavedSearch } = useStore();
@@ -22,8 +23,8 @@ export default function BuyerDashboard() {
   );
   const myEnq = state.enquiries.filter((e) => e.buyerId === me.id).slice(0, 5);
   const shortcuts = [
-    [Search, 'Browse cars', '/cars', `${state.vehicles.filter(isPublic).length} live`],
-    [Heart, 'Saved cars', '/buyer/saved', `${state.saved.length} saved`],
+    [Search, 'Browse vehicles', '/cars', `${state.vehicles.filter(isPublic).length} live`],
+    [Heart, 'Saved vehicles', '/buyer/saved', `${state.saved.length} saved`],
     [GitCompareArrows, 'Compare', '/compare', `${state.compare.length}/3 selected`],
     [Calculator, 'EMI calculator', '/loan-calculator', 'Plan your budget'],
     [FileSearch, 'Verify a vehicle', '/verify-vehicle', 'Check the RC'],
@@ -58,7 +59,7 @@ export default function BuyerDashboard() {
             ))}
           </div>
         ) : (
-          <EmptyState title="Nothing viewed yet" message="Cars you open appear here." action={<Button to="/cars">Browse cars</Button>} />
+          <EmptyState title="Nothing viewed yet" message="Cars, motorcycles and lorries you open appear here." action={<Button to="/cars">Browse cars</Button>} />
         )}
       </section>
 
@@ -73,7 +74,10 @@ export default function BuyerDashboard() {
                     <p className="truncate text-sm font-semibold">{s.label}</p>
                     <p className="text-[12px] text-mist-500">Saved {ago(s.createdAt)}</p>
                   </div>
-                  <Button size="sm" variant="secondary" onClick={() => nav(`/cars?${new URLSearchParams(s.query).toString()}`)}>
+                  <Button size="sm" variant="secondary" onClick={() => {
+                      const { type, ...rest } = s.query || {};
+                      nav(`${typeFor(type).path}?${new URLSearchParams(rest).toString()}`);
+                    }}>
                     Run
                   </Button>
                   <IconButton

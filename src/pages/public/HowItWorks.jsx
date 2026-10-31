@@ -9,35 +9,35 @@ const JOURNEYS = {
   dealer: {
     icon: Building2,
     title: 'Dealer',
-    blurb: 'For showrooms and used-car businesses. Manage your whole stock from one dashboard.',
+    blurb: 'For car, motorcycle and truck showrooms. Manage your whole stock from one dashboard.',
     steps: [
       [UserCheck, 'Sign in with your business mobile', 'Verify with a one-time code and choose the Dealer account type.'],
       [FileCheck2, 'Upload your business certificate', 'Shop & establishment, GST or company registration. Reviewed after you publish.'],
       [Car, 'Add vehicles', 'Six-step form with photos, registration and VIN. Save drafts any time.'],
-      [CreditCard, 'Pay per car or buy a pack', 'Each listing goes live as soon as its payment succeeds.'],
+      [CreditCard, 'Pay per vehicle or buy a pack', 'Each listing goes live as soon as its payment succeeds.'],
       [Inbox, 'Manage enquiries', 'Every call and message lands in your lead inbox with a status you can update.'],
     ],
   },
   seller: {
     icon: Car,
     title: 'Private seller',
-    blurb: 'Selling your own car. One active listing per account keeps the marketplace honest.',
+    blurb: 'Selling your own car, motorcycle or lorry. One active listing per account keeps the marketplace honest.',
     steps: [
       [UserCheck, 'Sign in with your mobile', 'One-time code, no password. Choose Private Seller.'],
       [ShieldCheck, 'Upload your ID', 'Driving licence, PAN or passport. An optional short video speeds up verification.'],
-      [Car, 'Describe your car', 'Registration number, VIN, kilometres, photos and your price.'],
+      [Car, 'Describe your vehicle', 'Registration number, VIN, kilometres, photos and your price.'],
       [CreditCard, 'Pay the listing fee', 'Your listing publishes automatically after payment.'],
-      [Inbox, 'Talk to buyers', 'Buyers call or message you directly. Mark the car sold when you\'re done.'],
+      [Inbox, 'Talk to buyers', 'Buyers call or message you directly. Mark it sold when you\'re done.'],
     ],
   },
   agent: {
     icon: Handshake,
     title: 'Agent',
-    blurb: 'For agents who sell cars on behalf of owners and see the handover through.',
+    blurb: 'For agents who sell vehicles on behalf of owners and see the handover through.',
     steps: [
       [UserCheck, 'Sign in and choose Agent', 'Verify your mobile with a one-time code.'],
       [FileCheck2, 'Upload ID and owner authorisation', 'Your identity proof, plus the owner\'s signed authorisation letter where policy requires it.'],
-      [Car, 'List the car with owner details', 'Owner details stay private; buyers contact you.'],
+      [Car, 'List the vehicle with owner details', 'Owner details stay private; buyers contact you.'],
       [CreditCard, 'Pay per listing', 'The listing goes live once payment succeeds.'],
       [Handshake, 'Track the handover', 'Owner → agent → buyer timeline, from authorisation to delivery.'],
     ],
@@ -49,7 +49,7 @@ const RULES = [
   [Radio, 'Live as soon as it passes checks', 'There is no waiting for manual approval. Once paid and validated, your listing appears in search right away.'],
   [BadgeCheck, 'Live is not the same as verified', 'Our team reviews documents after publishing. The "Documents verified" badge appears only after that review.'],
   [ShieldX, 'Duplicates are blocked', 'A registration number or VIN can be in only one active listing. We explain why and how to fix it if yours is blocked.'],
-  [Car, 'One car per private seller', 'Private seller accounts can have one active listing. Mark it sold or remove it to list another.'],
+  [Car, 'One vehicle per private seller', 'Private seller accounts can have one active listing. Mark it sold or remove it to list another.'],
   [ShieldCheck, 'Suspicious listings are reviewed', 'Admins can flag, suspend or remove listings that look wrong, and every action is recorded.'],
 ];
 
@@ -66,7 +66,7 @@ export default function HowItWorks() {
     <div>
       <section className="bg-white">
         <div className="container-page py-8 md:py-12">
-          <Breadcrumbs items={[{ label: 'Sell your car' }]} className="mb-4" />
+          <Breadcrumbs items={[{ label: 'Sell your vehicle' }]} className="mb-4" />
           <p className="eyebrow">Sell on AutoDealer</p>
           <h1 className="mt-2 max-w-2xl text-[30px] font-bold leading-tight md:text-[40px]">Three ways to sell, one simple rule: pay, publish, then get verified.</h1>
         </div>

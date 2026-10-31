@@ -3,7 +3,7 @@
 
 export const SITE = {
   name: 'AutoDealer',
-  tagline: 'Cars from verified dealers, owners and agents',
+  tagline: 'Cars, motorcycles and lorries from verified dealers, owners and agents',
   supportPhone: '+91 80 4718 2290',
   supportEmail: 'support@autodealer.example',
   supportHours: 'Mon–Sat, 9:00 am – 7:00 pm IST',

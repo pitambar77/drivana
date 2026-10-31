@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { GitCompareArrows, Heart, LayoutDashboard, LogOut, Menu, Plus, X } from 'lucide-react';
+import { ChevronDown, GitCompareArrows, Heart, LayoutDashboard, LogOut, Menu, Plus, X } from 'lucide-react';
 import { Logo } from '../components/layout/Brand';
 import { Avatar } from '../components/ui';
 import { StyleToggle } from '../store/StyleContext';
@@ -8,15 +8,64 @@ import { CompareTray } from '../components/interactive/Interactive';
 import { useStore } from '../store/AppStore';
 import { ROLE_META, SITE } from '../config/site';
 import { cn } from '../utils/format';
+import { TYPE_KEYS, VEHICLE_TYPES } from '../data/vehicleTypes';
 
+const BUY = TYPE_KEYS.map((k) => VEHICLE_TYPES[k]);
 const LINKS = [
-  { to: '/cars', label: 'Buy a car' },
   { to: '/dealers', label: 'Dealers' },
-  { to: '/how-it-works', label: 'Sell your car' },
+  { to: '/how-it-works', label: 'Sell' },
   { to: '/loan-calculator', label: 'Loan calculator' },
   { to: '/verify-vehicle', label: 'Verify a vehicle' },
   { to: '/support', label: 'Support' },
 ];
+
+/** "Buy" menu: cars, motorcycles and lorries. */
+function BuyMenu() {
+  const [open, setOpen] = useState(false);
+  const loc = useLocation();
+  const ref = useRef(null);
+  const active = BUY.some((t) => loc.pathname.startsWith(t.path));
+  useEffect(() => setOpen(false), [loc.pathname, loc.search]);
+  useEffect(() => {
+    if (!open) return undefined;
+    const close = (e) => !ref.current?.contains(e.target) && setOpen(false);
+    const esc = (e) => e.key === 'Escape' && setOpen(false);
+    document.addEventListener('mousedown', close);
+    document.addEventListener('keydown', esc);
+    return () => {
+      document.removeEventListener('mousedown', close);
+      document.removeEventListener('keydown', esc);
+    };
+  }, [open]);
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        aria-haspopup="menu"
+        className={cn('inline-flex items-center gap-1 whitespace-nowrap rounded-lg px-2 py-2 text-[14px] font-semibold transition-colors 2xl:px-2.5', active ? 'text-accent-700' : 'text-ink-700 hover:bg-mist-100 hover:text-ink-900')}
+      >
+        Buy <ChevronDown className={cn('h-4 w-4 transition-transform', open && 'rotate-180')} />
+      </button>
+      {open && (
+        <div role="menu" className="absolute left-0 top-11 z-50 w-72 animate-fade-up rounded-xl border border-mist-200 bg-white p-1.5 shadow-pop">
+          {BUY.map((t) => (
+            <Link key={t.key} to={t.path} role="menuitem" className="flex items-start gap-3 rounded-lg px-3 py-2.5 hover:bg-mist-100">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-mist-100 text-ink-800">
+                <t.icon className="h-[18px] w-[18px]" />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-sm font-semibold text-ink-900">{t.plural}</span>
+                <span className="block text-[12.5px] text-mist-500">{t.tagline}</span>
+              </span>
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function Navbar() {
   const { state, me, role, logout } = useStore();
@@ -34,6 +83,7 @@ export function Navbar() {
       <div className="container-page flex h-16 items-center gap-4 2xl:gap-6">
         <Logo />
         <nav className="hidden items-center gap-0.5 xl:flex" aria-label="Main">
+          <BuyMenu />
           {LINKS.map((l) => (
             <NavLink key={l.to} to={l.to} className={({ isActive }) => cn('whitespace-nowrap rounded-lg px-2 py-2 text-[14px] font-semibold transition-colors 2xl:px-2.5', isActive ? 'text-accent-700' : 'text-ink-700 hover:bg-mist-100 hover:text-ink-900')}>
               {l.label}
@@ -89,7 +139,7 @@ export function Navbar() {
             </>
           )}
           <Link to={me && role !== 'buyer' && role !== 'admin' ? `${ROLE_META[role].home}${role === 'seller' ? '/vehicle' : '/vehicles/new'}` : '/register'} className="btn btn-md btn-primary hidden lg:inline-flex">
-            <Plus className="h-4 w-4" /> List your car
+            <Plus className="h-4 w-4" /> List your vehicle
           </Link>
           <button type="button" className="btn-icon xl:hidden" onClick={() => setOpen((o) => !o)} aria-label={open ? 'Close menu' : 'Open menu'} aria-expanded={open}>
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -99,6 +149,14 @@ export function Navbar() {
       {open && (
         <div className="border-t border-mist-200 bg-white xl:hidden">
           <nav className="container-page flex flex-col gap-1 py-3" aria-label="Mobile">
+            <p className="px-3 pt-1 text-[12px] font-bold uppercase tracking-[0.1em] text-mist-500">Buy</p>
+            <div className="grid grid-cols-3 gap-2 px-1 pb-2">
+              {BUY.map((t) => (
+                <NavLink key={t.key} to={t.path} className={({ isActive }) => cn('flex flex-col items-center gap-1 rounded-xl border px-2 py-2.5 text-[13px] font-semibold', isActive ? 'border-accent-500 bg-accent-50 text-accent-700' : 'border-mist-200 text-ink-800')}>
+                  <t.icon className="h-5 w-5" /> {t.plural}
+                </NavLink>
+              ))}
+            </div>
             {LINKS.map((l) => (
               <NavLink key={l.to} to={l.to} className={({ isActive }) => cn('rounded-lg px-3 py-2.5 text-[15px] font-semibold', isActive ? 'bg-accent-50 text-accent-700' : 'text-ink-800')}>
                 {l.label}
@@ -120,7 +178,7 @@ export function Navbar() {
                 </>
               )}
               <Link to="/register" className="btn btn-md btn-primary col-span-2">
-                List your car
+                List your vehicle
               </Link>
             </div>
           </nav>
@@ -132,7 +190,7 @@ export function Navbar() {
 
 export function Footer() {
   const cols = [
-    ['Buy', [['Browse all cars', '/cars'], ['Dealer directory', '/dealers'], ['SUVs', '/cars?body=SUV'], ['Electric cars', '/cars?fuel=Electric'], ['Compare cars', '/compare'], ['Loan calculator', '/loan-calculator']]],
+    ['Buy', [['Cars', '/cars'], ['Motorcycles', '/motorcycles'], ['Lorries & trucks', '/lorries'], ['Dealer directory', '/dealers'], ['Compare', '/compare'], ['Loan calculator', '/loan-calculator']]],
     ['Sell', [['How it works', '/how-it-works'], ['Listing plans', '/how-it-works#plans'], ['Register as dealer', '/register/dealer'], ['Sell as owner', '/register/seller'], ['Join as agent', '/register/agent']]],
     ['Help', [['Support & FAQ', '/support'], ['Verify a vehicle', '/verify-vehicle'], ['Create buyer account', '/register/buyer'], ['Buyer sign-in', '/buyer/welcome'], ['Admin console', '/admin/login']]],
   ];
@@ -141,7 +199,7 @@ export function Footer() {
       <div className="container-page grid gap-10 py-12 md:grid-cols-[1.4fr_repeat(3,1fr)]">
         <div className="max-w-xs space-y-3">
           <Logo dark />
-          <p className="text-sm text-ink-300">{SITE.tagline}. Contact sellers directly — AutoDealer never takes a cut of the car's price.</p>
+          <p className="text-sm text-ink-300">{SITE.tagline}. Contact sellers directly — AutoDealer never takes a cut of the sale price.</p>
           <p className="text-[13px] text-ink-400">
             {SITE.supportPhone}
             <br />

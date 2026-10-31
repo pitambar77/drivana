@@ -2,6 +2,7 @@
 import { useMemo } from 'react';
 import { useStore, isPublic } from '../store/AppStore';
 import { DEALER_PROFILES } from '../data/dealerProfiles';
+import { TYPE_KEYS, categoryOf } from '../data/vehicleTypes';
 
 /** A dealer account merged with its showroom details. Fields saved on the account win. */
 export function dealerProfile(u) {
@@ -82,6 +83,8 @@ export function useDealers() {
         minPrice: prices.length ? Math.min(...prices) : 0,
         maxPrice: prices.length ? Math.max(...prices) : 0,
         certified: cars.filter((c) => c.condition === 'Certified pre-owned').length,
+        // How many of each vehicle type the dealer has live: { car, motorcycle, lorry }
+        typeCounts: Object.fromEntries(TYPE_KEYS.map((k) => [k, cars.filter((c) => categoryOf(c) === k).length])),
       };
     });
   }, [state.users, state.vehicles]);
@@ -92,7 +95,7 @@ export const dealerHaystack = (d) =>
   [d.business, d.name, d.city, d.address?.line1, d.address?.line2, d.address?.landmark, d.businessType, ...(d.brands || []), ...d.stockMakes, ...d.stockBodies].filter(Boolean).join(' ').toLowerCase();
 
 export const DEALER_SORTS = [
-  { value: 'stock', label: 'Most cars for sale' },
+  { value: 'stock', label: 'Most vehicles for sale' },
   { value: 'az', label: 'Name: A to Z' },
   { value: 'established', label: 'Longest in business' },
   { value: 'joined', label: 'Newest on AutoDealer' },

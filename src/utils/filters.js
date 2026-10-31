@@ -1,6 +1,6 @@
 import { num, tzsShort } from './format';
 
-export const FILTER_KEYS = ['q', 'make', 'model', 'minPrice', 'maxPrice', 'minYear', 'maxYear', 'maxKm', 'fuel', 'transmission', 'city', 'condition', 'body'];
+export const FILTER_KEYS = ['q', 'make', 'model', 'minPrice', 'maxPrice', 'minYear', 'maxYear', 'maxKm', 'fuel', 'transmission', 'city', 'condition', 'body', 'cc', 'payload'];
 
 export function applyFilters(list, f) {
   const q = (f.q || '').trim().toLowerCase();
@@ -19,6 +19,16 @@ export function applyFilters(list, f) {
     if (f.city && v.city !== f.city) return false;
     if (f.condition && v.condition !== f.condition) return false;
     if (f.body && v.bodyType !== f.body) return false;
+    if (f.cc) {
+      if (f.cc === 'ev') {
+        if (v.fuel !== 'Electric') return false;
+      } else {
+        const [lo, hi] = f.cc.split('-').map(Number);
+        const cc = v.specs?.engineCc || 0;
+        if (v.fuel === 'Electric' || cc < lo || cc > hi) return false;
+      }
+    }
+    if (f.payload && !((v.specs?.payloadT || 0) >= Number(f.payload))) return false;
     return true;
   });
 }
@@ -74,6 +84,10 @@ export function chipLabel(key, value) {
       return `Under ${num(value)} km`;
     case 'fuel':
       return value.split(',').join(' / ');
+    case 'cc':
+      return value === 'ev' ? 'Electric' : value.startsWith('501') ? 'Over 500 cc' : `${value.replace('-', '–')} cc`;
+    case 'payload':
+      return `${value}+ tonnes payload`;
     default:
       return value;
   }

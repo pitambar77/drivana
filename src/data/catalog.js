@@ -65,9 +65,54 @@ const RAW_MODELS = [
 ];
 export const MODELS = RAW_MODELS.map((m) => ({ ...m, price: Math.round((m.price * TZS_PER_INR) / 100000) * 100000 }));
 
+// ───────────── Motorcycles & scooters (price in ₹, converted like cars)
+export const MOTO_BODY_TYPES = ['Commuter', 'Scooter', 'Sport', 'Cruiser', 'Adventure', 'Off-road'];
+const RAW_MOTO_MODELS = [
+  { make: 'Bajaj', model: 'Boxer 150', body: 'Commuter', fuels: ['Petrol'], price: 78000, cc: 144, bhp: 12, weightKg: 122, kmpl: 60, abs: 'None', variants: ['Standard', 'X'], vin: 'MD2' },
+  { make: 'Bajaj', model: 'Pulsar N160', body: 'Sport', fuels: ['Petrol'], price: 132000, cc: 164, bhp: 16, weightKg: 152, kmpl: 45, abs: 'Dual-channel', variants: ['Single disc', 'Dual disc'], vin: 'MD2' },
+  { make: 'TVS', model: 'HLX 150', body: 'Commuter', fuels: ['Petrol'], price: 74000, cc: 147, bhp: 10, weightKg: 125, kmpl: 58, abs: 'None', variants: ['Kick start', 'Electric start'], vin: 'MD6' },
+  { make: 'TVS', model: 'Apache RTR 160 4V', body: 'Sport', fuels: ['Petrol'], price: 125000, cc: 160, bhp: 17, weightKg: 145, kmpl: 45, abs: 'Single-channel', variants: ['Drum', 'Disc', 'Special Edition'], vin: 'MD6' },
+  { make: 'TVS', model: 'Jupiter 125', body: 'Scooter', fuels: ['Petrol'], price: 88000, cc: 124, bhp: 8, weightKg: 108, kmpl: 50, abs: 'None', variants: ['Drum', 'Disc', 'SmartXonnect'], vin: 'MD6' },
+  { make: 'Honda', model: 'Activa 6G', body: 'Scooter', fuels: ['Petrol'], price: 80000, cc: 110, bhp: 8, weightKg: 106, kmpl: 50, abs: 'None', variants: ['Standard', 'DLX', 'H-Smart'], vin: 'ME4' },
+  { make: 'Honda', model: 'CB Shine 125', body: 'Commuter', fuels: ['Petrol'], price: 84000, cc: 124, bhp: 11, weightKg: 113, kmpl: 55, abs: 'None', variants: ['Drum', 'Disc'], vin: 'ME4' },
+  { make: 'Hero', model: 'Splendor Plus', body: 'Commuter', fuels: ['Petrol'], price: 76000, cc: 97, bhp: 8, weightKg: 112, kmpl: 65, abs: 'None', variants: ['Standard', 'Xtec'], vin: 'MBL' },
+  { make: 'Yamaha', model: 'FZ-S FI', body: 'Sport', fuels: ['Petrol'], price: 125000, cc: 149, bhp: 12, weightKg: 136, kmpl: 48, abs: 'Single-channel', variants: ['Version 4.0', 'DLX'], vin: 'ME1' },
+  { make: 'Royal Enfield', model: 'Classic 350', body: 'Cruiser', fuels: ['Petrol'], price: 215000, cc: 349, bhp: 20, weightKg: 195, kmpl: 35, abs: 'Dual-channel', variants: ['Redditch', 'Halcyon', 'Signals', 'Chrome'], vin: 'ME3' },
+  { make: 'Royal Enfield', model: 'Himalayan 450', body: 'Adventure', fuels: ['Petrol'], price: 295000, cc: 452, bhp: 40, weightKg: 196, kmpl: 30, abs: 'Dual-channel', variants: ['Base', 'Pass', 'Summit'], vin: 'ME3' },
+  { make: 'KTM', model: '390 Duke', body: 'Sport', fuels: ['Petrol'], price: 310000, cc: 399, bhp: 45, weightKg: 168, kmpl: 28, abs: 'Dual-channel', variants: ['Standard'], vin: 'MD2' },
+  { make: 'Kawasaki', model: 'KLX 230', body: 'Off-road', fuels: ['Petrol'], price: 380000, cc: 233, bhp: 19, weightKg: 136, kmpl: 30, abs: 'None', variants: ['Standard', 'S'], vin: 'JKB' },
+  { make: 'Ather', model: '450X', body: 'Scooter', fuels: ['Electric'], price: 150000, cc: 0, bhp: 8, weightKg: 111, kmpl: null, rangeKm: 110, abs: 'None', variants: ['2.9 kWh', '3.7 kWh'], vin: 'MF9' },
+];
+
+// ───────────── Lorries & trucks (price in ₹, converted like cars)
+export const LORRY_BODY_TYPES = ['Light truck', 'Medium truck', 'Heavy truck', 'Tipper', 'Tanker', 'Prime mover'];
+const RAW_LORRY_MODELS = [
+  { make: 'Tata', model: 'Ultra T.7', body: 'Light truck', fuels: ['Diesel'], price: 1550000, hp: 100, payloadT: 4.9, gvwT: 7.5, axle: '4x2', cabin: 'Day cab', variants: ['14 ft', '17 ft', '19 ft'], vin: 'MAT' },
+  { make: 'Tata', model: 'LPT 1618', body: 'Medium truck', fuels: ['Diesel'], price: 2700000, hp: 180, payloadT: 10.5, gvwT: 16.2, axle: '4x2', cabin: 'Day cab', variants: ['20 ft', '24 ft'], vin: 'MAT' },
+  { make: 'Tata', model: 'Prima 2830.K', body: 'Tipper', fuels: ['Diesel'], price: 4600000, hp: 300, payloadT: 19, gvwT: 28, axle: '6x4', cabin: 'Day cab', variants: ['Box body 16 cum', 'Rock body 18 cum'], vin: 'MAT' },
+  { make: 'Ashok Leyland', model: 'Dost+', body: 'Light truck', fuels: ['Diesel', 'CNG'], price: 900000, hp: 70, payloadT: 1.5, gvwT: 2.9, axle: '4x2', cabin: 'Day cab', variants: ['LS', 'XL'], vin: 'MB1' },
+  { make: 'Ashok Leyland', model: 'Ecomet 1615', body: 'Medium truck', fuels: ['Diesel'], price: 2500000, hp: 150, payloadT: 10, gvwT: 16.2, axle: '4x2', cabin: 'Sleeper', variants: ['19 ft', '22 ft', '24 ft'], vin: 'MB1' },
+  { make: 'Ashok Leyland', model: '4220 Tractor', body: 'Prime mover', fuels: ['Diesel'], price: 4200000, hp: 220, payloadT: 33, gvwT: 42, axle: '6x4', cabin: 'Sleeper', variants: ['Standard', 'H-Series'], vin: 'MB1' },
+  { make: 'Eicher', model: 'Pro 2049', body: 'Light truck', fuels: ['Diesel', 'CNG'], price: 1400000, hp: 100, payloadT: 3.5, gvwT: 4.9, axle: '4x2', cabin: 'Day cab', variants: ['14 ft', '17 ft'], vin: 'MC2' },
+  { make: 'Eicher', model: 'Pro 6028 Tanker', body: 'Tanker', fuels: ['Diesel'], price: 3600000, hp: 260, payloadT: 18, gvwT: 28, axle: '6x2', cabin: 'Sleeper', variants: ['18 KL', '22 KL'], vin: 'MC2' },
+  { make: 'BharatBenz', model: '2823C', body: 'Tipper', fuels: ['Diesel'], price: 4800000, hp: 230, payloadT: 18, gvwT: 28, axle: '6x4', cabin: 'Day cab', variants: ['Box body', 'Rock body'], vin: 'MEC' },
+  { make: 'BharatBenz', model: '3523R', body: 'Heavy truck', fuels: ['Diesel'], price: 4400000, hp: 230, payloadT: 25, gvwT: 35, axle: '8x2', cabin: 'Sleeper', variants: ['32 ft', '35 ft'], vin: 'MEC' },
+  { make: 'Isuzu', model: 'FVZ 1400', body: 'Heavy truck', fuels: ['Diesel'], price: 5200000, hp: 300, payloadT: 16, gvwT: 26, axle: '6x4', cabin: 'Day cab', variants: ['Cargo body', 'Chassis cab'], vin: 'JAL' },
+  { make: 'Mitsubishi Fuso', model: 'Canter FE85', body: 'Light truck', fuels: ['Diesel'], price: 2100000, hp: 150, payloadT: 4.5, gvwT: 7.5, axle: '4x2', cabin: 'Day cab', variants: ['Dropside', 'Box body'], vin: 'JLF' },
+  { make: 'Sinotruk', model: 'HOWO 371 Tipper', body: 'Tipper', fuels: ['Diesel'], price: 4000000, hp: 371, payloadT: 25, gvwT: 33, axle: '6x4', cabin: 'Sleeper', variants: ['16 cum', '20 cum'], vin: 'LZZ' },
+  { make: 'Scania', model: 'G410 Prime Mover', body: 'Prime mover', fuels: ['Diesel'], price: 9000000, hp: 410, payloadT: 40, gvwT: 49, axle: '6x4', cabin: 'Sleeper', variants: ['Highline', 'Normal cab'], vin: 'YS2' },
+];
+
+const toTzs = (list, category, step) => list.map((m) => ({ ...m, category, price: Math.round((m.price * TZS_PER_INR) / step) * step }));
+export const MOTO_MODELS = toTzs(RAW_MOTO_MODELS, 'motorcycle', 10000);
+export const LORRY_MODELS = toTzs(RAW_LORRY_MODELS, 'lorry', 500000);
+export const ALL_MODELS = [...MODELS.map((m) => ({ ...m, category: 'car' })), ...MOTO_MODELS, ...LORRY_MODELS];
+
 export const MAKES = [...new Set(MODELS.map((m) => m.make))];
-export const modelsFor = (make) => MODELS.filter((m) => m.make === make).map((m) => m.model);
-export const findModel = (make, model) => MODELS.find((m) => m.make === make && m.model === model);
+/** Brands for one vehicle type (car, motorcycle or lorry). */
+export const makesFor = (category = 'car') => [...new Set(ALL_MODELS.filter((m) => m.category === category).map((m) => m.make))];
+export const modelsFor = (make, category) => ALL_MODELS.filter((m) => m.make === make && (!category || m.category === category)).map((m) => m.model);
+export const findModel = (make, model, category) => ALL_MODELS.find((m) => m.make === make && m.model === model && (!category || m.category === category));
 
 export const CATEGORIES = [
   { key: 'SUV', label: 'SUVs', query: { body: 'SUV' } },
@@ -75,5 +120,5 @@ export const CATEGORIES = [
   { key: 'Hatchback', label: 'Hatchbacks', query: { body: 'Hatchback' } },
   { key: 'MUV', label: '7-seaters', query: { body: 'MUV' } },
   { key: 'Electric', label: 'Electric', query: { fuel: 'Electric' } },
-  { key: 'Luxury', label: 'Luxury', query: { minPrice: 3000000 } },
+  { key: 'Luxury', label: 'Luxury', query: { minPrice: 87000000 } },
 ];

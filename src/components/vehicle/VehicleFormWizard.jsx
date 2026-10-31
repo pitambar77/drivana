@@ -1,18 +1,26 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertTriangle, ArrowLeft, ArrowRight, CheckCircle2, CircleAlert, CreditCard, Save, XCircle } from 'lucide-react';
-import { Alert, Button, Checkbox, Field, Input, Modal, MockNotice, PhotoUploader, Plate, Select, Stepper, Textarea, useToast, DL } from '../ui';
+import { TYPE_KEYS, VEHICLE_TYPES, typeFor } from '../../data/vehicleTypes';
+import { Alert, Button, Checkbox, Field, Input, Modal, MockNotice, PhotoUploader, Plate, RadioCards, Select, Stepper, Textarea, useToast, DL } from '../ui';
 import { VehicleCard } from './VehicleCard';
 import { useStore, ACTIVE_STATUSES } from '../../store/AppStore';
-import { BODY_TYPES, CITIES, COLORS, CONDITIONS, FUELS, MAKES, OWNERSHIP, TRANSMISSIONS, findModel, modelsFor } from '../../data/catalog';
+import { CITIES, COLORS, CONDITIONS, OWNERSHIP, findModel, makesFor, modelsFor } from '../../data/catalog';
 import { cn, km, tzs, normId, prettyReg } from '../../utils/format';
 
 const REG_RE = /^([A-Z]{2}\d{1,2}[A-Z]{0,3}\d{4}|\d{2}BH\d{4}[A-Z]{1,2})$/;
 const VIN_RE = /^[A-HJ-NPR-Z0-9]{17}$/;
-const FEATURES = ['Power steering', 'ABS with EBD', 'Rear parking sensors', 'Touchscreen infotainment', 'Apple CarPlay / Android Auto', 'Automatic climate control', 'Cruise control', 'Sunroof', 'Alloy wheels', 'Keyless entry', '360° camera', 'Ventilated seats'];
+const FEATURES = {
+  car: ['Power steering', 'ABS with EBD', 'Rear parking sensors', 'Touchscreen infotainment', 'Apple CarPlay / Android Auto', 'Automatic climate control', 'Cruise control', 'Sunroof', 'Alloy wheels', 'Keyless entry', '360° camera', 'Ventilated seats'],
+  motorcycle: ['Electric start', 'Front disc brake', 'Digital console', 'LED headlamp', 'Bluetooth connectivity', 'Tubeless tyres', 'USB charging', 'Side-stand engine cut-off', 'Crash guard', 'Pillion backrest'],
+  lorry: ['Power steering', 'Air brakes', 'Air-conditioned cabin', 'GPS tracker', 'Tilt cab', 'Exhaust brake', 'ABS', 'Reverse camera', 'Fleet telematics', 'Fresh tyres'],
+};
+const ABS_OPTIONS = ['None', 'Single-channel', 'Dual-channel'];
+const AXLES = ['4x2', '6x2', '6x4', '8x2', '8x4'];
+const CABINS = ['Day cab', 'Sleeper'];
 const thisYear = 2026;
 const numStr = (msg, min, max) =>
   z
@@ -25,19 +33,20 @@ const numStr = (msg, min, max) =>
 
 const schema = z
   .object({
+    category: z.enum(['car', 'motorcycle', 'lorry']),
     make: z.string().min(1, 'Choose a brand'),
     model: z.string().min(1, 'Choose a model'),
     variant: z.string().trim().min(1, 'Enter the variant, e.g. VXi or SX (O)'),
     year: z.string().min(1, 'Choose the model year'),
     bodyType: z.string().min(1, 'Choose a body type'),
     color: z.string().min(1, 'Choose a colour'),
-    price: numStr('Enter your asking price', 1000000, 2000000000),
-    mileage: numStr('Enter kilometres driven', 0, 500000),
+    price: numStr('Enter your asking price', 200000, 3000000000),
+    mileage: numStr('Enter kilometres driven', 0, 2000000),
     condition: z.string().min(1, 'Choose the condition'),
     fuel: z.string().min(1, 'Choose the fuel type'),
     transmission: z.string().min(1, 'Choose the transmission'),
     owners: z.string().min(1, 'Choose ownership'),
-    city: z.string().min(1, 'Choose the city where the car is'),
+    city: z.string().min(1, 'Choose the city where the vehicle is'),
     regNumber: z.string().trim().optional(),
     vin: z
       .string()
@@ -54,6 +63,14 @@ const schema = z
     engineCc: z.string().optional(),
     powerBhp: z.string().optional(),
     seats: z.string().min(1, 'Enter seating capacity'),
+    weightKg: z.string().optional(),
+    abs: z.string().optional(),
+    powerHp: z.string().optional(),
+    payloadT: z.string().optional(),
+    gvwT: z.string().optional(),
+    axle: z.string().optional(),
+    cabin: z.string().optional(),
+    tyres: z.string().optional(),
     mileageKmpl: z.string().optional(),
     features: z.array(z.string()).optional(),
     description: z.string().trim().min(40, 'Write at least 40 characters — buyers skip listings with thin descriptions').max(1500, 'Keep it under 1,500 characters'),
@@ -61,31 +78,46 @@ const schema = z
     mode: z.string(),
   })
   .superRefine((d, ctx) => {
+    const num = (x) => Number(String(x || '').replace(/,/g, ''));
+    if (d.category !== 'motorcycle' && d.price && num(d.price) < 1000000) ctx.addIssue({ code: 'custom', path: ['price'], message: 'Must be at least TSh 1,000,000' });
+    if (d.category !== 'lorry' && d.mileage && num(d.mileage) > 500000) ctx.addIssue({ code: 'custom', path: ['mileage'], message: 'Must be 500,000 km or less' });
+    if (d.category === 'lorry' && !(num(d.payloadT) > 0)) ctx.addIssue({ code: 'custom', path: ['payloadT'], message: 'Enter the payload in tonnes' });
     if (d.condition !== 'New') {
       if (!d.regNumber || !REG_RE.test(normId(d.regNumber))) ctx.addIssue({ code: 'custom', path: ['regNumber'], message: 'Enter a valid registration number, e.g. OD 02 AB 1234 or 22 BH 1234 AA' });
     }
     if (d.mode === 'agent') {
       if (!d.ownerName || d.ownerName.trim().length < 3) ctx.addIssue({ code: 'custom', path: ['ownerName'], message: "Enter the registered owner's full name as on the RC" });
       if (!d.ownerPhone || !/^[6-9]\d{4}\s?\d{5}$/.test(d.ownerPhone.trim())) ctx.addIssue({ code: 'custom', path: ['ownerPhone'], message: 'Enter a 10-digit mobile number for the owner' });
-      if (!d.authorised) ctx.addIssue({ code: 'custom', path: ['authorised'], message: 'Confirm the owner has authorised you to sell this car' });
+      if (!d.authorised) ctx.addIssue({ code: 'custom', path: ['authorised'], message: 'Confirm the owner has authorised you to sell this vehicle' });
     }
   });
 
 const STEP_FIELDS = {
-  basics: ['make', 'model', 'variant', 'year', 'bodyType', 'color'],
+  basics: ['category', 'make', 'model', 'variant', 'year', 'bodyType', 'color'],
   pricing: ['price', 'mileage', 'condition', 'fuel', 'transmission', 'owners', 'city'],
   registration: ['regNumber', 'vin', 'engineNo', 'insuranceUntil'],
   owner: ['ownerName', 'ownerPhone', 'ownerRelation', 'modifications', 'authorised'],
-  specs: ['engineCc', 'powerBhp', 'seats', 'mileageKmpl', 'features', 'description'],
+  specs: ['engineCc', 'powerBhp', 'seats', 'mileageKmpl', 'weightKg', 'abs', 'powerHp', 'payloadT', 'gvwT', 'axle', 'cabin', 'tyres', 'features', 'description'],
   photos: ['photos'],
   preview: [],
 };
 const STEP_LABELS = { basics: 'Make & model', pricing: 'Price & condition', registration: 'Registration', owner: 'Owner details', specs: 'Specs & description', photos: 'Photos', preview: 'Preview & publish' };
 const STEP_SHORT = { basics: 'Model', pricing: 'Price', registration: 'Registration', owner: 'Owner', specs: 'Specs', photos: 'Photos', preview: 'Publish' };
 
-function toForm(v, mode) {
+function toForm(v, mode, type) {
+  const str = (x) => (x == null || x === '' ? '' : String(x));
   return {
     mode,
+    category: v?.category || (VEHICLE_TYPES[type] ? type : 'car'),
+    seats: v?.specs?.seats ? String(v.specs.seats) : type === 'motorcycle' ? '2' : '',
+    weightKg: str(v?.specs?.weightKg),
+    abs: v?.specs?.abs || '',
+    powerHp: str(v?.specs?.powerHp),
+    payloadT: str(v?.specs?.payloadT),
+    gvwT: str(v?.specs?.gvwT),
+    axle: v?.specs?.axle || '',
+    cabin: v?.specs?.cabin || '',
+    tyres: str(v?.specs?.tyres),
     make: v?.make || '',
     model: v?.model || '',
     variant: v?.variant || '',
@@ -110,7 +142,6 @@ function toForm(v, mode) {
     authorised: !!v?.ownerInfo,
     engineCc: v?.specs?.engineCc != null ? String(v.specs.engineCc) : '',
     powerBhp: v?.specs?.powerBhp ? String(v.specs.powerBhp) : '',
-    seats: v?.specs?.seats ? String(v.specs.seats) : '',
     mileageKmpl: v?.specs?.mileageKmpl ? String(v.specs.mileageKmpl) : '',
     features: v?.specs?.features || [],
     description: v?.description || '',
@@ -121,7 +152,14 @@ function toForm(v, mode) {
 function toVehicle(d) {
   const color = COLORS.find((c) => c.name === d.color);
   const n = (s) => (s === '' || s == null ? null : Number(String(s).replace(/,/g, '')));
+  const specs =
+    d.category === 'motorcycle'
+      ? { engineCc: n(d.engineCc), powerBhp: n(d.powerBhp), seats: 2, weightKg: n(d.weightKg), mileageKmpl: n(d.mileageKmpl), abs: d.abs || null, features: d.features || [] }
+      : d.category === 'lorry'
+        ? { powerHp: n(d.powerHp), payloadT: n(d.payloadT), gvwT: n(d.gvwT), axle: d.axle || null, cabin: d.cabin || null, tyres: n(d.tyres), seats: n(d.seats), features: d.features || [] }
+        : { engineCc: n(d.engineCc), powerBhp: n(d.powerBhp), seats: n(d.seats), mileageKmpl: n(d.mileageKmpl), features: d.features || [] };
   return {
+    category: d.category || 'car',
     make: d.make,
     model: d.model,
     variant: d.variant.trim(),
@@ -142,13 +180,7 @@ function toVehicle(d) {
     insuranceUntil: d.insuranceUntil ? new Date(d.insuranceUntil).toISOString() : null,
     ownerInfo: d.mode === 'agent' ? { name: d.ownerName.trim(), phone: `+91 ${d.ownerPhone.trim()}`, relation: d.ownerRelation || 'Registered owner' } : null,
     modifications: d.mode === 'agent' ? (d.modifications || '').trim() : '',
-    specs: {
-      engineCc: n(d.engineCc),
-      powerBhp: n(d.powerBhp),
-      seats: n(d.seats),
-      mileageKmpl: n(d.mileageKmpl),
-      features: d.features || [],
-    },
+    specs,
     description: d.description.trim(),
     photos: d.photos || [],
   };
@@ -169,7 +201,7 @@ export function DuplicateModal({ open, onClose, duplicates, regNumber, vin, supp
     <Modal
       open={open}
       onClose={onClose}
-      title="This car is already listed on AutoDealer"
+      title="This vehicle is already listed on AutoDealer"
       description="We blocked publication to protect buyers from duplicate or fraudulent listings."
       footer={
         <>
@@ -192,8 +224,8 @@ export function DuplicateModal({ open, onClose, duplicates, regNumber, vin, supp
           <p className="mb-2 text-[13px] font-semibold">What you can do</p>
           <ul className="list-disc space-y-1.5 pl-5 text-sm text-mist-700">
             <li>Check for a typing mistake in the registration number or VIN — compare with the RC.</li>
-            <li>If you sold this car to a dealer or listed it before, ask them to remove that listing, or mark yours sold.</li>
-            <li>If you believe someone else listed your car without permission, contact support with a photo of your RC. We'll investigate.</li>
+            <li>If you sold this vehicle to a dealer or listed it before, ask them to remove that listing, or mark yours sold.</li>
+            <li>If you believe someone else listed your vehicle without permission, contact support with a photo of your RC. We'll investigate.</li>
           </ul>
         </div>
       </div>
@@ -205,6 +237,7 @@ export default function VehicleFormWizard({ mode, listingId, onCancelTo }) {
   const { state, me, saveListing, submitListing, findDuplicates, vehicle } = useStore();
   const toast = useToast();
   const nav = useNavigate();
+  const [params] = useSearchParams();
   const existing = listingId ? vehicle(listingId) : null;
   const steps = ['basics', 'pricing', 'registration', ...(mode === 'agent' ? ['owner'] : []), 'specs', 'photos', 'preview'];
   const [step, setStep] = useState(0);
@@ -220,8 +253,10 @@ export default function VehicleFormWizard({ mode, listingId, onCancelTo }) {
     setValue,
     getValues,
     formState: { errors },
-  } = useForm({ resolver: zodResolver(schema), defaultValues: toForm(existing, mode), mode: 'onTouched' });
+  } = useForm({ resolver: zodResolver(schema), defaultValues: toForm(existing, mode, params.get('type')), mode: 'onTouched' });
 
+  const category = watch('category') || 'car';
+  const T = typeFor(category);
   const make = watch('make');
   const model = watch('model');
   const condition = watch('condition');
@@ -230,13 +265,37 @@ export default function VehicleFormWizard({ mode, listingId, onCancelTo }) {
 
   // Prefill specs from the catalogue when a model is picked on a new listing.
   useEffect(() => {
-    const m = findModel(make, model);
+    const m = findModel(make, model, category);
     if (!m || existing) return;
     setValue('bodyType', m.body);
-    if (!getValues('engineCc')) setValue('engineCc', String(m.cc));
-    if (!getValues('powerBhp')) setValue('powerBhp', String(m.bhp));
-    if (!getValues('seats')) setValue('seats', String(m.seats));
-  }, [make, model, existing, setValue, getValues]);
+    const fill = (k, val) => val != null && !getValues(k) && setValue(k, String(val));
+    if (category === 'lorry') {
+      fill('powerHp', m.hp);
+      fill('payloadT', m.payloadT);
+      fill('gvwT', m.gvwT);
+      fill('axle', m.axle);
+      fill('cabin', m.cabin);
+      fill('seats', m.cabin === 'Sleeper' ? 3 : 2);
+    } else {
+      fill('engineCc', m.cc);
+      fill('powerBhp', m.bhp);
+      fill('seats', category === 'motorcycle' ? 2 : m.seats);
+      if (category === 'motorcycle') {
+        fill('weightKg', m.weightKg);
+        fill('mileageKmpl', m.kmpl);
+        fill('abs', m.abs);
+      }
+    }
+  }, [make, model, category, existing, setValue, getValues]);
+
+  // Switching vehicle type clears the choices that depend on it.
+  const switchCategory = (c) => {
+    if (c === category) return;
+    setValue('category', c);
+    ['make', 'model', 'variant', 'bodyType', 'fuel', 'transmission', 'engineCc', 'powerBhp', 'mileageKmpl', 'weightKg', 'abs', 'powerHp', 'payloadT', 'gvwT', 'axle', 'cabin', 'tyres'].forEach((k) => setValue(k, ''));
+    setValue('seats', c === 'motorcycle' ? '2' : '');
+    setValue('features', []);
+  };
 
   // Live duplicate hint on the registration step.
   const liveDups = useMemo(() => {
@@ -316,16 +375,27 @@ export default function VehicleFormWizard({ mode, listingId, onCancelTo }) {
         <div className="space-y-5 p-5 md:p-6">
           {key === 'basics' && (
             <div className="grid gap-4 md:grid-cols-2">
+              <div className="md:col-span-2">
+                <p className="label">What are you selling?</p>
+                {existing ? (
+                  <p className="flex items-center gap-2 rounded-xl border border-mist-200 bg-mist-50 px-3.5 py-3 text-sm font-semibold text-ink-900">
+                    <T.icon className="h-5 w-5 text-accent-600" /> {T.label}
+                    <span className="font-normal text-mist-500">· the type can't be changed after listing</span>
+                  </p>
+                ) : (
+                  <RadioCards name="vf-category" columns={3} value={category} onChange={switchCategory} options={TYPE_KEYS.map((k) => ({ value: k, label: VEHICLE_TYPES[k].label, description: VEHICLE_TYPES[k].tagline, icon: VEHICLE_TYPES[k].icon }))} />
+                )}
+              </div>
               <Field label="Brand" required error={errors.make?.message} htmlFor="vf-make">
-                <Select id="vf-make" {...register('make', { onChange: () => setValue('model', '') })} placeholder="Select brand" options={MAKES} error={errors.make} />
+                <Select id="vf-make" {...register('make', { onChange: () => setValue('model', '') })} placeholder="Select brand" options={makesFor(category)} error={errors.make} />
               </Field>
               <Field label="Model" required error={errors.model?.message} htmlFor="vf-model">
-                <Select id="vf-model" {...register('model')} placeholder={make ? 'Select model' : 'Select a brand first'} options={make ? modelsFor(make) : []} disabled={!make} error={errors.model} />
+                <Select id="vf-model" {...register('model')} placeholder={make ? 'Select model' : 'Select a brand first'} options={make ? modelsFor(make, category) : []} disabled={!make} error={errors.model} />
               </Field>
-              <Field label="Variant" required error={errors.variant?.message} htmlFor="vf-variant" hint={findModel(make, model) ? `Common variants: ${findModel(make, model).variants.join(', ')}` : 'As written on the boot badge or invoice'}>
+              <Field label="Variant" required error={errors.variant?.message} htmlFor="vf-variant" hint={findModel(make, model, category) ? `Common variants: ${findModel(make, model, category).variants.join(', ')}` : 'As written on the badge or invoice'}>
                 <Input id="vf-variant" {...register('variant')} error={errors.variant} placeholder="e.g. ZXi+" list="vf-variants" />
                 <datalist id="vf-variants">
-                  {(findModel(make, model)?.variants || []).map((v) => (
+                  {(findModel(make, model, category)?.variants || []).map((v) => (
                     <option key={v} value={v} />
                   ))}
                 </datalist>
@@ -333,8 +403,8 @@ export default function VehicleFormWizard({ mode, listingId, onCancelTo }) {
               <Field label="Model year" required error={errors.year?.message} htmlFor="vf-year">
                 <Select id="vf-year" {...register('year')} placeholder="Select year" options={years} error={errors.year} />
               </Field>
-              <Field label="Body type" required error={errors.bodyType?.message} htmlFor="vf-body" hint="Filled in from the model; change it if needed">
-                <Select id="vf-body" {...register('bodyType')} placeholder="Select body type" options={BODY_TYPES} error={errors.bodyType} />
+              <Field label={T.bodyLabel} required error={errors.bodyType?.message} htmlFor="vf-body" hint="Filled in from the model; change it if needed">
+                <Select id="vf-body" {...register('bodyType')} placeholder={`Select ${T.bodyLabel.toLowerCase()}`} options={T.bodies} error={errors.bodyType} />
               </Field>
               <Field label="Colour" required error={errors.color?.message} htmlFor="vf-color">
                 <Select id="vf-color" {...register('color')} placeholder="Select colour" options={COLORS.map((c) => c.name)} error={errors.color} />
@@ -357,12 +427,12 @@ export default function VehicleFormWizard({ mode, listingId, onCancelTo }) {
                 <Select id="vf-own" {...register('owners')} placeholder="Select ownership" options={condition === 'New' ? ['New'] : OWNERSHIP} error={errors.owners} />
               </Field>
               <Field label="Fuel type" required error={errors.fuel?.message} htmlFor="vf-fuel">
-                <Select id="vf-fuel" {...register('fuel')} placeholder="Select fuel" options={FUELS} error={errors.fuel} />
+                <Select id="vf-fuel" {...register('fuel')} placeholder="Select fuel" options={T.fuels} error={errors.fuel} />
               </Field>
               <Field label="Transmission" required error={errors.transmission?.message} htmlFor="vf-trans">
-                <Select id="vf-trans" {...register('transmission')} placeholder="Select transmission" options={TRANSMISSIONS} error={errors.transmission} />
+                <Select id="vf-trans" {...register('transmission')} placeholder="Select transmission" options={category === 'motorcycle' ? ['Manual', 'Automatic'] : T.transmissions} error={errors.transmission} />
               </Field>
-              <Field label="Car location" required error={errors.city?.message} htmlFor="vf-city" className="md:col-span-2">
+              <Field label={`${T.label} location`} required error={errors.city?.message} htmlFor="vf-city" className="md:col-span-2">
                 <Select id="vf-city" {...register('city')} placeholder="Select city" options={CITIES.map((c) => c.name)} error={errors.city} />
               </Field>
             </div>
@@ -371,10 +441,10 @@ export default function VehicleFormWizard({ mode, listingId, onCancelTo }) {
           {key === 'registration' && (
             <div className="space-y-4">
               <Alert tone="info" title="Copy these exactly from the Registration Certificate (RC)">
-                Buyers use the registration number to check the car on the official government portal. We use it and the VIN to block duplicate listings.
+                Buyers use the registration number to check the {T.noun} on the official government portal. We use it and the VIN to block duplicate listings.
               </Alert>
               <div className="grid gap-4 md:grid-cols-2">
-                <Field label="Registration number" required={condition !== 'New'} optional={condition === 'New'} error={errors.regNumber?.message} htmlFor="vf-reg" hint={condition === 'New' ? 'New cars can be listed before registration' : 'e.g. OD 02 AB 1234'}>
+                <Field label="Registration number" required={condition !== 'New'} optional={condition === 'New'} error={errors.regNumber?.message} htmlFor="vf-reg" hint={condition === 'New' ? `New ${T.nounPlural} can be listed before registration` : 'e.g. OD 02 AB 1234'}>
                   <Input id="vf-reg" {...register('regNumber')} error={errors.regNumber} className="font-mono uppercase" placeholder="OD 02 AB 1234" autoCapitalize="characters" />
                 </Field>
                 <Field label="VIN / chassis number" required error={errors.vin?.message} htmlFor="vf-vin" hint={`${(vin || '').length}/17 characters`}>
@@ -435,20 +505,64 @@ export default function VehicleFormWizard({ mode, listingId, onCancelTo }) {
 
           {key === 'specs' && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-                <Field label="Engine (cc)" htmlFor="vf-cc" hint="0 for electric">
-                  <Input id="vf-cc" inputMode="numeric" {...register('engineCc')} />
-                </Field>
-                <Field label="Power (bhp)" htmlFor="vf-bhp">
-                  <Input id="vf-bhp" inputMode="numeric" {...register('powerBhp')} />
-                </Field>
-                <Field label="Seats" required error={errors.seats?.message} htmlFor="vf-seats">
-                  <Input id="vf-seats" inputMode="numeric" {...register('seats')} error={errors.seats} />
-                </Field>
-                <Field label="Fuel economy" htmlFor="vf-kmpl" optional>
-                  <Input id="vf-kmpl" inputMode="decimal" suffix="km/l" {...register('mileageKmpl')} />
-                </Field>
-              </div>
+              {category === 'lorry' ? (
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                  <Field label="Payload" required error={errors.payloadT?.message} htmlFor="vf-payload">
+                    <Input id="vf-payload" inputMode="decimal" suffix="tonnes" {...register('payloadT')} error={errors.payloadT} />
+                  </Field>
+                  <Field label="Gross weight (GVW)" htmlFor="vf-gvw" optional>
+                    <Input id="vf-gvw" inputMode="decimal" suffix="tonnes" {...register('gvwT')} />
+                  </Field>
+                  <Field label="Engine power" htmlFor="vf-hp" optional>
+                    <Input id="vf-hp" inputMode="numeric" suffix="hp" {...register('powerHp')} />
+                  </Field>
+                  <Field label="Axle configuration" htmlFor="vf-axle" optional>
+                    <Select id="vf-axle" {...register('axle')} placeholder="Select" options={AXLES} />
+                  </Field>
+                  <Field label="Cabin" htmlFor="vf-cabin" optional>
+                    <Select id="vf-cabin" {...register('cabin')} placeholder="Select" options={CABINS} />
+                  </Field>
+                  <Field label="Number of tyres" htmlFor="vf-tyres" optional>
+                    <Input id="vf-tyres" inputMode="numeric" {...register('tyres')} />
+                  </Field>
+                  <Field label="Cabin seats" required error={errors.seats?.message} htmlFor="vf-seats">
+                    <Input id="vf-seats" inputMode="numeric" {...register('seats')} error={errors.seats} />
+                  </Field>
+                </div>
+              ) : category === 'motorcycle' ? (
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                  <Field label="Engine (cc)" htmlFor="vf-cc" hint="0 for electric">
+                    <Input id="vf-cc" inputMode="numeric" {...register('engineCc')} />
+                  </Field>
+                  <Field label="Power (bhp)" htmlFor="vf-bhp">
+                    <Input id="vf-bhp" inputMode="numeric" {...register('powerBhp')} />
+                  </Field>
+                  <Field label="Kerb weight" htmlFor="vf-weight" optional>
+                    <Input id="vf-weight" inputMode="numeric" suffix="kg" {...register('weightKg')} />
+                  </Field>
+                  <Field label="Fuel economy" htmlFor="vf-kmpl" optional>
+                    <Input id="vf-kmpl" inputMode="decimal" suffix="km/l" {...register('mileageKmpl')} />
+                  </Field>
+                  <Field label="ABS" htmlFor="vf-abs" optional>
+                    <Select id="vf-abs" {...register('abs')} placeholder="Select" options={ABS_OPTIONS} />
+                  </Field>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                  <Field label="Engine (cc)" htmlFor="vf-cc" hint="0 for electric">
+                    <Input id="vf-cc" inputMode="numeric" {...register('engineCc')} />
+                  </Field>
+                  <Field label="Power (bhp)" htmlFor="vf-bhp">
+                    <Input id="vf-bhp" inputMode="numeric" {...register('powerBhp')} />
+                  </Field>
+                  <Field label="Seats" required error={errors.seats?.message} htmlFor="vf-seats">
+                    <Input id="vf-seats" inputMode="numeric" {...register('seats')} error={errors.seats} />
+                  </Field>
+                  <Field label="Fuel economy" htmlFor="vf-kmpl" optional>
+                    <Input id="vf-kmpl" inputMode="decimal" suffix="km/l" {...register('mileageKmpl')} />
+                  </Field>
+                </div>
+              )}
               <Controller
                 control={control}
                 name="features"
@@ -456,7 +570,7 @@ export default function VehicleFormWizard({ mode, listingId, onCancelTo }) {
                   <fieldset>
                     <legend className="label">Features</legend>
                     <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                      {FEATURES.map((f) => (
+                      {FEATURES[category].map((f) => (
                         <Checkbox
                           key={f}
                           label={f}
@@ -579,7 +693,7 @@ export default function VehicleFormWizard({ mode, listingId, onCancelTo }) {
         <div className="card p-4">
           <p className="text-[12px] font-bold uppercase tracking-[0.1em] text-mist-500">Live preview</p>
           <p className="mt-2 font-display text-lg font-bold" style={{ fontStretch: '108%' }}>
-            {[watch('year'), make, model].filter(Boolean).join(' ') || 'Your car'}
+            {[watch('year'), make, model].filter(Boolean).join(' ') || `Your ${T.noun}`}
           </p>
           <p className="text-sm text-mist-500">{watch('variant') || 'Variant'}</p>
           <p className="mt-2 font-display text-xl font-bold num">{watch('price') ? tzs(Number(String(watch('price')).replace(/,/g, ''))) : 'TSh —'}</p>

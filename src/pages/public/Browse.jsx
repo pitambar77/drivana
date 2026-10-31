@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { BookmarkPlus, LayoutGrid, List, SlidersHorizontal, X } from 'lucide-react';
 import { useStore, isPublic } from '../../store/AppStore';
 import { Breadcrumbs, Button, CardSkeleton, EmptyState, Modal, SearchInput, Select, useToast } from '../../components/ui';
@@ -7,6 +7,7 @@ import { FilterPanel } from '../../components/vehicle/FilterPanel';
 import { VehicleCard } from '../../components/vehicle/VehicleCard';
 import { FILTER_KEYS, SORTS, applyFilters, chipLabel, sortVehicles } from '../../utils/filters';
 import { cn } from '../../utils/format';
+import { TYPE_KEYS, VEHICLE_TYPES, bodyTitle, categoryFromPath, categoryOf } from '../../data/vehicleTypes';
 
 const PAGE = 12;
 
@@ -130,6 +131,9 @@ const resultsCar = {
 
 export default function Browse() {
   const { state, role, addSavedSearch } = useStore();
+  const { pathname } = useLocation();
+  const category = categoryFromPath(pathname);
+  const T = VEHICLE_TYPES[category];
   const toast = useToast();
   const [params, setParams] = useSearchParams();
   const [drawer, setDrawer] = useState(false);
@@ -166,40 +170,49 @@ export default function Browse() {
     return () => clearTimeout(t);
   }, [params]);
 
-  const results = useMemo(() => sortVehicles(applyFilters(state.vehicles.filter(isPublic), filters), sort, filters.q), [state.vehicles, filters, sort]);
+  const results = useMemo(() => sortVehicles(applyFilters(state.vehicles.filter((v) => isPublic(v) && categoryOf(v) === category), filters), sort, filters.q), [state.vehicles, filters, sort, category]);
+  const typeCounts = useMemo(() => Object.fromEntries(TYPE_KEYS.map((k) => [k, state.vehicles.filter((v) => isPublic(v) && categoryOf(v) === k).length])), [state.vehicles]);
 
-   console.log(
-    " Cars Landing vehicles:",
-    results.map((v) => ({
-      id: v.id,
-      make: v.make,
-      model: v.model,
-      photos: v.photos,
-    })),
-  );
 
 
   const chips = FILTER_KEYS.filter((k) => filters[k]);
-  const title = filters.body ? `${filters.body}s` : filters.make ? `${filters.make} cars` : 'Cars for sale';
+  const title = filters.body ? bodyTitle(filters.body) : filters.make ? `${filters.make} ${T.nounPlural}` : `${T.plural} for sale`;
 
   const saveSearch = () => {
     if (role !== 'buyer') {
       toast('Sign in as a buyer to save searches.', { tone: 'info' });
       return;
     }
-    const label = chips.map((k) => chipLabel(k, filters[k])).join(', ') || 'All cars';
-    addSavedSearch(label, Object.fromEntries(chips.map((k) => [k, filters[k]])));
+    const label = `${T.plural}: ${chips.map((k) => chipLabel(k, filters[k])).join(', ') || 'all'}`;
+    addSavedSearch(label, { ...Object.fromEntries(chips.map((k) => [k, filters[k]])), ...(category !== 'car' ? { type: category } : {}) });
     toast('Search saved to your dashboard.');
   };
 
   return (
     <div className="container-page py-6 md:py-8">
-      <Breadcrumbs items={[{ label: 'Buy a car', to: '/cars' }, ...(filters.make ? [{ label: filters.make }] : [])]} className="mb-3" />
+      <Breadcrumbs items={[{ label: `Buy ${T.plural.toLowerCase()}`, to: T.path }, ...(filters.make ? [{ label: filters.make }] : [])]} className="mb-3" />
+      <nav aria-label="Vehicle type" className="-mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
+        {TYPE_KEYS.map((k) => {
+          const Ty = VEHICLE_TYPES[k];
+          const on = k === category;
+          return (
+            <Link
+              key={k}
+              to={Ty.path}
+              aria-current={on ? 'page' : undefined}
+              className={cn('inline-flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-[14px] font-semibold transition-colors', on ? 'border-ink-900 bg-ink-900 text-white' : 'border-mist-200 bg-white text-ink-800 hover:border-mist-300')}
+            >
+              <Ty.icon className="h-4 w-4" /> {Ty.plural}
+              <span className={cn('text-[12px]', on ? 'text-ink-300' : 'text-mist-400')}>{typeCounts[k]}</span>
+            </Link>
+          );
+        })}
+      </nav>
       <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
           <h1 className="text-[26px] font-bold md:text-[30px]">{title}</h1>
           <p className="mt-1 text-sm text-mist-600 num" aria-live="polite">
-            {loading ? 'Searching…' : `${results.length} car${results.length === 1 ? '' : 's'} found${filters.city ? ` in ${filters.city}` : ' across India'}`}
+            {loading ? 'Searching…' : `${results.length} ${results.length === 1 ? T.noun : T.nounPlural} found${filters.city ? ` in ${filters.city}` : ' across India'}`}
           </p>
         </div>
         <SearchInput value={q} onChange={setQ} placeholder="Search make, model or city" className="w-full md:w-80" />
@@ -208,7 +221,7 @@ export default function Browse() {
       <div className="grid gap-6 lg:grid-cols-[264px_1fr]">
         <aside className="hidden lg:block">
           <div className="card sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto p-5">
-            <FilterPanel filters={filters} onChange={update} onReset={reset} />
+            <FilterPanel filters={filters} onChange={update} onReset={reset} category={category} />
           </div>
         </aside>
 
@@ -265,8 +278,8 @@ export default function Browse() {
             </div>
           ) : results.length === 0 ? (
             <EmptyState
-              title="No cars match these filters"
-              message="Try a wider budget, another city, or remove a filter. New cars are listed every day."
+              title={`No ${T.nounPlural} match these filters`}
+              message={`Try a wider budget, another city, or remove a filter. New ${T.nounPlural} are listed every day.`}
               action={
                 <>
                   <Button variant="secondary" onClick={reset}>
@@ -284,6 +297,8 @@ export default function Browse() {
                 {results.slice(0, shown).map((v) => (
                   // <VehicleCard key={v.id} vehicle={v} layout={layout} />
                   <VehicleCard
+                                    key={v.id}
+                                    layout={layout}
                                     vehicle={{
                                       ...v,
                                       photos: resultsCar[v.id] || v.photos,
@@ -310,14 +325,14 @@ export default function Browse() {
         open={drawer}
         onClose={() => setDrawer(false)}
         side
-        title="Filter cars"
+        title={`Filter ${T.nounPlural}`}
         footer={
           <Button onClick={() => setDrawer(false)} className="w-full">
-            Show {results.length} cars
+            Show {results.length} {results.length === 1 ? T.noun : T.nounPlural}
           </Button>
         }
       >
-        <FilterPanel filters={filters} onChange={update} onReset={reset} />
+        <FilterPanel filters={filters} onChange={update} onReset={reset} category={category} />
       </Modal>
     </div>
   );

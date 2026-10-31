@@ -7,6 +7,7 @@ import { Avatar, Badge, Breadcrumbs, Button, CopyText, EmptyState, SearchInput, 
 import { CarImage } from '../../components/vehicle/CarArt';
 import { DEALER_SORTS, dealerHaystack, openStatus, sortDealers, useDealers } from '../../utils/dealers';
 import { cn, num, tzs, tzsShort } from '../../utils/format';
+import { TYPE_KEYS, VEHICLE_TYPES } from '../../data/vehicleTypes';
 
 const pill = (on) =>
   cn(
@@ -23,6 +24,7 @@ export default function DealerDirectory() {
   const brand = get('brand');
   const verified = get('verified') === '1';
   const inStock = get('stock') === '1';
+  const sells = VEHICLE_TYPES[get('type')] ? get('type') : '';
   const sort = get('sort') || 'stock';
   const view = get('view') === 'list' ? 'list' : 'grid';
 
@@ -53,6 +55,7 @@ export default function DealerDirectory() {
       if (brand && !d.stockMakes.includes(brand) && !d.brands.includes(brand)) return false;
       if (verified && d.trust.key !== 'verified') return false;
       if (inStock && !d.cars.length) return false;
+      if (sells && !d.typeCounts[sells]) return false;
       if (words.length) {
         const h = dealerHaystack(d);
         if (!words.every((w) => h.includes(w))) return false;
@@ -64,7 +67,7 @@ export default function DealerDirectory() {
   }, [dealers, params]);
 
   const totalCars = dealers.reduce((t, d) => t + d.cars.length, 0);
-  const active = [get('q'), city, brand, verified, inStock].filter(Boolean).length;
+  const active = [get('q'), city, brand, verified, inStock, sells].filter(Boolean).length;
   const clear = () => {
     setQ('');
     setParams(view === 'list' ? { view: 'list' } : {}, { replace: true });
@@ -74,20 +77,20 @@ export default function DealerDirectory() {
     <div>
       <section className="border-b border-mist-200 bg-white">
         <div className="container-page py-6 md:py-9">
-          <Breadcrumbs items={[{ label: 'Buy a car', to: '/cars' }, { label: 'Dealers' }]} className="mb-4" />
+          <Breadcrumbs items={[{ label: 'Buy', to: '/cars' }, { label: 'Dealers' }]} className="mb-4" />
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
               <p className="eyebrow">Dealer directory</p>
-              <h1 className="mt-1 text-[28px] font-bold leading-tight md:text-[36px]">Find a car dealer you can trust</h1>
+              <h1 className="mt-1 text-[28px] font-bold leading-tight md:text-[36px]">Find a dealer you can trust</h1>
               <p className="mt-2 text-[15px] text-mist-600 num">
-                {dealers.length} registered dealer{dealers.length === 1 ? '' : 's'} in {cities.length} cit{cities.length === 1 ? 'y' : 'ies'} · {num(totalCars)} cars for sale. Open any dealer to see their showroom details and every car they have listed.
+                {dealers.length} registered dealer{dealers.length === 1 ? '' : 's'} in {cities.length} cit{cities.length === 1 ? 'y' : 'ies'} · {num(totalCars)} cars, motorcycles and lorries for sale. Open any dealer to see their showroom details and everything they have listed.
               </p>
             </div>
             <ul className="grid shrink-0 grid-cols-3 gap-2 text-center sm:gap-3">
               {[
                 [dealers.length, 'Dealers'],
                 [dealers.filter((d) => d.trust.key === 'verified').length, 'Verified'],
-                [num(totalCars), 'Cars listed'],
+                [num(totalCars), 'Vehicles listed'],
               ].map(([n, l]) => (
                 <li key={l} className="rounded-xl border border-mist-200 bg-mist-50 px-3 py-2.5 sm:px-5">
                   <p className="text-xl font-bold text-ink-900 num md:text-2xl">{n}</p>
@@ -121,8 +124,16 @@ export default function DealerDirectory() {
               {verified ? <Check className="h-3.5 w-3.5" /> : <BadgeCheck className="h-3.5 w-3.5" />} Verified dealers only
             </button>
             <button type="button" aria-pressed={inStock} className={pill(inStock)} onClick={() => set({ stock: inStock ? '' : '1' })}>
-              {inStock ? <Check className="h-3.5 w-3.5" /> : <Car className="h-3.5 w-3.5" />} Has cars for sale
+              {inStock ? <Check className="h-3.5 w-3.5" /> : <Car className="h-3.5 w-3.5" />} Has stock for sale
             </button>
+            {TYPE_KEYS.map((k) => {
+              const Ty = VEHICLE_TYPES[k];
+              return (
+                <button key={k} type="button" aria-pressed={sells === k} className={pill(sells === k)} onClick={() => set({ type: sells === k ? '' : k })}>
+                  <Ty.icon className="h-3.5 w-3.5" /> {Ty.plural}
+                </button>
+              );
+            })}
             <Select aria-label="Brand" value={brand} onChange={(e) => set({ brand: e.target.value })} placeholder="Any brand" options={brands} className="w-[150px] [&_select]:h-9 [&_select]:py-0 [&_select]:text-[13px]" />
             {active > 0 && (
               <button type="button" onClick={clear} className="px-2 text-[13px] font-semibold text-accent-700 hover:underline">
@@ -179,7 +190,7 @@ export default function DealerDirectory() {
         <section className="mt-10 flex flex-col items-start gap-4 rounded-2xl bg-ink-950 p-6 text-white md:flex-row md:items-center md:justify-between md:p-8">
           <div>
             <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-sun-400">For showrooms</p>
-            <h2 className="mt-1 text-xl font-bold text-white md:text-2xl">Run a car dealership? Get listed here.</h2>
+            <h2 className="mt-1 text-xl font-bold text-white md:text-2xl">Run a car, bike or truck dealership? Get listed here.</h2>
             <p className="mt-1 max-w-xl text-sm text-ink-300">Register your business, upload your documents and your showroom appears in this directory with every car you list.</p>
           </div>
           <Button to="/register/dealer" iconRight={ArrowRight} className="shrink-0">
@@ -235,7 +246,7 @@ function Thumbs({ d, className, compact }) {
     return (
       <div className={cn('flex flex-col items-center justify-center gap-1 bg-mist-100 text-center text-mist-500', className)}>
         <Car className="h-6 w-6" />
-        <span className="text-[12.5px] font-semibold">No cars listed right now</span>
+        <span className="text-[12.5px] font-semibold">Nothing listed right now</span>
       </div>
     );
   return (
@@ -252,12 +263,30 @@ function Thumbs({ d, className, compact }) {
   );
 }
 
+/** Small icons showing how many cars, motorcycles and lorries a dealer has. */
+function TypeStock({ d, className }) {
+  const types = TYPE_KEYS.filter((k) => d.typeCounts?.[k]);
+  if (!types.length) return null;
+  return (
+    <p className={cn('flex flex-wrap items-center gap-x-3 gap-y-1 text-[12.5px] font-semibold text-ink-800', className)}>
+      {types.map((k) => {
+        const Ty = VEHICLE_TYPES[k];
+        return (
+          <span key={k} className="inline-flex items-center gap-1" title={`${d.typeCounts[k]} ${d.typeCounts[k] === 1 ? Ty.noun : Ty.nounPlural}`}>
+            <Ty.icon className="h-4 w-4 text-mist-500" /> {d.typeCounts[k]} {d.typeCounts[k] === 1 ? Ty.noun : Ty.nounPlural}
+          </span>
+        );
+      })}
+    </p>
+  );
+}
+
 function DealerCard({ d }) {
   const brands = (d.stockMakes.length ? d.stockMakes : d.brands).slice(0, 4);
   const moreBrands = (d.stockMakes.length ? d.stockMakes : d.brands).length - brands.length;
   return (
     <article className="card group flex flex-col overflow-hidden transition-shadow hover:shadow-pop">
-      <Link to={profileUrl(d)} aria-label={`${d.business} — view cars`} className="block">
+      <Link to={profileUrl(d)} aria-label={`${d.business} — view stock`} className="block">
         <Thumbs d={d} className="h-40" />
       </Link>
       <div className="flex flex-1 flex-col p-5">
@@ -280,6 +309,7 @@ function DealerCard({ d }) {
           <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           <span className="min-w-0">{[d.address?.line2, d.city].filter(Boolean).join(', ')}</span>
         </p>
+        <TypeStock d={d} className="mt-2" />
 
         <dl className="mt-4 grid grid-cols-[1fr_1.7fr_1fr] gap-2 rounded-xl bg-mist-50 p-3 text-center">
           <div className="min-w-0">
@@ -311,7 +341,7 @@ function DealerCard({ d }) {
 
         <div className="mt-auto flex gap-2 pt-5">
           <Button to={profileUrl(d)} iconRight={ArrowRight} className="flex-1 whitespace-nowrap">
-            View dealer &amp; cars
+            View dealer &amp; stock
           </Button>
           <CallButton d={d} />
         </div>
@@ -348,17 +378,18 @@ function DealerRow({ d }) {
             </li>
           </ul>
           <p className="mt-1.5 text-[13px] num">
-            <span className="font-bold text-ink-900">{d.cars.length} car{d.cars.length === 1 ? '' : 's'} for sale</span>
+            <span className="font-bold text-ink-900">{d.cars.length} vehicle{d.cars.length === 1 ? '' : 's'} for sale</span>
             {d.cars.length > 0 && <span className="text-mist-600"> · from {tzsShort(d.minPrice)}</span>}
             {d.stockMakes.length > 0 && <span className="text-mist-500"> · {d.stockMakes.slice(0, 4).join(', ')}</span>}
           </p>
+          <TypeStock d={d} className="mt-1" />
           <OpenNow hours={d.hours} className="mt-1" />
         </div>
       </div>
       <div className="flex gap-2">
         <CallButton d={d} />
         <Button to={profileUrl(d)} iconRight={ArrowRight} className="flex-1 whitespace-nowrap md:flex-none">
-          View dealer &amp; cars
+          View dealer &amp; stock
         </Button>
       </div>
     </article>

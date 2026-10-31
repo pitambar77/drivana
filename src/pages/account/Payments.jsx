@@ -8,6 +8,7 @@ import { Confetti } from '../../components/interactive/Interactive';
 import { vehicleTitle } from '../../components/vehicle/VehicleCard';
 import { PLANS, ROLE_META, SITE } from '../../config/site';
 import { dateTime, tzs, tzsShort } from '../../utils/format';
+import { vehiclePath } from '../../data/vehicleTypes';
 
 export function ReceiptModal({ txn, open, onClose, vehicle, user }) {
   if (!txn) return null;
@@ -166,7 +167,7 @@ export function PaymentHistory() {
               render: (p) => {
                 const v = vehicle(p.listingId);
                 return v ? (
-                  <Link to={`/cars/${v.id}`} className="font-medium hover:text-accent-700">
+                  <Link to={`${vehiclePath(v)}`} className="font-medium hover:text-accent-700">
                     {vehicleTitle(v)}
                   </Link>
                 ) : (

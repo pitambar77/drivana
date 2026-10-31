@@ -9,7 +9,7 @@ import {
 import { useStore, isPublic } from '../../store/AppStore';
 import { Avatar, Badge, Breadcrumbs, Button, CopyText, EmptyState, SearchInput, Select } from '../../components/ui';
 import { VehicleCard } from '../../components/vehicle/VehicleCard';
-import { BODY_TYPES, FUELS, TRANSMISSIONS } from '../../data/catalog';
+import { TYPE_KEYS, VEHICLE_TYPES, categoryOf, vehiclePath } from '../../data/vehicleTypes';
 import { SORTS, sortVehicles } from '../../utils/filters';
 import { dayRange, dealerProfile, dealerTrust, fmtTime, openStatus } from '../../utils/dealers';
 import { cn, date, km, tzs, tzsShort } from '../../utils/format';
@@ -56,7 +56,7 @@ export default function SellerListings() {
           icon={onDealerRoute ? Store : Car}
           title={onDealerRoute ? 'Dealer not found' : 'Seller not found'}
           message="This account isn't on AutoDealer any more, or the link is wrong."
-          action={<Button to={onDealerRoute ? '/dealers' : '/cars'}>{onDealerRoute ? 'See all dealers' : 'Browse all cars'}</Button>}
+          action={<Button to={onDealerRoute ? '/dealers' : '/cars'}>{onDealerRoute ? 'See all dealers' : 'Browse vehicles'}</Button>}
         />
       </div>
     );
@@ -76,11 +76,11 @@ export default function SellerListings() {
 
   return (
     <div className="container-page py-6 md:py-8">
-      <Breadcrumbs items={isDealer ? [{ label: 'Buy a car', to: '/cars' }, { label: 'Dealers', to: '/dealers' }, { label: sellerName(seller) }] : [{ label: 'Buy a car', to: '/cars' }, { label: sellerName(seller) }]} className="mb-4" />
+      <Breadcrumbs items={isDealer ? [{ label: 'Dealers', to: '/dealers' }, { label: sellerName(seller) }] : [{ label: 'Buy', to: '/cars' }, { label: sellerName(seller) }]} className="mb-4" />
       <div className="mb-4 flex flex-wrap gap-x-5 gap-y-2">
         {from && (
           <Link to={`/cars/${from}`} className="inline-flex items-center gap-1 text-sm font-semibold text-mist-600 hover:text-ink-900">
-            <ArrowLeft className="h-4 w-4" /> Back to the car you were viewing
+            <ArrowLeft className="h-4 w-4" /> Back to the vehicle you were viewing
           </Link>
         )}
         {isDealer && (
@@ -121,7 +121,7 @@ export default function SellerListings() {
               {reveal ? 'Number shown' : `Call ${T.label.toLowerCase()}`}
             </Button>
             {cars[0] && (
-              <Button variant="secondary" icon={MessageSquare} to={`/cars/${cars[0].id}/contact`}>
+              <Button variant="secondary" icon={MessageSquare} to={`${vehiclePath(cars[0])}/contact`}>
                 Message
               </Button>
             )}
@@ -137,7 +137,7 @@ export default function SellerListings() {
         )}
         <dl className="grid grid-cols-2 border-t border-mist-100 sm:grid-cols-4">
           {[
-            ['Cars for sale', cars.length],
+            ['Vehicles for sale', cars.length],
             ['Price range', cars.length ? (prices.length > 1 ? `${tzsShort(Math.min(...prices))} – ${tzsShort(Math.max(...prices))}` : tzs(prices[0])) : '—'],
             ['Cars with verified documents', `${verifiedCars} of ${cars.length}`],
             isDealer ? ['In business since', firstYear] : ['On AutoDealer since', date(seller.registeredAt, { month: 'short', year: 'numeric' })],
@@ -251,13 +251,14 @@ function DealerAbout({ d }) {
         {d.docStatus === 'verified'
           ? 'AutoDealer has checked this dealer’s business registration documents.'
           : 'This dealer’s business documents haven’t been verified yet.'}{' '}
-        Always check a car’s RC and inspect it before you pay.
+        Always check a vehicle’s RC and inspect it before you pay.
       </p>
     </aside>
   );
 }
 
-function Inventory({ seller, cars, cols }) {
+function Inventory({ seller, cars: allCars, cols }) {
+  const [type, setType] = useState('');
   const [q, setQ] = useState('');
   const [body, setBody] = useState('');
   const [make, setMake] = useState('');
@@ -265,10 +266,22 @@ function Inventory({ seller, cars, cols }) {
   const [gear, setGear] = useState('');
   const [sort, setSort] = useState('newest');
 
+  // Vehicle types this seller lists (cars, motorcycles, lorries) and the stock for the chosen one.
+  const types = TYPE_KEYS.map((k) => [k, allCars.filter((c) => categoryOf(c) === k).length]).filter(([, n]) => n);
+  const cars = type ? allCars.filter((c) => categoryOf(c) === type) : allCars;
+  const count = (key) => Object.entries(cars.reduce((m, c) => ({ ...m, [c[key]]: (m[c[key]] || 0) + 1 }), {}));
   const makes = [...new Set(cars.map((c) => c.make))].sort();
-  const bodies = BODY_TYPES.map((b) => [b, cars.filter((c) => c.bodyType === b).length]).filter(([, n]) => n);
-  const fuels = FUELS.filter((f) => cars.some((c) => c.fuel === f));
-  const gears = TRANSMISSIONS.filter((t) => cars.some((c) => c.transmission === t));
+  const bodies = count('bodyType').sort((a, b) => b[1] - a[1]);
+  const fuels = count('fuel').map(([f]) => f);
+  const gears = count('transmission').map(([t]) => t);
+  const noun = type ? VEHICLE_TYPES[type].nounPlural : types.length === 1 ? VEHICLE_TYPES[types[0][0]].nounPlural : 'vehicles';
+  const pickType = (k) => {
+    setType(k);
+    setBody('');
+    setMake('');
+    setFuel('');
+    setGear('');
+  };
   const words = q.toLowerCase().split(/\s+/).filter(Boolean);
   const view = sortVehicles(
     cars.filter((c) => {
@@ -286,6 +299,7 @@ function Inventory({ seller, cars, cols }) {
   );
   const active = [q, body, make, fuel, gear].filter(Boolean).length;
   const clear = () => {
+    setType('');
     setQ('');
     setBody('');
     setMake('');
@@ -298,14 +312,29 @@ function Inventory({ seller, cars, cols }) {
       <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
           <h2 id="inventory-title" className="text-xl font-bold">
-            {seller.role === 'dealer' ? 'Full inventory' : `Cars from ${sellerName(seller)}`}
+            {seller.role === 'dealer' ? 'Full inventory' : `For sale by ${sellerName(seller)}`}
           </h2>
           <p className="mt-0.5 text-sm text-mist-600 num" aria-live="polite">
-            {active ? `${view.length} of ${cars.length} cars match` : `${cars.length} car${cars.length === 1 ? '' : 's'} for sale`}
+            {active ? `${view.length} of ${cars.length} ${noun} match` : `${cars.length} ${cars.length === 1 ? noun.replace(/(ies|s)$/, (m) => (m === 'ies' ? 'y' : '')) : noun} for sale`}
           </p>
         </div>
-        {cars.length > 1 && <SearchInput value={q} onChange={setQ} placeholder={`Search ${sellerName(seller)}'s cars`} className="w-full md:w-72" />}
+        {cars.length > 1 && <SearchInput value={q} onChange={setQ} placeholder={`Search ${sellerName(seller)}'s ${noun}`} className="w-full md:w-72" />}
       </div>
+
+      {types.length > 1 && (
+        <div role="tablist" aria-label="Vehicle type" className="-mx-4 mb-3 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
+          {[['', allCars.length], ...types].map(([k, n]) => {
+            const Ty = k ? VEHICLE_TYPES[k] : null;
+            const on = type === k;
+            return (
+              <button key={k || 'all'} type="button" role="tab" aria-selected={on} onClick={() => pickType(k)} className={cn('inline-flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-[14px] font-semibold transition-colors', on ? 'border-ink-900 bg-ink-900 text-white' : 'border-mist-200 bg-white text-ink-800 hover:border-mist-300')}>
+                {Ty && <Ty.icon className="h-4 w-4" />} {Ty ? Ty.plural : 'All vehicles'}
+                <span className={cn('text-[12px]', on ? 'text-ink-300' : 'text-mist-400')}>{n}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {cars.length > 1 && (
         <div className="mb-5 space-y-3">
@@ -338,15 +367,15 @@ function Inventory({ seller, cars, cols }) {
       {view.length === 0 ? (
         <EmptyState
           icon={Car}
-          title={cars.length ? 'No cars match these filters' : 'No cars for sale right now'}
-          message={cars.length ? "Clear a filter to see all of this seller's cars." : 'This seller has no live listings at the moment. Check back soon.'}
+          title={cars.length ? `No ${noun} match these filters` : 'Nothing for sale right now'}
+          message={cars.length ? "Clear a filter to see all of this seller's listings." : 'This seller has no live listings at the moment. Check back soon.'}
           action={
             cars.length ? (
               <Button variant="secondary" onClick={clear}>
                 Clear filters
               </Button>
             ) : (
-              <Button to={seller.role === 'dealer' ? '/dealers' : '/cars'}>{seller.role === 'dealer' ? 'See other dealers' : 'Browse all cars'}</Button>
+              <Button to={seller.role === 'dealer' ? '/dealers' : '/cars'}>{seller.role === 'dealer' ? 'See other dealers' : 'Browse vehicles'}</Button>
             )
           }
         />
@@ -359,7 +388,7 @@ function Inventory({ seller, cars, cols }) {
       )}
       {cars.length > 0 && (
         <p className="mt-6 text-[12.5px] text-mist-500">
-          Average kilometres across these cars: {km(cars.reduce((t, c) => t + c.mileage, 0) / cars.length)}. Listings are added by the seller; check each car's RC before you pay.
+          Average kilometres across these listings: {km(cars.reduce((t, c) => t + c.mileage, 0) / cars.length)}. Listings are added by the seller; check each car's RC before you pay.
         </p>
       )}
     </section>

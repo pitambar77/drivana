@@ -71,9 +71,15 @@ export default function AppRoutes() {
     <Routes>
       <Route element={<PublicLayout />}>
         <Route index element={<Home />} />
-        <Route path="cars" element={<Browse />} />
+        <Route path="cars" element={<Browse key="car" />} />
         <Route path="cars/:id" element={<VehicleDetails />} />
         <Route path="cars/:id/contact" element={<VehicleContact />} />
+        <Route path="motorcycles" element={<Browse key="motorcycle" />} />
+        <Route path="motorcycles/:id" element={<VehicleDetails />} />
+        <Route path="motorcycles/:id/contact" element={<VehicleContact />} />
+        <Route path="lorries" element={<Browse key="lorry" />} />
+        <Route path="lorries/:id" element={<VehicleDetails />} />
+        <Route path="lorries/:id/contact" element={<VehicleContact />} />
         <Route path="sellers/:id" element={<SellerListings />} />
         <Route path="dealers" element={<DealerDirectory />} />
         <Route path="dealers/:id" element={<SellerListings />} />

@@ -10,12 +10,15 @@ import { vehicleTitle } from './VehicleCard';
 import { calcEmi } from '../../utils/emi';
 import { MATCH_MODES, findMatches } from '../../utils/similarity';
 import { cn, tzs, km, num } from '../../utils/format';
+import { vehiclePath, compareMessage, categoryOf, typeOf } from '../../data/vehicleTypes';
 
 const PREVIEW = 4; // matches shown before "Compare all"
 const SELLER = { dealer: 'Dealer', seller: 'Private owner', agent: 'Agent' };
 
 // Each row: label, how to show it, optional `best` (higher is better → number) for highlighting.
 function rowsFor(base, rate) {
+  const category = categoryOf(base);
+  const noun = typeOf(base).noun;
   const emi = (c) => calcEmi({ price: c.price, downPayment: c.price * 0.2, ratePct: rate, months: 60 }).emi;
   return [
     {
@@ -23,7 +26,7 @@ function rowsFor(base, rate) {
       rows: [
         ['Price', (c) => <span className="font-display text-[15px] font-bold">{tzs(c.price)}</span>, (c) => -c.price, (c) => c.price],
         [
-          'Price vs this car',
+          `Price vs this ${noun}`,
           (c) => {
             if (c.id === base.id) return <span className="text-mist-500">—</span>;
             const d = c.price - base.price;
@@ -47,6 +50,48 @@ function rowsFor(base, rate) {
         ['Location', (c) => c.city],
       ],
     },
+    ...(category === 'motorcycle'
+      ? [
+    {
+      group: 'Engine & riding',
+      rows: [
+        ['Variant', (c) => c.variant],
+        ['Type', (c) => c.bodyType],
+        ['Fuel', (c) => c.fuel],
+        ['Engine', (c) => (c.fuel === 'Electric' ? 'Electric motor' : c.specs?.engineCc ? `${num(c.specs.engineCc)} cc` : '—'), (c) => c.specs?.engineCc || 0],
+        ['Power', (c) => (c.specs?.powerBhp ? `${c.specs.powerBhp} bhp` : '—'), (c) => c.specs?.powerBhp || 0],
+        [
+          'Fuel economy / range',
+          (c) => (c.fuel === 'Electric' ? (c.specs?.rangeKm ? `${c.specs.rangeKm} km per charge` : '—') : c.specs?.mileageKmpl ? `${c.specs.mileageKmpl} km/l` : '—'),
+          (c) => (c.fuel === 'Electric' ? null : c.specs?.mileageKmpl || 0),
+        ],
+        ['Kerb weight', (c) => (c.specs?.weightKg ? `${c.specs.weightKg} kg` : '—'), (c) => (c.specs?.weightKg ? -c.specs.weightKg : null)],
+        ['ABS', (c) => c.specs?.abs || '—'],
+        ['Transmission', (c) => c.transmission],
+        ['Colour', (c) => c.color],
+      ],
+    },
+        ]
+      : category === 'lorry'
+        ? [
+    {
+      group: 'Load & engine',
+      rows: [
+        ['Variant / body', (c) => c.variant],
+        ['Truck type', (c) => c.bodyType],
+        ['Payload', (c) => (c.specs?.payloadT ? `${c.specs.payloadT} tonnes` : '—'), (c) => c.specs?.payloadT || 0],
+        ['Gross weight (GVW)', (c) => (c.specs?.gvwT ? `${c.specs.gvwT} tonnes` : '—')],
+        ['Axle configuration', (c) => c.specs?.axle || '—'],
+        ['Engine power', (c) => (c.specs?.powerHp ? `${c.specs.powerHp} hp` : '—'), (c) => c.specs?.powerHp || 0],
+        ['Cabin', (c) => c.specs?.cabin || '—'],
+        ['Tyres', (c) => c.specs?.tyres ?? '—'],
+        ['Fuel', (c) => c.fuel],
+        ['Transmission', (c) => c.transmission],
+        ['Colour', (c) => c.color],
+      ],
+    },
+          ]
+        : [
     {
       group: 'Engine & performance',
       rows: [
@@ -71,6 +116,7 @@ function rowsFor(base, rate) {
         ['Colour', (c) => c.color],
       ],
     },
+          ]),
     {
       group: 'Seller & trust',
       rows: [
@@ -94,13 +140,13 @@ function Verdict({ label, match, base, detail }) {
   if (!match) return null;
   const c = match.car || match;
   return (
-    <Link to={`/cars/${c.id}`} className="card flex min-w-0 items-center gap-3 p-3 transition-shadow hover:shadow-lift">
+    <Link to={`${vehiclePath(c)}`} className="card flex min-w-0 items-center gap-3 p-3 transition-shadow hover:shadow-lift">
       <CarImage vehicle={c} view="side" className="h-12 w-[72px] shrink-0 rounded-md" />
       <div className="min-w-0">
         <p className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.08em] text-accent-600">
           <Trophy className="h-3 w-3" /> {label}
         </p>
-        <p className="truncate text-sm font-semibold text-ink-900">{c.id === base.id ? 'This car' : vehicleTitle(c)}</p>
+        <p className="truncate text-sm font-semibold text-ink-900">{c.id === base.id ? `This ${typeOf(base).noun}` : vehicleTitle(c)}</p>
         <p className="truncate text-[12px] text-mist-500">{detail(c)}</p>
       </div>
     </Link>
@@ -109,6 +155,7 @@ function Verdict({ label, match, base, detail }) {
 
 export function SimilarComparison({ vehicle: base }) {
   const { state, toggleCompare } = useStore();
+  const T = typeOf(base);
   const toast = useToast();
   const [mode, setMode] = useState('best');
   const [band, setBand] = useState(15);
@@ -117,7 +164,7 @@ export function SimilarComparison({ vehicle: base }) {
   const [openFeatures, setOpenFeatures] = useState(true);
   const rate = state.config.defaultInterestRate;
 
-  const pool = useMemo(() => state.vehicles.filter(isPublic), [state.vehicles]);
+  const pool = useMemo(() => state.vehicles.filter((v) => isPublic(v) && categoryOf(v) === categoryOf(base)), [state.vehicles, base]);
   const matches = useMemo(() => findMatches(base, pool, mode, band), [base, pool, mode, band]);
   const shown = showAll ? matches : matches.slice(0, PREVIEW);
   const cars = [base, ...shown.map((m) => m.car)];
@@ -143,8 +190,8 @@ export function SimilarComparison({ vehicle: base }) {
   const differs = (fmt, key) => !diffOnly || new Set(cars.map((c) => String((key || fmt)(c)))).size > 1;
 
   const addCompare = (id) => {
-    const r = toggleCompare(id);
-    toast(r === 'full' ? 'Compare holds 3 cars. Remove one first.' : r === 'added' ? 'Added to compare' : 'Removed from compare', { tone: r === 'full' ? 'warn' : 'info' });
+    const m = compareMessage(toggleCompare(id), state.vehicles.find((x) => x.id === id));
+    toast(m.text, { tone: m.tone });
   };
 
   const modeInfo = MATCH_MODES.find((m) => m.value === mode);
@@ -156,10 +203,10 @@ export function SimilarComparison({ vehicle: base }) {
         <div>
           <p className="eyebrow">Side-by-side</p>
           <h2 id="cmp-title" className="mt-1 text-xl font-bold">
-            Compare with similar cars
+            Compare with similar {T.nounPlural}
           </h2>
           <p className="mt-1 text-sm text-mist-600">
-            {matches.length} car{matches.length === 1 ? '' : 's'} match · {modeInfo.hint}
+            {matches.length} {matches.length === 1 ? T.noun : T.nounPlural} match · {modeInfo.hint}
           </p>
         </div>
         <Toggle id="cmp-diff" label="Show only differences" checked={diffOnly} onChange={setDiffOnly} />
@@ -196,7 +243,7 @@ export function SimilarComparison({ vehicle: base }) {
       </div>
 
       {matches.length === 0 ? (
-        <EmptyState icon={GitCompareArrows} title="No cars match this filter" message="Try another filter above, or widen the price band." />
+        <EmptyState icon={GitCompareArrows} title={`No ${T.nounPlural} match this filter`} message="Try another filter above, or widen the price band." />
       ) : (
         <>
           <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -210,20 +257,20 @@ export function SimilarComparison({ vehicle: base }) {
               <thead>
                 <tr>
                   <th className="sticky left-0 z-[2] min-w-[150px] w-[150px] border-b border-mist-200 bg-white p-3 text-left align-bottom text-[12px] font-bold uppercase tracking-wide text-mist-500 md:min-w-[190px] md:w-[190px]">
-                    {cars.length} cars
+                    {cars.length} {T.nounPlural}
                   </th>
                   {cars.map((c) => {
                     const m = byId[c.id];
                     const isBase = c.id === base.id;
                     return (
                       <th key={c.id} className={cn(colW, 'border-b border-l border-mist-200 p-3 text-left align-top font-normal', isBase && 'bg-accent-50/40')}>
-                        <Link to={`/cars/${c.id}`} className="block">
+                        <Link to={`${vehiclePath(c)}`} className="block">
                           <CarImage vehicle={c} view="side" className="aspect-[16/10] w-full rounded-lg" />
                         </Link>
                         <div className="mt-2 flex items-center gap-1.5">
-                          {isBase ? <Badge tone="dark">This car</Badge> : <Badge tone={m.score >= 70 ? 'green' : m.score >= 50 ? 'blue' : 'neutral'}>{m.score}% match</Badge>}
+                          {isBase ? <Badge tone="dark">This {T.noun}</Badge> : <Badge tone={m.score >= 70 ? 'green' : m.score >= 50 ? 'blue' : 'neutral'}>{m.score}% match</Badge>}
                         </div>
-                        <Link to={`/cars/${c.id}`} className="mt-1.5 block font-display text-[14px] font-bold leading-snug text-ink-900 hover:text-accent-700">
+                        <Link to={`${vehiclePath(c)}`} className="mt-1.5 block font-display text-[14px] font-bold leading-snug text-ink-900 hover:text-accent-700">
                           {vehicleTitle(c)}
                         </Link>
                         <p className="text-[12.5px] text-mist-500">{c.variant}</p>
@@ -234,7 +281,7 @@ export function SimilarComparison({ vehicle: base }) {
                         )}
                         {!isBase && (
                           <div className="mt-2.5 flex gap-1.5">
-                            <Button size="sm" to={`/cars/${c.id}`} className="flex-1">
+                            <Button size="sm" to={`${vehiclePath(c)}`} className="flex-1">
                               View
                             </Button>
                             <Button size="sm" variant="secondary" onClick={() => addCompare(c.id)} aria-label={`Add ${vehicleTitle(c)} to compare`} className={cn(state.compare.includes(c.id) && 'border-accent-200 bg-accent-50 text-accent-700')}>
@@ -317,10 +364,10 @@ export function SimilarComparison({ vehicle: base }) {
                     <td key={c.id} className={cn('border-l border-mist-100 px-3 py-3', c.id === base.id && 'bg-accent-50/40')}>
                       {c.id === base.id ? (
                         <span className="inline-flex items-center gap-1 text-[12.5px] text-mist-500">
-                          <Minus className="h-3.5 w-3.5" /> You're viewing this car
+                          <Minus className="h-3.5 w-3.5" /> You're viewing this {T.noun}
                         </span>
                       ) : (
-                        <Button size="sm" variant="secondary" to={`/cars/${c.id}/contact`} className="w-full">
+                        <Button size="sm" variant="secondary" to={`${vehiclePath(c)}/contact`} className="w-full">
                           Contact seller
                         </Button>
                       )}
@@ -334,12 +381,12 @@ export function SimilarComparison({ vehicle: base }) {
           <div className="mt-4 flex flex-col items-center gap-2 sm:flex-row sm:justify-between">
             <p className="text-[12.5px] text-mist-500">
               <Trophy className="mr-1 inline h-3.5 w-3.5 text-ok-600" />
-              marks the best value in each row. Scroll sideways to see every car.
+              marks the best value in each row. Scroll sideways to see every {T.noun}.
             </p>
             <div className="flex flex-wrap gap-2">
               {matches.length > PREVIEW && (
                 <Button variant={showAll ? 'secondary' : 'primary'} onClick={() => setShowAll((s) => !s)}>
-                  {showAll ? `Show top ${PREVIEW} only` : `Compare all ${matches.length} similar cars`}
+                  {showAll ? `Show top ${PREVIEW} only` : `Compare all ${matches.length} similar ${T.nounPlural}`}
                 </Button>
               )}
               <Button variant="ghost" to="/compare" icon={GitCompareArrows}>

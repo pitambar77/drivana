@@ -126,7 +126,7 @@ export default function DealerDashboard() {
         <Section title="Views and enquiries" description="Last 8 weeks across all live listings · enquiries on the right axis">
           <AreaTrend data={s.weekly} series={[{ key: 'views', name: 'Listing views' }, { key: 'enquiries', name: 'Enquiries', axis: 'right', color: '#1A9C8C' }]} />
         </Section>
-        <Section title="Top listings by views" description="Your six most-viewed live cars">
+        <Section title="Top listings by views" description="Your six most-viewed live listings">
           <Bars data={s.perf} layout="vertical" series={[{ key: 'views', name: 'Views' }]} height={260} />
         </Section>
       </div>

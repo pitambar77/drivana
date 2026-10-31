@@ -9,6 +9,7 @@ import { vehicleTitle } from '../../components/vehicle/VehicleCard';
 import { requiredDocsFor } from '../../components/vehicle/VehicleFormWizard';
 import { PLANS, ROLE_META } from '../../config/site';
 import { cn, tzs, sleep } from '../../utils/format';
+import { vehiclePath } from '../../data/vehicleTypes';
 
 const METHODS = [
   { value: 'UPI', label: 'UPI', description: 'Any UPI app', icon: Smartphone },
@@ -41,7 +42,7 @@ export default function Checkout() {
     return <EmptyState title="We couldn't find that listing" message="It may have been deleted, or it belongs to another account." action={<Button to={home}>Back to dashboard</Button>} />;
   }
   if (v.status === 'live' && v.paymentStatus === 'paid') {
-    return <EmptyState title="This listing is already paid and live" message="There's nothing to pay. You can edit the listing at any time." action={<><Button to={`/cars/${v.id}`}>View listing</Button><Button variant="secondary" to={home}>Dashboard</Button></>} />;
+    return <EmptyState title="This listing is already paid and live" message="There's nothing to pay. You can edit the listing at any time." action={<><Button to={`${vehiclePath(v)}`}>View listing</Button><Button variant="secondary" to={home}>Dashboard</Button></>} />;
   }
   if (v.status === 'blocked_duplicate') {
     return <EmptyState title="Payment isn't available for a blocked listing" message="This car matches another active listing. Fix the registration number or VIN first, so you aren't charged for a listing that can't go live." action={<Button to={role === 'seller' ? '/seller/listing-status' : `${home}/listings`}>See why it's blocked</Button>} />;

@@ -6,6 +6,7 @@ import { Button, ConfirmDialog, DataTable, EmptyState, Plate, SearchInput, Selec
 import { CarImage } from '../vehicle/CarArt';
 import { vehicleTitle } from '../vehicle/VehicleCard';
 import { cn, date, tzs, num } from '../../utils/format';
+import { vehiclePath } from '../../data/vehicleTypes';
 
 const STATUS_OPTS = [
   { value: 'live', label: 'Live' },
@@ -37,7 +38,7 @@ function RowActions({ v, base, onDelete, onSold }) {
         <>
           <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
           <div className="absolute right-0 top-9 z-20 w-48 animate-fade-up rounded-xl border border-mist-200 bg-white p-1.5 text-left shadow-pop">
-            <Link to={`/cars/${v.id}`} className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm hover:bg-mist-100">
+            <Link to={`${vehiclePath(v)}`} className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm hover:bg-mist-100">
               <Eye className="h-4 w-4" /> View listing
             </Link>
             {v.status === 'live' && (
@@ -89,7 +90,7 @@ export function ListingsManager({ base, showOwner }) {
         <div className="flex min-w-[220px] items-center gap-3">
           <CarImage vehicle={v} view="side" className="h-12 w-20 shrink-0 rounded-md" />
           <div className="min-w-0">
-            <Link to={`/cars/${v.id}`} className="block truncate font-semibold text-ink-900 hover:text-accent-700">
+            <Link to={`${vehiclePath(v)}`} className="block truncate font-semibold text-ink-900 hover:text-accent-700">
               {vehicleTitle(v)}
             </Link>
             <p className="truncate text-[12.5px] text-mist-500">

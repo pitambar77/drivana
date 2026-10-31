@@ -241,10 +241,181 @@ function Cluster({ mileage = 0, fuel }) {
   );
 }
 
+
+/* ───────────── Motorcycle & scooter (side view, front to the right) */
+function MotoExterior({ body = 'Commuter', color = '#A8262E', dark = false, uid }) {
+  const scooter = body === 'Scooter';
+  const tall = body === 'Adventure' || body === 'Off-road';
+  const r = scooter ? 26 : tall ? 36 : 33;
+  const y = 158 - (scooter ? 4 : 0);
+  const [rx, fx] = scooter ? [118, 300] : [102, 306];
+  const wheel = (cx) => (
+    <g key={cx}>
+      <circle cx={cx} cy={y} r={r} fill="#15181D" />
+      <circle cx={cx} cy={y} r={r * 0.72} fill="#2B3038" />
+      <circle cx={cx} cy={y} r={r * 0.62} fill="none" stroke="#9AA3AF" strokeWidth="2.5" />
+      {[0, 60, 120].map((a) => (
+        <line key={a} x1={cx - r * 0.6} y1={y} x2={cx + r * 0.6} y2={y} stroke="#7D8693" strokeWidth="2" transform={`rotate(${a} ${cx} ${y})`} />
+      ))}
+      <circle cx={cx} cy={y} r={r * 0.14} fill="#C9CED6" />
+    </g>
+  );
+  return (
+    <svg viewBox="0 0 400 200" className="h-full w-full" role="img" aria-hidden="true">
+      <defs>
+        <linearGradient id={`mp${uid}`} x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" stopColor={shade(color, 45)} />
+          <stop offset="0.5" stopColor={color} />
+          <stop offset="1" stopColor={shade(color, -50)} />
+        </linearGradient>
+        <radialGradient id={`ms${uid}`} cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" stopColor="#000" stopOpacity={dark ? 0.6 : 0.3} />
+          <stop offset="1" stopColor="#000" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <ellipse cx="205" cy={y + r - 2} rx="150" ry="10" fill={`url(#ms${uid})`} />
+      {scooter ? (
+        <g>
+          {/* step-through scooter body */}
+          <path d={`M${rx - 34},${y - 18} Q${rx - 30},${y - 62} ${rx + 6},${y - 66} L${rx + 82},${y - 66} Q${rx + 96},${y - 64} ${rx + 100},${y - 40} L${rx + 104},${y - 14} L${rx + 30},${y - 14} Q${rx - 4},${y - 4} ${rx - 34},${y - 18} Z`} fill={`url(#mp${uid})`} />
+          <path d={`M${rx + 100},${y - 20} L${fx - 32},${y - 22} Q${fx - 18},${y - 50} ${fx - 30},${y - 110} L${fx - 10},${y - 112} Q${fx + 8},${y - 52} ${fx - 6},${y - 12} L${rx + 104},${y - 8} Z`} fill={`url(#mp${uid})`} />
+          <path d={`M${rx - 4},${y - 70} Q${rx + 40},${y - 84} ${rx + 84},${y - 72} L${rx + 82},${y - 64} L${rx + 2},${y - 62} Z`} fill="#1B1F26" />
+          <path d={`M${fx - 36},${y - 116} l40,-6`} stroke="#1B1F26" strokeWidth="6" strokeLinecap="round" />
+          <path d={`M${fx - 4},${y - 104} l14,4 l-2,12 l-14,-4 z`} fill="#F4F7FB" />
+          <rect x={rx - 40} y={y - 36} width="12" height="7" rx="2" fill="#D73A3A" />
+        </g>
+      ) : (
+        <g>
+          {/* rear shock, swingarm and frame tubes */}
+          <path d={`M${rx + 26},${y - 18} L${rx + 16},${y - 76}`} stroke="#B7BCC4" strokeWidth="5" strokeLinecap="round" />
+          <path d={`M${rx},${y} L${rx + 74},${y - 34}`} stroke="#2B3038" strokeWidth="10" strokeLinecap="round" />
+          <path d={`M${fx - 50},${y - 104} L${rx + 70},${y - 86} L${rx + 8},${y - 82}`} stroke="#2B3038" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+          <path d={`M${fx - 52},${y - 100} L${fx - 76},${y - 34} L${rx + 86},${y - 28}`} stroke="#2B3038" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+          {/* engine */}
+          <path d={`M${rx + 58},${y - 66} L${rx + 128},${y - 66} L${rx + 134},${y - 30} L${rx + 66},${y - 26} Z`} fill="#3B424C" />
+          {[0, 1, 2, 3].map((k) => (
+            <path key={k} d={`M${rx + 64},${y - 58 + k * 8} L${rx + 128},${y - 58 + k * 8}`} stroke="#59616C" strokeWidth="2.5" />
+          ))}
+          <circle cx={rx + 82} cy={y - 34} r="9" fill="#59616C" />
+          {/* exhaust */}
+          <path d={`M${rx + 72},${y - 28} Q${rx + 30},${y - 22} ${rx - 18},${y - 42}`} stroke="#8D96A2" strokeWidth="8" fill="none" strokeLinecap="round" />
+          <path d={`M${rx - 26},${y - 48} l22,8`} stroke="#5D6672" strokeWidth="11" strokeLinecap="round" />
+          {/* fenders */}
+          <path d={`M${rx - 30},${y - 34} Q${rx - 6},${y - r - 18} ${rx + 26},${y - r - 6}`} stroke={shade(color, -30)} strokeWidth="6" fill="none" strokeLinecap="round" />
+          <path d={`M${fx - 28},${y - r - 4} Q${fx},${y - r - 16} ${fx + 30},${y - r + 2}`} stroke={shade(color, -30)} strokeWidth="6" fill="none" strokeLinecap="round" />
+          {/* tail, seat and tank */}
+          <path d={`M${rx - 36},${y - 92} L${rx + 4},${y - 96} L${rx + 10},${y - 76} L${rx - 18},${y - 72} Z`} fill={`url(#mp${uid})`} />
+          <rect x={rx - 40} y={y - 96} width="10" height="7" rx="2" fill="#D73A3A" />
+          <path d={`M${rx - 6},${y - (body === 'Cruiser' ? 88 : 98)} Q${rx + 30},${y - (body === 'Cruiser' ? 96 : 108)} ${rx + 76},${y - 102} L${rx + 76},${y - 90} L${rx - 4},${y - (body === 'Cruiser' ? 80 : 88)} Z`} fill="#1B1F26" />
+          <path d={`M${rx + 66},${y - 104} Q${rx + 92},${y - 124} ${rx + 138},${y - 118} Q${fx - 58},${y - 112} ${fx - 56},${y - 94} L${rx + 132},${y - 80} L${rx + 72},${y - 84} Z`} fill={`url(#mp${uid})`} />
+          <path d={`M${rx + 84},${y - 112} Q${rx + 110},${y - 120} ${rx + 136},${y - 114}`} stroke="#fff" strokeOpacity="0.45" strokeWidth="3" fill="none" strokeLinecap="round" />
+          {/* side panel */}
+          <path d={`M${rx + 12},${y - 84} L${rx + 62},${y - 84} L${rx + 58},${y - 66} L${rx + 18},${y - 66} Z`} fill={shade(color, -20)} />
+          {/* fork, bars, headlamp, fairing */}
+          <path d={`M${fx},${y} L${fx - 46},${y - 110}`} stroke="#9AA3AF" strokeWidth="7" strokeLinecap="round" />
+          {body === 'Cruiser' ? (
+            <path d={`M${fx - 50},${y - 112} q-6,-14 -22,-16`} stroke="#1B1F26" strokeWidth="6" fill="none" strokeLinecap="round" />
+          ) : (
+            <path d={`M${fx - 58},${y - 116} l${body === 'Sport' ? 20 : 18},${body === 'Sport' ? 4 : -6}`} stroke="#1B1F26" strokeWidth="6" strokeLinecap="round" />
+          )}
+          {(body === 'Sport' || body === 'Adventure') && (
+            <path d={`M${fx - 46},${y - 118} L${fx - 22},${y - 104} L${fx - 26},${y - 72} L${fx - 50},${y - 80} Z`} fill={`url(#mp${uid})`} />
+          )}
+          <circle cx={fx - 30} cy={y - 92} r="9" fill="#F4F7FB" stroke="#2B3038" strokeWidth="3" />
+        </g>
+      )}
+      {wheel(rx)}
+      {wheel(fx)}
+    </svg>
+  );
+}
+
+/* ───────────── Lorry (side view, cab to the right) */
+function LorryExterior({ body = 'Medium truck', color = '#2C5AA3', dark = false, uid }) {
+  const light = body === 'Light truck';
+  const y = 160;
+  const r = light ? 19 : 21;
+  const cabX = light ? 296 : 286;
+  const rear = body === 'Light truck' || body === 'Medium truck' ? [96] : body === 'Heavy truck' ? [70, 116] : [92, 138];
+  const front = [light ? 340 : 336];
+  const cargoTop = light ? 72 : 60;
+  const wheel = (cx) => (
+    <g key={cx}>
+      <circle cx={cx} cy={y} r={r} fill="#15181D" />
+      <circle cx={cx} cy={y} r={r * 0.6} fill="#B7BCC4" />
+      <circle cx={cx} cy={y} r={r * 0.25} fill="#5D6672" />
+    </g>
+  );
+  return (
+    <svg viewBox="0 0 400 200" className="h-full w-full" role="img" aria-hidden="true">
+      <defs>
+        <linearGradient id={`lp${uid}`} x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" stopColor={shade(color, 40)} />
+          <stop offset="0.5" stopColor={color} />
+          <stop offset="1" stopColor={shade(color, -48)} />
+        </linearGradient>
+        <linearGradient id={`lg${uid}`} x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0" stopColor="#3A4D66" />
+          <stop offset="1" stopColor="#0E141C" />
+        </linearGradient>
+        <radialGradient id={`ls${uid}`} cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" stopColor="#000" stopOpacity={dark ? 0.6 : 0.3} />
+          <stop offset="1" stopColor="#000" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <ellipse cx="205" cy={y + r - 2} rx="190" ry="11" fill={`url(#ls${uid})`} />
+      {/* chassis */}
+      <rect x="22" y={y - 20} width="362" height="9" fill="#2B3038" />
+      {/* load area */}
+      {body === 'Tanker' ? (
+        <g>
+          <rect x="30" y={y - 76} width={cabX - 44} height="56" rx="28" fill="#C9CED6" />
+          <rect x="30" y={y - 76} width={cabX - 44} height="56" rx="28" fill="#fff" opacity="0.25" />
+          {[80, 150, 220].map((x) => <rect key={x} x={x} y={y - 80} width="4" height="62" fill="#8D96A2" />)}
+          <rect x="120" y={y - 86} width="40" height="8" rx="3" fill="#8D96A2" />
+        </g>
+      ) : body === 'Tipper' ? (
+        <g>
+          <path d={`M26,${y - 22} L34,${y - 86} L${cabX - 12},${y - 92} L${cabX - 14},${y - 22} Z`} fill={`url(#lp${uid})`} />
+          {[70, 120, 170, 220].map((x) => <path key={x} d={`M${x},${y - 88} L${x - 2},${y - 24}`} stroke={shade(color, -50)} strokeWidth="3" />)}
+          <path d={`M30,${y - 86} L${cabX - 12},${y - 92}`} stroke={shade(color, 50)} strokeWidth="3" />
+        </g>
+      ) : body === 'Prime mover' ? (
+        <g>
+          <rect x="196" y={y - 32} width="60" height="10" rx="2" fill="#3B424C" />
+          <rect x="204" y={y - 40} width="44" height="8" rx="2" fill="#59616C" />
+          <path d={`M22,${y - 20} L190,${y - 20}`} stroke="#2B3038" strokeWidth="9" />
+        </g>
+      ) : (
+        <g>
+          <rect x="24" y={cargoTop} width={cabX - 32} height={y - 22 - cargoTop} rx="3" fill="#E9ECEF" />
+          <rect x="24" y={cargoTop} width={cabX - 32} height="8" fill={`url(#lp${uid})`} />
+          {Array.from({ length: 6 }, (_, k) => 24 + ((cabX - 32) / 6) * (k + 1)).map((x) => <line key={x} x1={x} y1={cargoTop + 8} x2={x} y2={y - 22} stroke="#C4CAD2" strokeWidth="2" />)}
+          <rect x="24" y={y - 30} width={cabX - 32} height="8" fill={`url(#lp${uid})`} />
+        </g>
+      )}
+      {/* cab */}
+      <path d={`M${cabX},${y - 14} L${cabX},${light ? 74 : 58} Q${cabX},${light ? 66 : 50} ${cabX + 10},${light ? 66 : 50} L${cabX + 56},${light ? 66 : 50} Q${cabX + 80},${light ? 68 : 52} ${cabX + 88},${light ? 96 : 84} L${cabX + 96},${y - 30} L${cabX + 96},${y - 14} Z`} fill={`url(#lp${uid})`} />
+      <path d={`M${cabX + 40},${light ? 74 : 58} L${cabX + 64},${light ? 74 : 58} Q${cabX + 78},${light ? 78 : 62} ${cabX + 84},${light ? 104 : 92} L${cabX + 40},${light ? 104 : 92} Z`} fill={`url(#lg${uid})`} />
+      <rect x={cabX + 6} y={light ? 76 : 60} width="28" height={light ? 26 : 30} rx="3" fill={`url(#lg${uid})`} />
+      <path d={`M${cabX + 38},${light ? 70 : 54} L${cabX + 38},${y - 22}`} stroke={shade(color, -50)} strokeWidth="2" />
+      <rect x={cabX + 48} y={light ? 112 : 104} width="14" height="4" rx="2" fill={shade(color, -60)} />
+      <rect x={cabX + 86} y={y - 46} width="12" height="10" rx="2" fill="#F4F7FB" />
+      <rect x={cabX + 70} y={y - 22} width="30" height="10" rx="2" fill="#3B424C" />
+      <path d={`M${cabX + 92},${light ? 72 : 58} l10,-2 l0,22 l-6,0 z`} fill="#2B3038" />
+      <rect x="18" y={y - 34} width="8" height="10" rx="1.5" fill="#D73A3A" />
+      {[...rear, ...front].map(wheel)}
+    </svg>
+  );
+}
+
 export function CarArt({ vehicle, view = 'side', className, bare }) {
   const id = useId().replace(/:/g, '');
   const color = vehicle?.colorHex || '#2C5AA3';
   const body = vehicle?.bodyType || 'Sedan';
+  const category = vehicle?.category || 'car';
+  // Motorcycles have no cabin view: show the odometer instead.
+  if (category === 'motorcycle' && view === 'interior') view = 'cluster';
   const bg = {
     side: 'studio',
     rear: 'bg-gradient-to-b from-[#1B2738] to-[#0D141F]',
@@ -259,7 +430,13 @@ export function CarArt({ vehicle, view = 'side', className, bare }) {
         <Cluster mileage={vehicle?.mileage} fuel={vehicle?.fuel} />
       ) : (
         <div className={cn('h-full w-full px-[6%] pt-[4%]', view === 'rear' && '-scale-x-100')}>
-          <Exterior body={body} color={color} dark={view === 'rear'} uid={id} />
+          {category === 'motorcycle' ? (
+            <MotoExterior body={body} color={color} dark={view === 'rear'} uid={id} />
+          ) : category === 'lorry' ? (
+            <LorryExterior body={body} color={color} dark={view === 'rear'} uid={id} />
+          ) : (
+            <Exterior body={body} color={color} dark={view === 'rear'} uid={id} />
+          )}
         </div>
       )}
     </div>
@@ -297,7 +474,7 @@ export function CarImage({ vehicle, index = 0, className, view }) {
       <img
         key={`${vehicle?.id}-${src}`}
         src={src}
-        alt={`${vehicle?.make || ''} ${vehicle?.model || 'Car'}`}
+        alt={`${vehicle?.make || ''} ${vehicle?.model || 'Vehicle'}`}
         loading="lazy"
         onError={() => setBroken(true)}
         className={cn('object-cover', className)}

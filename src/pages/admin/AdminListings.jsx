@@ -8,6 +8,7 @@ import { vehicleTitle } from '../../components/vehicle/VehicleCard';
 import { CITIES } from '../../data/catalog';
 import { ROLE_META } from '../../config/site';
 import { date, tzs, normId } from '../../utils/format';
+import { TYPE_KEYS, VEHICLE_TYPES, categoryOf, typeOf } from '../../data/vehicleTypes';
 
 export const MOD = {
   flag: { label: 'Flag for review', tone: 'danger', msg: 'Marks the listing as under review. It stays live; buyers see "Under review" instead of a verified badge.', confirm: 'Flag listing', done: 'Listing flagged' },
@@ -133,6 +134,7 @@ export default function AdminListings() {
   const [status, setStatus] = useState('');
   const [role, setRole] = useState('');
   const [city, setCity] = useState('');
+  const [vtype, setVtype] = useState('');
   const [range, setRange] = useState({ from: '', to: '' });
   const [act, setAct] = useState(null);
   const [dup, setDup] = useState(null);
@@ -154,11 +156,12 @@ export default function AdminListings() {
         if (status && v.status !== status) return false;
         if (role && v.sellerRole !== role) return false;
         if (city && v.city !== city) return false;
+        if (vtype && categoryOf(v) !== vtype) return false;
         if (!inRange(v.createdAt, range)) return false;
         return true;
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [base, tab, q, status, role, city, range],
+    [base, tab, q, status, role, city, vtype, range],
   );
 
   return (
@@ -181,6 +184,7 @@ export default function AdminListings() {
             <div className="grid grid-cols-2 gap-2 sm:flex">
               <Select aria-label="Status" value={status} onChange={(e) => setStatus(e.target.value)} placeholder="Any status" options={['live', 'pending_payment', 'draft', 'blocked_duplicate', 'suspended', 'removed', 'sold', 'expired'].map((s) => ({ value: s, label: s.replace(/_/g, ' ') }))} className="sm:w-44" />
               <Select aria-label="Seller type" value={role} onChange={(e) => setRole(e.target.value)} placeholder="Any seller type" options={[{ value: 'dealer', label: 'Dealer' }, { value: 'seller', label: 'Private seller' }, { value: 'agent', label: 'Agent' }]} className="sm:w-44" />
+              <Select aria-label="Vehicle type" value={vtype} onChange={(e) => setVtype(e.target.value)} placeholder="Any vehicle type" options={TYPE_KEYS.map((k) => ({ value: k, label: VEHICLE_TYPES[k].plural }))} className="sm:w-44" />
               <Select aria-label="City" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Any city" options={CITIES.map((c) => c.name)} className="col-span-2 sm:w-40" />
             </div>
           </div>
@@ -199,7 +203,9 @@ export default function AdminListings() {
                   <CarImage vehicle={v} view="side" className="h-10 w-16 shrink-0 rounded" />
                   <div className="min-w-0">
                     <p className="truncate font-semibold hover:text-accent-700">{vehicleTitle(v)}</p>
-                    <p className="font-mono text-[11.5px] text-mist-500">{v.id.toUpperCase()}</p>
+                    <p className="font-mono text-[11.5px] text-mist-500">
+                      {v.id.toUpperCase()} · <span className="font-sans">{typeOf(v).label}</span>
+                    </p>
                   </div>
                 </Link>
               ),

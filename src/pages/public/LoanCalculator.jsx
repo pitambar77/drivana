@@ -9,6 +9,7 @@ import { BankChooser, BankInfoModal, EnquireCta, FinanceEnquiryModal, FinancingC
 import { partnerBanks } from '../../data/partnerBanks';
 import { amortisation, calcEmi } from '../../utils/emi';
 import { tzs, tzsShort } from '../../utils/format';
+import { vehiclePath, typeOf } from '../../data/vehicleTypes';
 
 function NumberField({ id, label, value, onChange, prefix, suffix, min, max, step, error, disabled, hint }) {
   return (
@@ -48,7 +49,7 @@ export default function LoanCalculator() {
   const seller = car ? user(car.sellerId) : null;
 
   const errors = {
-    price: price === '' || price < 1000000 ? 'Enter a vehicle price of at least TSh 1,000,000' : price > 2000000000 ? 'Price looks too high' : '',
+    price: price === '' || price < 200000 ? 'Enter a vehicle price of at least TSh 200,000' : price > 2000000000 ? 'Price looks too high' : '',
     down: down === '' || down < 0 ? 'Enter 0 or more' : down >= price ? 'Down payment must be less than the price' : '',
     rate: rate === '' || rate <= 0 || rate > 30 ? 'Enter a rate between 0.1% and 30%' : '',
     months: months === '' || months < 6 || months > 96 ? 'Tenure must be 6 to 96 months' : '',
@@ -109,9 +110,9 @@ export default function LoanCalculator() {
 
   return (
     <div className="container-page py-6 md:py-8">
-      <Breadcrumbs items={[...(car ? [{ label: 'Buy a car', to: '/cars' }, { label: `${car.make} ${car.model}`, to: `/cars/${car.id}` }] : []), { label: 'Loan calculator' }]} className="mb-4" />
+      <Breadcrumbs items={[...(car ? [{ label: typeOf(car).plural, to: typeOf(car).path }, { label: `${car.make} ${car.model}`, to: `${vehiclePath(car)}` }] : []), { label: 'Loan calculator' }]} className="mb-4" />
       <div className="mb-6 max-w-2xl">
-        <h1 className="text-[28px] font-bold md:text-[32px]">Car loan EMI calculator</h1>
+        <h1 className="text-[28px] font-bold md:text-[32px]">Vehicle loan EMI calculator</h1>
         <p className="mt-1.5 text-mist-600">Set your down payment and tenure, pick a partner bank, then make an enquiry. The dealer and the bank are both notified and follow up with you.</p>
       </div>
 
@@ -216,7 +217,7 @@ export default function LoanCalculator() {
                     ['Total interest', tzs(r.totalInterest), CHART.blue],
                     ['Total payable to lender', tzs(r.totalPayable)],
                     ['Down payment', tzs(down)],
-                    ['Total cost of the car', tzs(r.totalPayable + Number(down))],
+                    [`Total cost of the ${car ? typeOf(car).noun : 'vehicle'}`, tzs(r.totalPayable + Number(down))],
                   ].map(([k, val, c]) => (
                     <div key={k} className="flex items-center justify-between gap-3 border-b border-mist-100 pb-2.5 last:border-0">
                       <dt className="flex items-center gap-2 text-mist-600">

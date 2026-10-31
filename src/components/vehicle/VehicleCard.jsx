@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom';
-import { Fuel, Gauge, GitCompareArrows, Heart, MapPin, Settings2, Star } from 'lucide-react';
+import { Container, Fuel, Gauge, GitCompareArrows, Heart, MapPin, Settings2, Star, Zap } from 'lucide-react';
 import { CarImage } from './CarArt';
 import { VerificationBadge } from '../ui';
 import { useStore } from '../../store/AppStore';
 import { useToast } from '../ui/Toast';
 import { cn, km, tzs } from '../../utils/format';
 import { useTilt } from '../interactive/Interactive';
+import { categoryOf, compareMessage, typeOf, vehiclePath } from '../../data/vehicleTypes';
 
 export function vehicleTitle(v) {
   return `${v.year} ${v.make} ${v.model}`;
@@ -22,20 +23,21 @@ export function VehicleCard({ vehicle: v, layout = 'grid', onRemove, actions }) 
   const tilt = useTilt(layout === 'row' ? 3 : 6);
   const saved = state.saved.includes(v.id);
   const comparing = state.compare.includes(v.id);
+  const category = categoryOf(v);
+  const T = typeOf(v);
   const onCompare = (e) => {
     e.preventDefault();
-    const r = toggleCompare(v.id);
-    if (r === 'full') toast('You can compare up to 3 cars. Remove one first.', { tone: 'warn' });
-    else toast(r === 'added' ? 'Added to compare' : 'Removed from compare', { tone: 'info' });
+    const m = compareMessage(toggleCompare(v.id), v);
+    toast(m.text, { tone: m.tone });
   };
   const onSave = (e) => {
     e.preventDefault();
     toggleSaved(v.id);
-    toast(saved ? 'Removed from saved cars' : 'Saved to your shortlist', { tone: saved ? 'info' : 'success' });
+    toast(saved ? 'Removed from your shortlist' : 'Saved to your shortlist', { tone: saved ? 'info' : 'success' });
   };
   return (
     <article {...tilt} className={cn('card tilt group relative flex min-w-0 overflow-hidden hover:shadow-lift', layout === 'row' ? 'flex-col sm:flex-row' : 'flex-col')}>
-      <Link to={`/cars/${v.id}`} className={cn('relative block shrink-0 overflow-hidden', layout === 'row' ? 'sm:w-64' : '')} aria-label={`View ${vehicleTitle(v)}`}>
+      <Link to={`${vehiclePath(v)}`} className={cn('relative block shrink-0 overflow-hidden', layout === 'row' ? 'sm:w-64' : '')} aria-label={`View ${vehicleTitle(v)}`}>
         <CarImage vehicle={v} className={cn('w-full transition-transform duration-500 ease-out group-hover:scale-[1.06]', layout === 'row' ? 'aspect-[16/10] sm:h-full' : 'aspect-[16/10]')} view="side" />
         <div className="absolute left-2.5 top-2.5 flex gap-1.5">
           {v.featured && (
@@ -45,12 +47,17 @@ export function VehicleCard({ vehicle: v, layout = 'grid', onRemove, actions }) 
           )}
           {v.condition !== 'Used' && <span className="rounded-md bg-white/95 px-1.5 py-0.5 text-[11px] font-bold text-ink-900 shadow-card">{v.condition === 'New' ? 'New' : 'Certified'}</span>}
         </div>
+        {category !== 'car' && (
+          <span className="absolute bottom-2.5 left-2.5 inline-flex items-center gap-1 rounded-md bg-ink-900/85 px-1.5 py-0.5 text-[11px] font-bold text-white backdrop-blur">
+            <T.icon className="h-3.5 w-3.5" /> {T.label}
+          </span>
+        )}
       </Link>
       <div className="absolute right-2.5 top-2.5 flex gap-1.5">
         <button type="button" onClick={onCompare} aria-pressed={comparing} aria-label="Compare" title="Compare" className={cn('flex h-8 w-8 items-center justify-center rounded-full shadow-card backdrop-blur', comparing ? 'bg-accent-600 text-white' : 'bg-white/90 text-ink-800 hover:bg-white')}>
           <GitCompareArrows className="h-4 w-4" />
         </button>
-        <button type="button" onClick={onSave} aria-pressed={saved} aria-label={saved ? 'Remove from saved' : 'Save car'} title="Save" className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-card backdrop-blur hover:bg-white">
+        <button type="button" onClick={onSave} aria-pressed={saved} aria-label={saved ? 'Remove from saved' : `Save ${T.noun}`} title="Save" className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-card backdrop-blur hover:bg-white">
           <Heart className={cn('h-4 w-4', saved ? 'fill-bad-600 text-bad-600' : 'text-ink-800')} />
         </button>
       </div>
@@ -63,7 +70,7 @@ export function VehicleCard({ vehicle: v, layout = 'grid', onRemove, actions }) 
               {v.city}
             </span>
           </div>
-          <Link to={`/cars/${v.id}`} className="block">
+          <Link to={`${vehiclePath(v)}`} className="block">
             <h3 className="truncate text-[15.5px] font-bold leading-snug group-hover:text-accent-700" style={{ fontStretch: '104%' }}>
               {vehicleTitle(v)}
             </h3>
@@ -75,14 +82,40 @@ export function VehicleCard({ vehicle: v, layout = 'grid', onRemove, actions }) 
             <Gauge className="h-3.5 w-3.5 text-mist-400" />
             {km(v.mileage)}
           </li>
-          <li className="flex items-center gap-1">
-            <Fuel className="h-3.5 w-3.5 text-mist-400" />
-            {v.fuel}
-          </li>
-          <li className="flex items-center gap-1">
-            <Settings2 className="h-3.5 w-3.5 text-mist-400" />
-            {v.transmission}
-          </li>
+          {category === 'lorry' ? (
+            <>
+              <li className="flex items-center gap-1 num">
+                <Container className="h-3.5 w-3.5 text-mist-400" />
+                {v.specs?.payloadT ? `${v.specs.payloadT} t payload` : v.bodyType}
+              </li>
+              <li className="flex items-center gap-1">
+                <Settings2 className="h-3.5 w-3.5 text-mist-400" />
+                {v.specs?.axle || v.transmission}
+              </li>
+            </>
+          ) : category === 'motorcycle' ? (
+            <>
+              <li className="flex items-center gap-1 num">
+                {v.fuel === 'Electric' ? <Zap className="h-3.5 w-3.5 text-mist-400" /> : <Fuel className="h-3.5 w-3.5 text-mist-400" />}
+                {v.fuel === 'Electric' ? 'Electric' : v.specs?.engineCc ? `${v.specs.engineCc} cc` : v.fuel}
+              </li>
+              <li className="flex items-center gap-1">
+                <Settings2 className="h-3.5 w-3.5 text-mist-400" />
+                {v.bodyType}
+              </li>
+            </>
+          ) : (
+            <>
+              <li className="flex items-center gap-1">
+                <Fuel className="h-3.5 w-3.5 text-mist-400" />
+                {v.fuel}
+              </li>
+              <li className="flex items-center gap-1">
+                <Settings2 className="h-3.5 w-3.5 text-mist-400" />
+                {v.transmission}
+              </li>
+            </>
+          )}
         </ul>
         <div className="mt-auto flex flex-wrap items-end justify-between gap-x-2 gap-y-1.5 pt-1">
           <p className="whitespace-nowrap font-display text-sm font-bold text-ink-900 num" style={{ fontStretch: '110%' }}>

@@ -7,6 +7,7 @@ import { CarImage } from '../../components/vehicle/CarArt';
 import { EnquiryForm } from '../../components/vehicle/EnquiryForm';
 import { vehicleTitle } from '../../components/vehicle/VehicleCard';
 import { cn, km, tzs, sleep } from '../../utils/format';
+import { vehiclePath } from '../../data/vehicleTypes';
 
 const QUICK = ['Is it still available?', 'What is your best price?', 'Can I book a test drive this weekend?', 'Are service records available?'];
 
@@ -103,13 +104,13 @@ export default function VehicleContact() {
   const v = vehicle(id);
   const [mode, setMode] = useState('enquiry');
   const [reveal, setReveal] = useState(false);
-  if (!v || !isPublic(v)) return <div className="container-page py-16"><EmptyState title="This car isn't available" action={<Button to="/cars">Browse cars</Button>} /></div>;
+  if (!v || !isPublic(v)) return <div className="container-page py-16"><EmptyState title="This vehicle isn't available" action={<Button to="/cars">Browse vehicles</Button>} /></div>;
   const seller = user(v.sellerId);
   const isAgent = v.sellerRole === 'agent';
 
   return (
     <div className="container-page py-6 md:py-8">
-      <Link to={`/cars/${v.id}`} className="mb-4 inline-flex items-center gap-1 text-sm font-semibold text-mist-600 hover:text-ink-900">
+      <Link to={`${vehiclePath(v)}`} className="mb-4 inline-flex items-center gap-1 text-sm font-semibold text-mist-600 hover:text-ink-900">
         <ArrowLeft className="h-4 w-4" /> Back to listing
       </Link>
       <div className="grid gap-6 lg:grid-cols-[360px_1fr]">

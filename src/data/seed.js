@@ -2,6 +2,7 @@
 import { MODELS, CITIES, COLORS, OWNERSHIP } from './catalog';
 import { daysAgo } from '../utils/format';
 import { DEFAULT_CONFIG, PLANS } from '../config/site';
+import { buildExtras } from './seedExtras';
 
 function rng(seed) {
   return () => {
@@ -410,14 +411,17 @@ const audit = [
 
 const notes = [{ id: 'n1', listingId: 'v1003', at: daysAgo(0, 9), author: 'Ops Admin', text: 'Asked dealer to confirm odometer reading with a photo.' }];
 
+// Motorcycles and lorries (separate random sequence, so car data is unchanged).
+const extras = buildExtras(users, BUYERS);
+
 export function buildSeed() {
   return {
-    version: 4,
-    users: structuredClone(users),
-    vehicles: structuredClone(vehicles),
-    enquiries: structuredClone(enquiries),
-    payments: structuredClone(payments),
-    documents: structuredClone(documents),
+    version: 5,
+    users: structuredClone([...users, ...extras.users]),
+    vehicles: structuredClone([...vehicles.map((v) => ({ category: 'car', ...v })), ...extras.vehicles]),
+    enquiries: structuredClone([...enquiries, ...extras.enquiries]),
+    payments: structuredClone([...payments, ...extras.payments]),
+    documents: structuredClone([...documents, ...extras.documents]),
     referrals: structuredClone(referrals),
     handovers: structuredClone(handovers),
     audit: structuredClone(audit),

@@ -7,6 +7,7 @@ import { vehicleTitle } from '../../components/vehicle/VehicleCard';
 import { EnquiryInbox } from '../../components/listings/EnquiryInbox';
 import { AttentionList } from '../dealer/DealerDashboard';
 import { date, km, tzs, num } from '../../utils/format';
+import { vehiclePath } from '../../data/vehicleTypes';
 
 export default function SellerDashboard() {
   const { state, me, setListingStatus } = useStore();
@@ -67,7 +68,7 @@ export default function SellerDashboard() {
                 <div className="flex flex-wrap gap-2">
                   {active.status === 'live' ? (
                     <>
-                      <Button size="sm" variant="secondary" icon={Eye} to={`/cars/${active.id}`}>
+                      <Button size="sm" variant="secondary" icon={Eye} to={`${vehiclePath(active)}`}>
                         View
                       </Button>
                       <Button size="sm" variant="secondary" icon={Pencil} to="/seller/vehicle">

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { ArrowRight, Building2, CalendarDays, Car, Check, ExternalLink, LayoutGrid, Fuel, Gauge, GitCompareArrows, Handshake, Heart, MapPin, MessageSquare, Palette, Phone, Settings2, ShieldCheck, UserRound, Users } from 'lucide-react';
+import { Link, Navigate, useLocation, useParams } from 'react-router-dom';
+import { ArrowRight, Building2, CalendarDays, Car, Check, Container, ExternalLink, LayoutGrid, Fuel, Gauge, GitCompareArrows, Handshake, Heart, MapPin, MessageSquare, Palette, Phone, Settings2, ShieldCheck, UserRound, Users } from 'lucide-react';
 import { useStore, isPublic } from '../../store/AppStore';
 import { Alert, Avatar, Breadcrumbs, Button, CopyText, EmptyState, Plate, Section, StatusBadge, VerificationBadge, useToast } from '../../components/ui';
 import { Gallery } from '../../components/vehicle/Gallery';
@@ -10,6 +10,7 @@ import { VehicleCard, vehicleTitle } from '../../components/vehicle/VehicleCard'
 import { SimilarComparison } from '../../components/vehicle/SimilarComparison';
 import { SELLER_TYPE, sellerName, sellerPath, useSellerListings } from './SellerListings';
 import { cn, date, km, tzs, num } from '../../utils/format';
+import { bodyTitle, categoryFromPath, categoryOf, compareMessage, typeOf, vehiclePath } from '../../data/vehicleTypes';
 
 
 
@@ -47,7 +48,7 @@ export function SellerCard({ vehicle: v, seller, compact }) {
         <Button variant="dark" icon={Phone} onClick={() => setReveal(true)}>
           {reveal ? 'Number shown' : 'Call seller'}
         </Button>
-        <Button variant="secondary" icon={MessageSquare} to={`/cars/${v.id}/contact`}>
+        <Button variant="secondary" icon={MessageSquare} to={`${vehiclePath(v)}/contact`}>
           Message
         </Button>
       </div>
@@ -62,20 +63,21 @@ export function SellerCard({ vehicle: v, seller, compact }) {
       {!compact &&
         (others > 0 ? (
           <Button variant="secondary" icon={LayoutGrid} iconRight={ArrowRight} to={`${sellerPath(v.sellerRole, v.sellerId)}?from=${v.id}`} className="w-full">
-            See {others} more car{others === 1 ? '' : 's'} from this {SELLER_TYPE[v.sellerRole]?.label.toLowerCase() || 'seller'}
+            See {others} more vehicle{others === 1 ? '' : 's'} from this {SELLER_TYPE[v.sellerRole]?.label.toLowerCase() || 'seller'}
           </Button>
         ) : (
           <Link to={`${sellerPath(v.sellerRole, v.sellerId)}?from=${v.id}`} className="block text-center text-[13px] font-semibold text-mist-600 hover:text-accent-700">
-            View seller profile · no other cars listed
+            View seller profile · nothing else listed
           </Link>
         ))}
-      {reveal && <p className="text-[12px] text-mist-500">Tell the seller you found the car on AutoDealer. Never pay a token amount before seeing the car and its RC.</p>}
+      {reveal && <p className="text-[12px] text-mist-500">Tell the seller you found the {typeOf(v).noun} on AutoDealer. Never pay a token amount before seeing the {typeOf(v).noun} and its RC.</p>}
     </div>
   );
 }
 
 export default function VehicleDetails() {
   const { id } = useParams();
+  const { pathname } = useLocation();
   const { state, me, role, vehicle, user, pushRecent, bumpViews, toggleSaved, toggleCompare } = useStore();
   const toast = useToast();
   const v = vehicle(id);
@@ -92,7 +94,7 @@ export default function VehicleDetails() {
   const similar = useMemo(() => {
     if (!v) return [];
     return state.vehicles
-      .filter((x) => isPublic(x) && x.id !== v.id && (x.bodyType === v.bodyType || x.make === v.make))
+      .filter((x) => isPublic(x) && x.id !== v.id && categoryOf(x) === categoryOf(v) && (x.bodyType === v.bodyType || x.make === v.make))
       .sort((a, b) => Math.abs(a.price - v.price) - Math.abs(b.price - v.price))
       .slice(0, 4);
   }, [state.vehicles, v]);
@@ -100,16 +102,20 @@ export default function VehicleDetails() {
   if (!v) {
     return (
       <div className="container-page py-16">
-        <EmptyState icon={Car} title="We couldn't find that car" message="The link may be wrong or the listing was removed." action={<Button to="/cars">Browse all cars</Button>} />
+        <EmptyState icon={Car} title="We couldn't find that vehicle" message="The link may be wrong or the listing was removed." action={<Button to={typeOf({ category: categoryFromPath(pathname) }).path}>Browse all {typeOf({ category: categoryFromPath(pathname) }).nounPlural}</Button>} />
       </div>
     );
   }
 
+  // One URL per listing: /cars/…, /motorcycles/… or /lorries/…
+  if (categoryFromPath(pathname) !== categoryOf(v)) return <Navigate to={vehiclePath(v)} replace />;
+  const T = typeOf(v);
+  const category = categoryOf(v);
   const isOwner = me?.id === v.sellerId;
   if (!isPublic(v) && !isOwner && role !== 'admin') {
     return (
       <div className="container-page py-16">
-        <EmptyState icon={Car} title="This listing isn't available" message={`The ${vehicleTitle(v)} is ${v.status === 'sold' ? 'sold' : 'no longer listed'}. Here are similar cars.`} action={<Button to={`/cars?body=${v.bodyType}`}>See similar {v.bodyType}s</Button>} />
+        <EmptyState icon={T.icon} title="This listing isn't available" message={`The ${vehicleTitle(v)} is ${v.status === 'sold' ? 'sold' : 'no longer listed'}. Here are similar ${T.nounPlural}.`} action={<Button to={`${T.path}?body=${encodeURIComponent(v.bodyType)}`}>See similar {bodyTitle(v.bodyType).toLowerCase()}</Button>} />
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {similar.map((s) => (
             <VehicleCard key={s.id} vehicle={s} />
@@ -125,26 +131,53 @@ export default function VehicleDetails() {
     [CalendarDays, 'Model year', v.year],
     [Gauge, 'Kilometres', km(v.mileage)],
     [Fuel, 'Fuel', v.fuel],
-    [Settings2, 'Transmission', v.transmission],
+    category === 'lorry' ? [Container, 'Payload', v.specs?.payloadT ? `${v.specs.payloadT} tonnes` : '—'] : [Settings2, 'Transmission', v.transmission],
     [Users, 'Ownership', v.owners],
     [Palette, 'Colour', v.color],
     [MapPin, 'Location', v.city],
-    [Car, 'Body type', v.bodyType],
+    [T.icon, T.bodyLabel, v.bodyType],
   ];
-  const tech = [
-    ['Engine', v.specs?.engineCc ? `${num(v.specs.engineCc)} cc` : v.fuel === 'Electric' ? 'Electric motor' : '—'],
-    ['Max power', v.specs?.powerBhp ? `${v.specs.powerBhp} bhp` : '—'],
-    ['Seating', v.specs?.seats ? `${v.specs.seats} seats` : '—'],
-    [v.fuel === 'Electric' ? 'Battery' : 'Fuel economy', v.fuel === 'Electric' ? (v.specs?.batteryKwh ? `${v.specs.batteryKwh} kWh` : '—') : v.specs?.mileageKmpl ? `${v.specs.mileageKmpl} km/l` : '—'],
-    ['Airbags', v.specs?.airbags ?? '—'],
-    ['Insurance valid until', date(v.insuranceUntil)],
-    ['Condition', v.condition],
-    ['Variant', v.variant],
-  ];
+  const economy = v.fuel === 'Electric' ? [v.specs?.rangeKm ? 'Range' : 'Battery', v.specs?.rangeKm ? `${v.specs.rangeKm} km per charge` : v.specs?.batteryKwh ? `${v.specs.batteryKwh} kWh` : '—'] : ['Fuel economy', v.specs?.mileageKmpl ? `${v.specs.mileageKmpl} km/l` : '—'];
+  const tech =
+    category === 'motorcycle'
+      ? [
+          ['Engine', v.fuel === 'Electric' ? 'Electric motor' : v.specs?.engineCc ? `${num(v.specs.engineCc)} cc` : '—'],
+          ['Max power', v.specs?.powerBhp ? `${v.specs.powerBhp} bhp` : '—'],
+          economy,
+          ['Kerb weight', v.specs?.weightKg ? `${v.specs.weightKg} kg` : '—'],
+          ['ABS', v.specs?.abs || '—'],
+          ['Transmission', v.transmission],
+          ['Insurance valid until', date(v.insuranceUntil)],
+          ['Condition', v.condition],
+          ['Variant', v.variant],
+        ]
+      : category === 'lorry'
+        ? [
+            ['Payload', v.specs?.payloadT ? `${v.specs.payloadT} tonnes` : '—'],
+            ['Gross vehicle weight', v.specs?.gvwT ? `${v.specs.gvwT} tonnes` : '—'],
+            ['Axle configuration', v.specs?.axle || '—'],
+            ['Engine power', v.specs?.powerHp ? `${v.specs.powerHp} hp` : '—'],
+            ['Cabin', v.specs?.cabin || '—'],
+            ['Tyres', v.specs?.tyres ?? '—'],
+            ['Transmission', v.transmission],
+            ['Body / variant', v.variant],
+            ['Insurance valid until', date(v.insuranceUntil)],
+            ['Condition', v.condition],
+          ]
+        : [
+            ['Engine', v.specs?.engineCc ? `${num(v.specs.engineCc)} cc` : v.fuel === 'Electric' ? 'Electric motor' : '—'],
+            ['Max power', v.specs?.powerBhp ? `${v.specs.powerBhp} bhp` : '—'],
+            ['Seating', v.specs?.seats ? `${v.specs.seats} seats` : '—'],
+            v.fuel === 'Electric' ? ['Battery', v.specs?.batteryKwh ? `${v.specs.batteryKwh} kWh` : '—'] : economy,
+            ['Airbags', v.specs?.airbags ?? '—'],
+            ['Insurance valid until', date(v.insuranceUntil)],
+            ['Condition', v.condition],
+            ['Variant', v.variant],
+          ];
 
   return (
     <div className="container-page py-6 md:py-8">
-      <Breadcrumbs items={[{ label: 'Buy a car', to: '/cars' }, { label: v.make, to: `/cars?make=${encodeURIComponent(v.make)}` }, { label: `${v.model} ${v.year}` }]} className="mb-4" />
+      <Breadcrumbs items={[{ label: T.plural, to: T.path }, { label: v.make, to: `${T.path}?make=${encodeURIComponent(v.make)}` }, { label: `${v.model} ${v.year}` }]} className="mb-4" />
       {!isPublic(v) && (
         <Alert tone="warn" className="mb-4" title={`Preview — this listing is ${v.status.replace(/_/g, ' ')}`}>
           Only you{role === 'admin' ? ' (admin)' : ''} can see this page. Buyers see it once the listing is live.
@@ -225,7 +258,7 @@ export default function VehicleDetails() {
               "Live" means the seller paid and the listing passed automatic checks. "Documents verified" means our team has reviewed the seller's papers. Neither replaces your own check of the RC.
             </p>
             <Button to={`/verify-vehicle?reg=${v.regNumber}`} variant="secondary" size="sm" iconRight={ExternalLink} className="mt-4">
-              How to verify this car
+              How to verify this {T.noun}
             </Button>
           </Section>
 
@@ -246,7 +279,7 @@ export default function VehicleDetails() {
                 icon={Heart}
                 onClick={() => {
                   toggleSaved(v.id);
-                  toast(saved ? 'Removed from saved cars' : 'Saved to your shortlist', { tone: saved ? 'info' : 'success' });
+                  toast(saved ? 'Removed from your shortlist' : 'Saved to your shortlist', { tone: saved ? 'info' : 'success' });
                 }}
                 className={cn('flex-1', saved && 'border-bad-100 bg-bad-50 text-bad-700')}
               >
@@ -257,8 +290,8 @@ export default function VehicleDetails() {
                 size="sm"
                 icon={GitCompareArrows}
                 onClick={() => {
-                  const r = toggleCompare(v.id);
-                  toast(r === 'full' ? 'You can compare up to 3 cars.' : r === 'added' ? 'Added to compare' : 'Removed from compare', { tone: r === 'full' ? 'warn' : 'info' });
+                  const m = compareMessage(toggleCompare(v.id), v);
+                  toast(m.text, { tone: m.tone });
                 }}
                 className={cn('flex-1', comparing && 'border-accent-200 bg-accent-50 text-accent-700')}
               >
@@ -281,9 +314,9 @@ export default function VehicleDetails() {
       {similar.length > 0 && (
         <section className="mt-12">
           <div className="mb-4 flex items-end justify-between">
-            <h2 className="text-xl font-bold">Similar cars</h2>
-            <Link to={`/cars?body=${v.bodyType}`} className="text-sm font-semibold text-accent-700 hover:underline">
-              More {v.bodyType}s →
+            <h2 className="text-xl font-bold">Similar {T.nounPlural}</h2>
+            <Link to={`${T.path}?body=${encodeURIComponent(v.bodyType)}`} className="text-sm font-semibold text-accent-700 hover:underline">
+              More {bodyTitle(v.bodyType).toLowerCase()} →
             </Link>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -315,11 +348,11 @@ function MoreFromSeller({ vehicle: v, seller }) {
             More from {sellerName(seller)}
           </h2>
           <p className="mt-1 text-sm text-mist-600">
-            {others.length} other car{others.length === 1 ? '' : 's'} for sale · {seller?.city}
+            {others.length} other vehicle{others.length === 1 ? "" : "s"} for sale · {seller?.city}
           </p>
         </div>
         <Button variant="secondary" iconRight={ArrowRight} to={`${sellerPath(v.sellerRole, v.sellerId)}?from=${v.id}`}>
-          See all {others.length + 1} cars from this {T?.label.toLowerCase()}
+          See all {others.length + 1} vehicles from this {T?.label.toLowerCase()}
         </Button>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

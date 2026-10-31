@@ -31,10 +31,12 @@ import {
   CONDITIONS,
   MAKES,
   modelsFor,
+  makesFor,
 } from "../../data/catalog";
 import { PLANS } from "../../config/site";
 import { PRICE_STEPS } from "../../utils/filters";
 import { cn, tzs, num, tzsShort } from "../../utils/format";
+import { TYPE_KEYS, VEHICLE_TYPES, categoryOf, vehiclePath } from '../../data/vehicleTypes';
 
 const categoryImages = {
   SUV: "/suv2.jpg",
@@ -86,6 +88,8 @@ const recentVehicleImages = {
 
 function HeroSearch() {
   const nav = useNavigate();
+  const [type, setType] = useState("car");
+  const T = VEHICLE_TYPES[type];
   const [f, setF] = useState({
     make: "",
     model: "",
@@ -103,28 +107,53 @@ function HeroSearch() {
   const go = (e) => {
     e.preventDefault();
     const p = new URLSearchParams(Object.entries(f).filter(([, v]) => v));
-    nav(`/cars?${p.toString()}`);
+    nav(`${T.path}?${p.toString()}`);
+  };
+  const switchType = (k) => {
+    setType(k);
+    setF((s) => ({ ...s, make: "", model: "", maxPrice: "", body: "" }));
   };
   return (
     <form
       onSubmit={go}
       className="rounded-2xl bg-white p-4 shadow-pop md:p-5"
-      aria-label="Search cars"
+      aria-label={`Search ${T.nounPlural}`}
     >
+      <div role="tablist" aria-label="What are you looking for?" className="mb-3 flex gap-1.5 overflow-x-auto">
+        {TYPE_KEYS.map((k) => {
+          const Ty = VEHICLE_TYPES[k];
+          const on = k === type;
+          return (
+            <button
+              key={k}
+              type="button"
+              role="tab"
+              aria-selected={on}
+              onClick={() => switchType(k)}
+              className={cn(
+                "inline-flex shrink-0 items-center gap-2 rounded-xl px-3.5 py-2 text-[14px] font-semibold transition-colors",
+                on ? "bg-ink-900 text-white" : "bg-mist-100 text-ink-700 hover:bg-mist-200",
+              )}
+            >
+              <Ty.icon className="h-4 w-4" /> {Ty.plural}
+            </button>
+          );
+        })}
+      </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <Select
           aria-label="Brand"
           value={f.make}
           onChange={set("make")}
           placeholder="Any brand"
-          options={MAKES}
+          options={makesFor(type)}
         />
         <Select
           aria-label="Model"
           value={f.model}
           onChange={set("model")}
           placeholder={f.make ? "Any model" : "Model"}
-          options={f.make ? modelsFor(f.make) : []}
+          options={f.make ? modelsFor(f.make, type) : []}
           disabled={!f.make}
         />
         <Select
@@ -132,7 +161,7 @@ function HeroSearch() {
           value={f.maxPrice}
           onChange={set("maxPrice")}
           placeholder="Any budget"
-          options={PRICE_STEPS.map((p) => ({
+          options={T.priceSteps.map((p) => ({
             value: String(p),
             label: `Up to ${tzsShort(p)}`,
           }))}
@@ -152,25 +181,24 @@ function HeroSearch() {
           options={CONDITIONS}
         />
         <Select
-          aria-label="Body type"
+          aria-label={T.bodyLabel}
           value={f.body}
           onChange={set("body")}
-          placeholder="Any body type"
-          options={BODY_TYPES}
+          placeholder={`Any ${T.bodyLabel.toLowerCase()}`}
+          options={T.bodies}
         />
       </div>
       <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap gap-1.5">
-          {["Under TSh 15M", "Automatic", "Electric"].map((t, i) => (
+          {(type === "lorry"
+            ? [["Tippers", "/lorries?body=Tipper"], ["10+ tonnes", "/lorries?payload=10"], ["Light trucks", "/lorries?body=Light%20truck"]]
+            : type === "motorcycle"
+              ? [["Scooters", "/motorcycles?body=Scooter"], ["Under TSh 3M", "/motorcycles?maxPrice=3000000"], ["Electric", "/motorcycles?fuel=Electric"]]
+              : [["Under TSh 15M", "/cars?maxPrice=15000000"], ["Automatic", "/cars?transmission=Automatic"], ["Electric", "/cars?fuel=Electric"]]
+          ).map(([t, to]) => (
             <Link
               key={t}
-              to={
-                [
-                  "/cars?maxPrice=15000000",
-                  "/cars?transmission=Automatic",
-                  "/cars?fuel=Electric",
-                ][i]
-              }
+              to={to}
               className="rounded-full bg-mist-100 px-2.5 py-1 text-[12.5px] font-semibold text-ink-700 hover:bg-mist-200"
             >
               {t}
@@ -178,7 +206,7 @@ function HeroSearch() {
           ))}
         </div>
         <Button type="submit" size="lg" icon={Search} className="sm:w-auto">
-          Search cars
+          Search {T.nounPlural}
         </Button>
       </div>
     </form>
@@ -283,7 +311,7 @@ function AffordabilityBand({ live }) {
               {matches.slice(0, 3).map((v) => (
                 <Link
                   key={v.id}
-                  to={`/cars/${v.id}`}
+                  to={`${vehiclePath(v)}`}
                   className="group overflow-hidden rounded-xl border border-mist-200 transition-colors hover:border-accent-300"
                 >
                   <CarArt
@@ -347,9 +375,11 @@ useEffect(() => {
 
 
 
+  const liveCars = live.filter((v) => categoryOf(v) === "car");
+  const typeCounts = Object.fromEntries(TYPE_KEYS.map((k) => [k, live.filter((v) => categoryOf(v) === k).length]));
   const brandCounts = MAKES.map((m) => ({
     make: m,
-    count: live.filter((v) => v.make === m).length,
+    count: liveCars.filter((v) => v.make === m).length,
   }))
     .filter((b) => b.count)
     .sort((a, b) => b.count - a.count)
@@ -468,7 +498,7 @@ useEffect(() => {
         </span>
 
         <p className="text-xs font-semibold tracking-wide text-white sm:text-sm">
-          <CountUp value={live.length} /> cars live
+          <CountUp value={live.length} /> vehicles live
           <span className="mx-2 text-white/40">•</span>
           <CountUp value={verifiedCount} /> with verified documents
         </p>
@@ -476,7 +506,7 @@ useEffect(() => {
 
       {/* Main heading */}
       <h1 className="mt-7 max-w-3xl text-4xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl">
-        Your next car.
+        Your next ride.
         <br />
         <span className="text-[#F8D000]">Your deal.</span>{" "}
         <span className="text-white">Your way.</span>
@@ -490,9 +520,9 @@ useEffect(() => {
 
       {/* Description */}
       <p className="mt-6 max-w-xl text-base leading-7 text-white/80 sm:text-lg sm:leading-8">
-        Discover cars from trusted dealers, owners and agents across India.
-        Check registration details, estimate your EMI and connect directly
-        with the seller. No middleman. Just smarter car buying.
+        Discover cars, motorcycles and lorries from trusted dealers, owners
+        and agents across India. Check registration details, estimate your EMI
+        and connect directly with the seller. No middleman.
       </p>
 
       {/* CTA buttons */}
@@ -681,10 +711,44 @@ useEffect(() => {
 
   
       {/* <AffordabilityBand live={live} /> */}
+      {/* Vehicle types */}
+      <section className="container-page pt-12" aria-labelledby="types-title">
+        <div className="mb-5">
+          <p className="eyebrow">Buy & sell</p>
+          <h2 id="types-title" className="mt-1 text-2xl font-bold">Cars, motorcycles and lorries</h2>
+        </div>
+        <div className="grid gap-4 md:grid-cols-3">
+          {TYPE_KEYS.map((k) => {
+            const Ty = VEHICLE_TYPES[k];
+            const sample = { category: k, bodyType: { car: "SUV", motorcycle: "Sport", lorry: "Tipper" }[k], colorHex: { car: "#2E5744", motorcycle: "#A8262E", lorry: "#2C5AA3" }[k] };
+            return (
+              <Link key={k} to={Ty.path} className="card group overflow-hidden transition-shadow hover:shadow-lift">
+                <CarArt vehicle={sample} className="aspect-[16/8] w-full transition-transform duration-500 group-hover:scale-[1.04]" />
+                <div className="flex items-start justify-between gap-3 p-4">
+                  <div className="min-w-0">
+                    <p className="flex items-center gap-2 font-display text-lg font-bold text-ink-900 group-hover:text-accent-700">
+                      <Ty.icon className="h-5 w-5" /> {Ty.plural}
+                    </p>
+                    <p className="mt-0.5 text-[13.5px] text-mist-600">{Ty.tagline}</p>
+                  </div>
+                  <span className="shrink-0 rounded-full bg-mist-100 px-2.5 py-1 text-[12.5px] font-semibold text-ink-800 num">{typeCounts[k]} for sale</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5 border-t border-mist-100 px-4 py-3">
+                  {Ty.bodies.slice(0, 4).map((b) => (
+                    <span key={b} className="rounded-md bg-mist-100 px-2 py-0.5 text-[12px] font-semibold text-mist-700">
+                      {b}
+                    </span>
+                  ))}
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
       {/* Categories */}
       <section className="container-page py-12">
         <div className="mb-5 flex items-end justify-between gap-4">
-          <h2 className="text-2xl font-bold">Browse by category</h2>
+          <h2 className="text-2xl font-bold">Popular car categories</h2>
           <Link
             to="/cars"
             className="hidden text-sm font-semibold text-accent-700 hover:underline sm:block"
@@ -695,7 +759,7 @@ useEffect(() => {
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {CATEGORIES.map((c) => {
             const q = new URLSearchParams(c.query).toString();
-            const count = live.filter((v) =>
+            const count = liveCars.filter((v) =>
               c.query.body
                 ? v.bodyType === c.query.body
                 : c.query.fuel

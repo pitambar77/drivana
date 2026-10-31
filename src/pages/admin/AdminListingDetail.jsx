@@ -9,6 +9,7 @@ import { DocPreview } from '../../components/documents/DocumentCard';
 import { DuplicateReview, MOD } from './AdminListings';
 import { ROLE_META } from '../../config/site';
 import { dateTime, tzs, km, num } from '../../utils/format';
+import { vehiclePath } from '../../data/vehicleTypes';
 
 export default function AdminListingDetail() {
   const { id } = useParams();
@@ -39,7 +40,7 @@ export default function AdminListingDetail() {
         description={`${v.variant} · listed by ${seller?.business || seller?.agency || seller?.name} (${ROLE_META[v.sellerRole].label})`}
         actions={
           <>
-            <Button variant="secondary" icon={ExternalLink} to={`/cars/${v.id}`}>
+            <Button variant="secondary" icon={ExternalLink} to={`${vehiclePath(v)}`}>
               Public page
             </Button>
             {v.status === 'blocked_duplicate' && (

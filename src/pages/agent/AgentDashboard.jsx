@@ -6,6 +6,7 @@ import { CarImage } from '../../components/vehicle/CarArt';
 import { vehicleTitle } from '../../components/vehicle/VehicleCard';
 import { useSellerStats, AttentionList } from '../dealer/DealerDashboard';
 import { ago, tzs } from '../../utils/format';
+import { vehiclePath } from '../../data/vehicleTypes';
 
 export function handoverProgress(h) {
   if (!h) return { done: 0, total: 7, next: 'Not started', issue: false };
@@ -75,7 +76,7 @@ export default function AgentDashboard() {
                 <div className="flex min-w-[220px] items-center gap-3">
                   <CarImage vehicle={v} view="side" className="h-11 w-[72px] shrink-0 rounded" />
                   <div className="min-w-0">
-                    <Link to={`/cars/${v.id}`} className="block truncate font-semibold hover:text-accent-700">
+                    <Link to={`${vehiclePath(v)}`} className="block truncate font-semibold hover:text-accent-700">
                       {vehicleTitle(v)}
                     </Link>
                     <p className="text-[12.5px] text-mist-500">{tzs(v.price)}</p>

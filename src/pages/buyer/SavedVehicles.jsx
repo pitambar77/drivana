@@ -2,6 +2,7 @@ import { Heart } from 'lucide-react';
 import { useStore } from '../../store/AppStore';
 import { Button, EmptyState, PageHeader, StatusBadge, useToast } from '../../components/ui';
 import { VehicleCard } from '../../components/vehicle/VehicleCard';
+import { vehiclePath, compareMessage } from '../../data/vehicleTypes';
 
 export default function SavedVehicles() {
   const { state, vehicle, toggleSaved, toggleCompare } = useStore();
@@ -17,7 +18,7 @@ export default function SavedVehicles() {
         actions={saved.length > 1 && <Button variant="secondary" to="/compare">Compare ({state.compare.length})</Button>}
       />
       {saved.length === 0 ? (
-        <EmptyState icon={Heart} title="Your shortlist is empty" message="Tap the heart on any car to save it here." action={<Button to="/cars">Browse cars</Button>} />
+        <EmptyState icon={Heart} title="Your shortlist is empty" message="Tap the heart on any car, motorcycle or lorry to save it here." action={<Button to="/cars">Browse cars</Button>} />
       ) : (
         <>
           {unavailable.length > 0 && <p className="mb-4 text-sm text-mist-600">{unavailable.length} saved car{unavailable.length > 1 ? 's are' : ' is'} no longer available.</p>}
@@ -33,15 +34,15 @@ export default function SavedVehicles() {
                   }}
                   actions={
                     <>
-                      <Button size="sm" to={`/cars/${v.id}`}>
+                      <Button size="sm" to={`${vehiclePath(v)}`}>
                         View details
                       </Button>
                       <Button
                         size="sm"
                         variant="secondary"
                         onClick={() => {
-                          const r = toggleCompare(v.id);
-                          toast(r === 'full' ? 'Compare holds 3 cars. Remove one first.' : r === 'added' ? 'Added to compare' : 'Removed from compare', { tone: r === 'full' ? 'warn' : 'info' });
+                          const m = compareMessage(toggleCompare(v.id), v);
+                          toast(m.text, { tone: m.tone });
                         }}
                       >
                         {state.compare.includes(v.id) ? 'In compare' : 'Compare'}

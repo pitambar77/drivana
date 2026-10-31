@@ -14,7 +14,7 @@ function load() {
     const raw = localStorage.getItem(KEY);
     if (raw) {
       const s = JSON.parse(raw);
-      if (s && s.version === 4) return withFinanceDemo(s);
+      if (s && s.version === 5) return withFinanceDemo(s);
     }
   } catch {
     /* storage unavailable — use fresh seed */
@@ -147,7 +147,9 @@ export function StoreProvider({ children }) {
           setState((st) => patchVehicle(st, id, { ...data, updatedAt: now() }));
           return id;
         }
-        const newId = `v${Math.floor(2000 + Math.random() * 7000)}`;
+        let newId;
+        do newId = `v${Math.floor(2000 + Math.random() * 7000)}`;
+        while (s.vehicles.some((v) => v.id === newId));
         const v = {
           photos: [],
           specs: {},
@@ -322,6 +324,9 @@ export function StoreProvider({ children }) {
           setState((st) => ({ ...st, compare: st.compare.filter((x) => x !== id) }));
           return 'removed';
         }
+        // Compare works within one vehicle type (cars, motorcycles or lorries).
+        const cat = (vid) => s.vehicles.find((x) => x.id === vid)?.category || 'car';
+        if (s.compare.some((x) => cat(x) !== cat(id))) return 'mixed';
         if (s.compare.length >= 3) return 'full';
         setState((st) => ({ ...st, compare: [...st.compare, id] }));
         return 'added';

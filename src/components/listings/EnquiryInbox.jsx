@@ -7,6 +7,7 @@ import { LOAN_STEPS } from '../../data/partnerBanks';
 import { CarImage } from '../vehicle/CarArt';
 import { vehicleTitle } from '../vehicle/VehicleCard';
 import { ago, cn, dateTime, tzs } from '../../utils/format';
+import { vehiclePath } from '../../data/vehicleTypes';
 
 export const ENQ_STATUS = [
   { value: 'new', label: 'New' },
@@ -167,7 +168,7 @@ export function EnquiryInbox({ showVehicleFilter = true, compact }) {
                 </div>
               </div>
               {cv && (
-                <Link to={`/cars/${cv.id}`} className="flex gap-3 rounded-xl border border-mist-200 p-3 hover:border-accent-300">
+                <Link to={`${vehiclePath(cv)}`} className="flex gap-3 rounded-xl border border-mist-200 p-3 hover:border-accent-300">
                   <CarImage vehicle={cv} view="side" className="h-16 w-24 shrink-0 rounded-md" />
                   <div className="min-w-0">
                     <p className="text-[12px] font-semibold uppercase tracking-wide text-mist-500">About</p>

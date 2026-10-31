@@ -1,8 +1,9 @@
-// Loan calculator pieces: car picker, partner bank chooser, "Find out more" and "Make an enquiry" dialogs.
+// Loan calculator pieces: vehicle picker, partner bank chooser, "Find out more" and "Make an enquiry" dialogs.
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AlertTriangle, ArrowRight, BadgeCheck, Building2, Car, Check, CheckCircle2, Clock, FileText, Landmark, Lock, Percent, Search, Send, X } from 'lucide-react';
 import { useStore, isPublic } from '../../store/AppStore';
+import { TYPE_KEYS, VEHICLE_TYPES, categoryOf, typeOf } from '../../data/vehicleTypes';
 import { Button, Checkbox, Field, Input, Modal, Select, Textarea } from '../ui';
 import { CarImage } from '../vehicle/CarArt';
 import { CITIES } from '../../data/catalog';
@@ -10,6 +11,7 @@ import { CALL_TIMES, EMPLOYMENT, INCOME } from '../../data/partnerBanks';
 import { sellerDisplayName } from '../../utils/finance';
 import { calcEmi } from '../../utils/emi';
 import { cn, tzs } from '../../utils/format';
+import { vehiclePath } from '../../data/vehicleTypes';
 
 export const carTitle = (v) => `${v.year} ${v.make} ${v.model}`;
 
@@ -27,6 +29,7 @@ export function bankFit(bank, { price, down, months }) {
 export function CarPicker({ onPick, autoFocus }) {
   const { state } = useStore();
   const [q, setQ] = useState('');
+  const [type, setType] = useState('');
   const pool = useMemo(() => {
     const live = state.vehicles.filter(isPublic);
     const byId = Object.fromEntries(live.map((v) => [v.id, v]));
@@ -34,16 +37,23 @@ export function CarPicker({ onPick, autoFocus }) {
     return [...new Map([...first, ...live].map((v) => [v.id, v])).values()];
   }, [state.vehicles, state.recent, state.saved]);
   const words = q.toLowerCase().split(/\s+/).filter(Boolean);
-  const list = pool.filter((v) => !words.length || words.every((w) => `${v.year} ${v.make} ${v.model} ${v.variant || ''} ${v.city}`.toLowerCase().includes(w))).slice(0, 6);
+  const list = pool.filter((v) => !type || categoryOf(v) === type).filter((v) => !words.length || words.every((w) => `${v.year} ${v.make} ${v.model} ${v.variant || ''} ${v.city}`.toLowerCase().includes(w))).slice(0, 6);
   return (
     <div>
       <div className="relative">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-mist-400" />
         <input autoFocus={autoFocus} value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search make, model or city" aria-label="Search cars" className="input pl-9" />
       </div>
-      <p className="mt-3 text-[12px] font-semibold uppercase tracking-wide text-mist-500">{q ? 'Matching cars' : state.recent.length || state.saved.length ? 'Recently viewed and saved first' : 'Cars for sale'}</p>
+      <div className="mt-3 flex flex-wrap gap-1.5" role="group" aria-label="Vehicle type">
+        {['', ...TYPE_KEYS].map((k) => (
+          <button key={k || 'all'} type="button" aria-pressed={type === k} onClick={() => setType(k)} className={cn('inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[12.5px] font-semibold', type === k ? 'border-accent-500 bg-accent-50 text-accent-700' : 'border-mist-200 text-mist-700 hover:border-mist-300')}>
+            {k && (() => { const I = VEHICLE_TYPES[k].icon; return <I className="h-3.5 w-3.5" />; })()} {k ? VEHICLE_TYPES[k].plural : 'All'}
+          </button>
+        ))}
+      </div>
+      <p className="mt-3 text-[12px] font-semibold uppercase tracking-wide text-mist-500">{q ? 'Matching vehicles' : state.recent.length || state.saved.length ? 'Recently viewed and saved first' : 'Cars for sale'}</p>
       <ul className="mt-1.5 divide-y divide-mist-100 overflow-hidden rounded-xl border border-mist-200">
-        {list.length === 0 && <li className="px-4 py-6 text-center text-sm text-mist-500">No cars match “{q}”.</li>}
+        {list.length === 0 && <li className="px-4 py-6 text-center text-sm text-mist-500">Nothing matches “{q}”.</li>}
         {list.map((v) => (
           <li key={v.id}>
             <button type="button" onClick={() => onPick(v)} className="flex w-full items-center gap-3 px-3 py-2.5 text-left hover:bg-mist-50">
@@ -60,7 +70,7 @@ export function CarPicker({ onPick, autoFocus }) {
         ))}
       </ul>
       <Link to="/cars" className="mt-2 inline-flex text-[13px] font-semibold text-accent-700 hover:underline">
-        Browse all cars
+        Browse all vehicles
       </Link>
     </div>
   );
@@ -75,13 +85,13 @@ export function FinancingCar({ car, seller, onChange, onClear }) {
           <Car className="h-5 w-5" />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="font-semibold text-ink-900">Which car do you want to finance?</p>
-          <p className="text-[13px] text-mist-600">Choose a car to use its price and send your enquiry to the dealer selling it.</p>
+          <p className="font-semibold text-ink-900">Which vehicle do you want to finance?</p>
+          <p className="text-[13px] text-mist-600">Choose a car, motorcycle or lorry to use its price and send your enquiry to the dealer selling it.</p>
         </div>
         <Button variant="secondary" icon={Search} onClick={() => setOpen(true)}>
-          Choose a car
+          Choose a vehicle
         </Button>
-        <Modal open={open} onClose={() => setOpen(false)} title="Choose the car to finance">
+        <Modal open={open} onClose={() => setOpen(false)} title="Choose the vehicle to finance">
           <CarPicker
             autoFocus
             onPick={(v) => {
@@ -94,12 +104,12 @@ export function FinancingCar({ car, seller, onChange, onClear }) {
     );
   return (
     <div className="card flex items-center gap-3 p-3 sm:gap-4">
-      <Link to={`/cars/${car.id}`} className="shrink-0">
+      <Link to={`${vehiclePath(car)}`} className="shrink-0">
         <CarImage vehicle={car} className="h-16 w-24 rounded-lg object-cover sm:h-[72px] sm:w-28" />
       </Link>
       <div className="min-w-0 flex-1">
-        <p className="text-[11.5px] font-bold uppercase tracking-wide text-accent-700">Financing this car</p>
-        <Link to={`/cars/${car.id}`} className="block truncate font-bold text-ink-900 hover:text-accent-700">
+        <p className="text-[11.5px] font-bold uppercase tracking-wide text-accent-700">Financing this {typeOf(car).noun}</p>
+        <Link to={`${vehiclePath(car)}`} className="block truncate font-bold text-ink-900 hover:text-accent-700">
           {carTitle(car)} <span className="font-medium text-mist-500">{car.variant}</span>
         </Link>
         <p className="truncate text-[13px] text-mist-600">
@@ -110,11 +120,11 @@ export function FinancingCar({ car, seller, onChange, onClear }) {
         <button type="button" onClick={() => setOpen(true)} className="btn btn-sm btn-ghost">
           Change
         </button>
-        <button type="button" onClick={onClear} className="btn-icon h-8 w-8" aria-label="Remove car" title="Remove car">
+        <button type="button" onClick={onClear} className="btn-icon h-8 w-8" aria-label="Remove vehicle" title="Remove vehicle">
           <X className="h-4 w-4" />
         </button>
       </div>
-      <Modal open={open} onClose={() => setOpen(false)} title="Choose the car to finance">
+      <Modal open={open} onClose={() => setOpen(false)} title="Choose the vehicle to finance">
         <CarPicker
           autoFocus
           onPick={(v) => {
@@ -254,7 +264,7 @@ export function BankInfoModal({ bank, loan, onClose, onEnquire }) {
         </div>
 
         <p className="rounded-xl bg-accent-50 p-3.5 text-[13.5px] text-ink-800">
-          <b>How it works:</b> when you make an enquiry, {bank.name}’s loan desk and the dealer selling the car are both notified. The bank calls you to check eligibility and the dealer confirms the car and paperwork. Enquiring is free and isn’t a loan application.
+          <b>How it works:</b> when you make an enquiry, {bank.name}’s loan desk and the dealer selling the vehicle are both notified. The bank calls you to check eligibility and the dealer confirms the car and paperwork. Enquiring is free and isn’t a loan application.
         </p>
       </div>
     </Modal>
@@ -356,7 +366,7 @@ export function FinanceEnquiryModal({ open, onClose, car, seller, bank, loan, on
           </div>
         ) : (
           <div>
-            <p className="mb-2 text-sm font-semibold text-ink-900">Which car is this for?</p>
+            <p className="mb-2 text-sm font-semibold text-ink-900">Which vehicle is this for?</p>
             <CarPicker onPick={onPickCar} />
             {err.car && <p className="field-error mt-1.5">{err.car}</p>}
           </div>
@@ -394,7 +404,7 @@ export function FinanceEnquiryModal({ open, onClose, car, seller, bank, loan, on
 
         <div className="flex flex-wrap gap-x-6 gap-y-2">
           <Checkbox checked={f.testDrive} onChange={set('testDrive')} label="I’d like a test drive" />
-          <Checkbox checked={f.exchange} onChange={set('exchange')} label="I want to exchange my current car" />
+          <Checkbox checked={f.exchange} onChange={set('exchange')} label="I want to exchange my current vehicle" />
         </div>
 
         <Field label="Anything else?" htmlFor="fe-msg" optional>
